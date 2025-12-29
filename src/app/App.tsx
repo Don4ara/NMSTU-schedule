@@ -10,6 +10,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty"
+import { MainLayoutSide } from "@/shared/components/layout/MainLayoutSide";
 
 export function EmptyDemo() {
   return (
@@ -45,14 +46,31 @@ export function EmptyDemo() {
 }
 
 
+import { ScheduleProvider, useSchedule } from "@/app/provider/schedule-provider";
+import { ScheduleViewer } from "@/features/schedule-viewer/ui/schedule-viewer";
+import { CalendarViewer } from "@/features/calendar-viewer/ui/calendar-viewer";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/shared/api/query-client";
+
+import { Dashboard } from "@/features/dashboard/ui/dashboard";
+
+const AppContent = () => {
+  const { viewMode } = useSchedule();
+  return (
+    <MainLayoutSide>
+      {viewMode === 'dashboard' ? <Dashboard /> : viewMode === 'calendar' ? <CalendarViewer /> : <ScheduleViewer />}
+    </MainLayoutSide>
+  );
+};
+
 function App() {
   return (
-    <>
-      <div className="titlebar h-5 w-full fixed top-0 left-0 z-50 bg-transparent" />
-      <div className="pt-5">
-        <EmptyDemo />
-      </div>
-    </>
+    <QueryClientProvider client={queryClient}>
+      <ScheduleProvider>
+        <div className="titlebar h-5 w-full fixed top-0 left-0 z-50 bg-transparent" />
+        <AppContent />
+      </ScheduleProvider>
+    </QueryClientProvider>
   )
 }
 

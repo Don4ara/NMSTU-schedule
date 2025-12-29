@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite"
 import path from 'node:path'
 import electron from 'vite-plugin-electron/simple'
 import react from '@vitejs/plugin-react'
+import obfuscator from 'rollup-plugin-obfuscator';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -26,6 +27,20 @@ export default defineConfig({
         // https://github.com/electron-vite/vite-plugin-electron-renderer/issues/78#issuecomment-2053600808
         ? undefined
         : {},
+    }),
+    obfuscator({
+      global: true,
+      options: {
+        compact: true,
+        controlFlowFlattening: false,
+        deadCodeInjection: false,
+        debugProtection: false,
+        disableConsoleOutput: false,
+        identifierNamesGenerator: 'hexadecimal',
+        stringArray: true,
+        rotateStringArray: false,
+        reservedStrings: ['search-timetable', 'get-schedule', 'check-api-status', 'ipcRenderer'],
+      },
     }),
   ],
   resolve: {

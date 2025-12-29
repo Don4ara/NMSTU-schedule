@@ -1,7 +1,42 @@
-import { app, BrowserWindow } from "electron";
+import { ipcMain, app, BrowserWindow } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
+ipcMain.handle("search-timetable", async (_event, query) => {
+  try {
+    const response = await fetch(`https://timetable.magtu.ru/api/v2/search?q=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Main process search error:", error);
+    return [];
+  }
+});
+ipcMain.handle("get-schedule", async (_event, type, id) => {
+  try {
+    const endpoint = type === "group" ? "groups" : "teachers";
+    const response = await fetch(`https://timetable.magtu.ru/api/v2/${endpoint}/${id}/schedule`);
+    if (!response.ok) {
+      throw new Error(`Error fetching schedule: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Main process schedule fetch error:", error);
+    throw error;
+  }
+});
+ipcMain.handle("check-api-status", async () => {
+  try {
+    const response = await fetch("https://timetable.magtu.ru/api/v2/search?q=test");
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+});
 process.env.APP_ROOT = path.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
@@ -38,6 +73,10 @@ function createWindow() {
     show: false,
     // Don't show immediately
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    width: 1200,
+    height: 900,
+    minWidth: 1e3,
+    minHeight: 900,
     titleBarStyle: "hidden",
     trafficLightPosition: { x: 15, y: 10 },
     webPreferences: {
