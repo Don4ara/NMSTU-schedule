@@ -1,6 +1,7 @@
-import { ipcMain, app, BrowserWindow } from "electron";
+import { nativeTheme, ipcMain, app, BrowserWindow } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+nativeTheme.themeSource = "light";
 const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
 ipcMain.handle("search-timetable", async (_event, query) => {
   try {
@@ -73,16 +74,13 @@ function createWindow() {
     show: false,
     // Don't show immediately
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
-    width: 1200,
+    width: 1400,
     height: 900,
-    minWidth: 1e3,
+    minWidth: 1400,
     minHeight: 900,
-    titleBarStyle: "hidden",
-    // trafficLightPosition: { x: 12, y: 10 },
-    // titleBarOverlay: {
-    //   color: 'transparent',
-    //   height: 35,
-    // },
+    titleBarStyle: "hiddenInset",
+    trafficLightPosition: { x: 10, y: 10 },
+    transparent: true,
     webPreferences: {
       preload: path.join(__dirname$1, "preload.mjs")
     }

@@ -14,8 +14,8 @@ interface ScheduleHeaderProps {
 export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ scheduleData, isUsingMockData, children }) => {
     const { setSelectedEntity } = useSchedule();
     return (
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md pt-4 pb-4 mb-6 border-b border-slate-100 px-4 md:px-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md pt-12 pb-4 mb-6 border-b border-slate-100 px-4 md:px-8">
+            <div className="flex flex-row items-end justify-between gap-4">
                 <div>
                     <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">
                         {scheduleData.type === 'group' ? (
@@ -35,7 +35,7 @@ export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ scheduleData, is
                     </h1>
                 </div>
 
-                <div className="flex flex-col items-end gap-3 flex-1">
+                <div className="flex flex-row items-end gap-3 flex-1 justify-end">
                     <div className="w-full max-w-[280px] mb-1">
                         <Search
                             placeholder="Найти другое..."

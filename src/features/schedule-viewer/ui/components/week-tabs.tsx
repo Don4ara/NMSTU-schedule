@@ -12,7 +12,7 @@ export const WeekTabs: React.FC<WeekTabsProps> = ({ weeks, activeWeekId, onWeekC
     if (!weeks || weeks.length === 0) return null;
 
     return (
-        <div className="flex bg-slate-100/80 p-1 rounded-xl">
+        <div className="flex gap-1 bg-slate-100/80 p-1 rounded-xl">
             {weeks.map((week) => (
                 <button
                     key={week.week_id}

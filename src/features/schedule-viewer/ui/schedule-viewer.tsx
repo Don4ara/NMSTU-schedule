@@ -8,7 +8,7 @@ import { useSchedule } from '@/app/provider/schedule-provider';
 import { MOCK_DB } from '../lib/mock-data';
 import { ScheduleData, Week } from '@/entities/schedule/model/types';
 import { getSchedule } from '@/shared/api/timetable';
-import { getCurrentWeekName } from '../lib/schedule-utils';
+import { getCurrentWeekName, getDateForDay } from '../lib/schedule-utils';
 import { ScheduleHeader } from './components/schedule-header';
 import { WeekTabs } from './components/week-tabs';
 import { DayColumn } from './components/day-column';
@@ -106,7 +106,7 @@ export const ScheduleViewer = () => {
     }
 
     return (
-        <div className="w-full max-w-6xl mx-auto animate-in fade-in duration-500">
+        <div className="w-full max-w-[1920px] mx-auto animate-in fade-in duration-500 min-h-full flex flex-col justify-center p-4 md:p-8">
             <ScheduleHeader scheduleData={scheduleData} isUsingMockData={isUsingMockData}>
                 <WeekTabs
                     weeks={scheduleData.schedule}
@@ -118,18 +118,23 @@ export const ScheduleViewer = () => {
             {/* Schedule Content */}
             {
                 scheduleData.schedule && scheduleData.schedule.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 px-2 pb-12">
                         {scheduleData.schedule
                             .find(w => w.week_id === activeWeekId)
                             ?.days
                             .filter(day => day.day_id !== 7 && day.day.toLowerCase() !== 'воскресенье')
-                            .map((day) => (
-                                <DayColumn
-                                    key={day.day_id}
-                                    day={day}
-                                    isGroup={scheduleData.type === 'group'}
-                                />
-                            ))}
+                            .map((day) => {
+                                const targetWeek = scheduleData.schedule.find(w => w.week_id === activeWeekId)?.week || '';
+                                const date = getDateForDay(day.day_id, targetWeek);
+                                return (
+                                    <DayColumn
+                                        key={day.day_id}
+                                        day={day}
+                                        date={date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'numeric' })}
+                                        isGroup={scheduleData.type === 'group'}
+                                    />
+                                );
+                            })}
                     </div>
                 ) : (
                     <div className="text-center py-20">

@@ -1,4 +1,7 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron'
+
+// Force light theme for window controls visibility
+nativeTheme.themeSource = 'light'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
@@ -108,16 +111,13 @@ function createWindow() {
   win = new BrowserWindow({
     show: false, // Don't show immediately
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
-    width: 1200,
+    width: 1400,
     height: 900,
-    minWidth: 1000,
+    minWidth: 1400,
     minHeight: 900,
-    titleBarStyle: 'hidden',
-    // trafficLightPosition: { x: 12, y: 10 },
-    // titleBarOverlay: {
-    //   color: 'transparent',
-    //   height: 35,
-    // },
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 10, y: 10 },
+    transparent: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },

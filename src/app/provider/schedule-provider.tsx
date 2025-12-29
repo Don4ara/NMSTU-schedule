@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { SearchResult, checkApiHealth } from '@/shared/api/timetable';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 type ViewMode = 'schedule' | 'calendar' | 'dashboard';
 
 interface ScheduleContextType {
+    // ... existing interface ...
     selectedEntity: SearchResult | null;
     setSelectedEntity: (entity: SearchResult | null) => void;
     recentEntities: SearchResult[];
@@ -25,6 +26,7 @@ const TRACKED_ENTITY_KEY = 'calendar_tracked_entity';
 const VIEW_MODE_KEY = 'app_view_mode';
 
 export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
+    const queryClient = useQueryClient();
     const [selectedEntity, setSelectedEntityState] = useState<SearchResult | null>(() => {
         // Initialize from tracked entity if available
         const saved = localStorage.getItem(TRACKED_ENTITY_KEY);
@@ -56,6 +58,30 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         setIsApiOnline(status);
     }, [status]);
+
+    // Handle Online/Offline events
+    useEffect(() => {
+        const handleOnline = () => {
+            console.log("App is online! Refreshing data...");
+            setIsApiOnline(true);
+            // Invalidate queries to trigger refetch
+            queryClient.invalidateQueries({ queryKey: ['api-status'] });
+            queryClient.invalidateQueries({ queryKey: ['schedule'] });
+        };
+
+        const handleOffline = () => {
+            console.log("App is offline.");
+            setIsApiOnline(false);
+        };
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, [queryClient]);
 
     const setApiOnlineState = (status: boolean) => {
         setIsApiOnline(status);

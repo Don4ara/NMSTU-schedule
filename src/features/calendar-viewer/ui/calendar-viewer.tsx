@@ -135,7 +135,7 @@ export const CalendarViewer = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-white/50 backdrop-blur-sm">
+        <div className="flex flex-col h-full bg-white/50 backdrop-blur-sm max-w-[1920px] mx-auto w-full justify-center p-4 md:p-8">
             <CalendarHeader
                 month={month}
                 year={year}

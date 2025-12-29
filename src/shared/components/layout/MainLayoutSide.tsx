@@ -1,7 +1,6 @@
 import * as React from "react";
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
 import { AppSidebar } from "@/shared/components/appsidebar/ui/app-sidebar";
-import { SiteHeader } from "@/widgets/header/ui/Header";
 
 export function MainLayoutSide({
     children,
@@ -18,8 +17,7 @@ export function MainLayoutSide({
             defaultOpen={defaultOpen ?? true}
         >
             <AppSidebar variant="sidebar" />
-            <SidebarInset className="pt-4">
-                <SiteHeader />
+            <SidebarInset>
                 <div className="flex flex-1 flex-col overflow-y-auto">
                     <div className="flex-1">{children}</div>
                 </div>

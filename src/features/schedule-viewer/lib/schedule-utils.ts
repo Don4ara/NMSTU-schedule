@@ -103,3 +103,26 @@ export const getRemainingTime = (eventIndex: number): number | null => {
 
     return endMinutes - currentMinutes;
 };
+
+export const getDateForDay = (dayId: number, targetWeekName: string): Date => {
+    const now = new Date();
+    const currentWeekName = getCurrentWeekName();
+    const isTargetCurrent = currentWeekName.toLowerCase() === targetWeekName.toLowerCase();
+
+    // Get current Monday
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+    const currentMonday = new Date(now.setDate(diff));
+
+    const targetMonday = new Date(currentMonday);
+    if (!isTargetCurrent) {
+        // If target is not current, assume it's next week
+        targetMonday.setDate(targetMonday.getDate() + 7);
+    }
+
+    // Now calculate the specific day date
+    // dayId: 1=Mon, ..., 7=Sun
+    const targetDate = new Date(targetMonday);
+    targetDate.setDate(targetMonday.getDate() + (dayId - 1));
+    return targetDate;
+};

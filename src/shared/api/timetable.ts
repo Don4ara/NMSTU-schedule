@@ -22,8 +22,28 @@ export const getSchedule = async (type: 'group' | 'teacher', id: string | number
         const data = await (window as any).ipcRenderer.invoke('get-schedule', type, String(id));
         return data;
     } catch (error) {
-        console.error("Failed to fetch schedule:", error);
+        console.error("Failed to fetch schedule from API, trying offline:", error);
+        // Try offline fallback
+        try {
+            const offlineData = await (window as any).ipcRenderer.invoke('get-offline-schedule');
+            console.log("Offline data:", offlineData);
+            if (offlineData && String(offlineData.id) === String(id) && offlineData.type === type) {
+                console.log("Returning offline schedule");
+                return offlineData;
+            }
+        } catch (offlineError) {
+            console.error("Failed to fetch offline schedule:", offlineError);
+        }
         throw error;
+    }
+};
+
+export const saveOfflineSchedule = async (data: any) => {
+    try {
+        await (window as any).ipcRenderer.invoke('save-offline-schedule', data);
+        console.log("Schedule saved for offline usage");
+    } catch (error) {
+        console.error("Failed to save offline schedule:", error);
     }
 };
 

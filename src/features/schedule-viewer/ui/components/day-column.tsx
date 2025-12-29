@@ -7,22 +7,26 @@ import { ScheduleCard } from './schedule-card';
 
 interface DayColumnProps {
     day: Day;
+    date: string;
     isGroup: boolean;
 }
 
-export const DayColumn: React.FC<DayColumnProps> = ({ day, isGroup }) => {
+export const DayColumn: React.FC<DayColumnProps> = ({ day, date, isGroup }) => {
     return (
-        <div className="flex flex-col h-full bg-slate-50/50 rounded-xl border border-slate-100 p-3" id={`day-${day.day_id}`}>
-            <h3 className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3 px-1">
-                <div className={`
-                w-2 h-2 rounded-full 
-                ${day.day === 'Понедельник' ? 'bg-indigo-500' :
-                        day.day === 'Вторник' ? 'bg-blue-500' :
-                            day.day === 'Среда' ? 'bg-sky-500' :
-                                day.day === 'Четверг' ? 'bg-teal-500' :
-                                    day.day === 'Пятница' ? 'bg-emerald-500' : 'bg-orange-500'}
-            `}></div>
-                {day.day}
+        <div className="flex flex-col" id={`day-${day.day_id}`}>
+            <h3 className="flex items-center justify-between text-sm font-bold text-slate-700 mb-3 px-1">
+                <div className="flex items-center gap-2">
+                    <div className={`
+                    w-2 h-2 rounded-full 
+                    ${day.day === 'Понедельник' ? 'bg-indigo-500' :
+                            day.day === 'Вторник' ? 'bg-blue-500' :
+                                day.day === 'Среда' ? 'bg-sky-500' :
+                                    day.day === 'Четверг' ? 'bg-teal-500' :
+                                        day.day === 'Пятница' ? 'bg-emerald-500' : 'bg-orange-500'}
+                `}></div>
+                    {day.day}
+                </div>
+                <span className="text-slate-400 font-medium text-xs">{date}</span>
             </h3>
 
             {day.events.length === 0 ? (
