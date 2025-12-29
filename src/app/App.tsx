@@ -67,7 +67,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ScheduleProvider>
-        <div className="titlebar h-5 w-full fixed top-0 left-0 z-50 bg-transparent" />
+
         <AppContent />
       </ScheduleProvider>
     </QueryClientProvider>

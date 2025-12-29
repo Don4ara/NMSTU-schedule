@@ -1,1 +1,0 @@
-export { SiteHeader as Header } from './ui/Header';
