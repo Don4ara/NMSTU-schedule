@@ -4,6 +4,7 @@ import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron'
 nativeTheme.themeSource = 'light'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import fs from 'node:fs/promises'
 
 // ... (other imports/constants)
 
@@ -49,6 +50,32 @@ ipcMain.handle('check-api-status', async () => {
     return response.ok;
   } catch (error) {
     return false;
+  }
+})
+
+// Offline Schedule Handlers
+
+ipcMain.handle('save-offline-schedule', async (_event, data) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const filePath = path.join(userDataPath, 'offline-schedule.json');
+    await fs.writeFile(filePath, JSON.stringify(data));
+    return true;
+  } catch (error) {
+    console.error('Failed to save offline schedule:', error);
+    throw error;
+  }
+})
+
+ipcMain.handle('get-offline-schedule', async () => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const filePath = path.join(userDataPath, 'offline-schedule.json');
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    return JSON.parse(fileContent);
+  } catch (error) {
+    // If file doesn't exist or is invalid, return null
+    return null;
   }
 })
 
