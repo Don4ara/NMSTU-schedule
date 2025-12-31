@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Calendar, LayoutList, LayoutDashboard } from "lucide-react"
+import { Calendar, LayoutList, LayoutDashboard, SplitSquareHorizontal } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -50,6 +50,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             >
                                 <Calendar />
                                 <span>Календарь</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                isActive={viewMode === 'comparison'}
+                                onClick={() => setViewMode('comparison')}
+                                tooltip="Сравнение"
+                            >
+                                <SplitSquareHorizontal />
+                                <span>Сравнение</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>

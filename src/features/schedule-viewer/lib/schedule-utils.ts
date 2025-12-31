@@ -49,6 +49,17 @@ export const getCurrentWeekName = (): string => {
     return weekNumber % 2 !== 0 ? "Четная" : "Нечетная";
 };
 
+export const getCurrentWeekId = (): number => {
+    const weekName = getCurrentWeekName();
+    // Assuming backend returns 1 for "Четная" or "Нечетная" usually mapped to specific IDs
+    // But week_id in response seems to be arbitrary or 1/2.
+    // Based on previous JSON:
+    // week_id: 2 -> "Нечетная"
+    // week_id: 1 -> "Четная"
+    // Let's align with that.
+    return weekName === "Нечетная" ? 2 : 1;
+};
+
 export const getNextEvent = (events: any[]) => {
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();

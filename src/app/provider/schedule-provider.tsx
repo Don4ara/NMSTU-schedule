@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { SearchResult, checkApiHealth } from '@/shared/api/timetable';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-type ViewMode = 'schedule' | 'calendar' | 'dashboard';
+type ViewMode = 'schedule' | 'calendar' | 'dashboard' | 'comparison';
 
 interface ScheduleContextType {
     // ... existing interface ...
@@ -17,12 +17,15 @@ interface ScheduleContextType {
     setViewMode: (mode: ViewMode) => void;
     trackedEntity: SearchResult | null;
     setTrackedEntity: (entity: SearchResult | null) => void;
+    comparisonEntity: SearchResult | null;
+    setComparisonEntity: (entity: SearchResult | null) => void;
 }
 
 const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'schedule_recent_history';
 const TRACKED_ENTITY_KEY = 'calendar_tracked_entity';
+const COMPARISON_ENTITY_KEY = 'schedule_comparison_entity';
 const VIEW_MODE_KEY = 'app_view_mode';
 
 export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
@@ -44,6 +47,10 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
     });
     const [trackedEntity, setTrackedEntityState] = useState<SearchResult | null>(() => {
         const saved = localStorage.getItem(TRACKED_ENTITY_KEY);
+        return saved ? JSON.parse(saved) : null;
+    });
+    const [comparisonEntity, setComparisonEntityState] = useState<SearchResult | null>(() => {
+        const saved = localStorage.getItem(COMPARISON_ENTITY_KEY);
         return saved ? JSON.parse(saved) : null;
     });
 
@@ -101,6 +108,14 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    const setComparisonEntity = (entity: SearchResult | null) => {
+        setComparisonEntityState(entity);
+        if (entity) {
+            localStorage.setItem(COMPARISON_ENTITY_KEY, JSON.stringify(entity));
+        } else {
+            localStorage.removeItem(COMPARISON_ENTITY_KEY);
+        }
+    }
 
 
     const setSelectedEntity = (entity: SearchResult | null) => {
@@ -134,7 +149,9 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
             viewMode,
             setViewMode,
             trackedEntity,
-            setTrackedEntity
+            setTrackedEntity,
+            comparisonEntity,
+            setComparisonEntity
         }}>
             {children}
         </ScheduleContext.Provider>
