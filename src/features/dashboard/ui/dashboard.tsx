@@ -8,7 +8,7 @@ import { ScheduleData, Week, Day } from '@/entities/schedule/model/types';
 import { Search } from '@/features/search/ui/search';
 
 export const Dashboard = () => {
-    const { trackedEntity, setTrackedEntity, setViewMode } = useSchedule();
+    const { trackedEntity, setTrackedEntity, setViewMode, setSelectedEntity } = useSchedule();
     const [, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
@@ -120,17 +120,6 @@ export const Dashboard = () => {
         }
     }
 
-    // Progress for pure visual flair
-    // const totalToday = todayEvents.length;
-    // const passedEvents = todayEvents.filter((_, idx) => {
-    // rough estimation: if current exists, index < current.event_index usually
-    //     if (!currentEvent) return true; // all passed? or none? dynamic.
-    // Let's use getNextEvent logic indirectly or simplified.
-    // Actually, let's just use `todayEvents` and compare time? 
-    // For UI simplicty, let's just say "N events total".
-    //     return false; 
-    // }).length; 
-
     // --- Render ---
     return (
         <div className="h-full overflow-y-auto bg-slate-50/50 p-4 md:p-6 lg:p-8 select-none flex flex-col font-sans text-slate-900">
@@ -140,7 +129,7 @@ export const Dashboard = () => {
                 <div className="lg:col-span-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-                            {greeting}, Student
+                            {greeting}, {trackedEntity.name}
                         </h1>
                         <div className="flex items-center gap-2 text-slate-500 mt-1 text-sm font-medium">
                             <span className="capitalize">{today.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
@@ -151,7 +140,11 @@ export const Dashboard = () => {
 
                     <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                         <button
-                            onClick={() => setViewMode('schedule')}
+                            onClick={() => {
+                                // Specific logic: When going from Dashboard, show the Tracked Entity
+                                if (trackedEntity) setSelectedEntity(trackedEntity);
+                                setViewMode('schedule');
+                            }}
                             className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"
                         >
                             Расписание
