@@ -15,7 +15,7 @@ import { DayColumn } from './components/day-column';
 
 
 export const ScheduleViewer = () => {
-    const { selectedEntity, setApiOnlineState } = useSchedule();
+    const { selectedEntity } = useSchedule();
     const [activeWeekId, setActiveWeekId] = useState<number | null>(null);
 
     const { data: apiData, isLoading, isError } = useQuery<ScheduleData>({
@@ -32,13 +32,6 @@ export const ScheduleViewer = () => {
     const mockData = (isError && selectedEntity) ? (MOCK_DB.schedules[mockKey] as ScheduleData | undefined) : null;
     const scheduleData: ScheduleData | null = apiData || mockData || null;
     const isUsingMockData = !!mockData;
-
-    // Sync API status
-    useEffect(() => {
-        if (selectedEntity) {
-            setApiOnlineState(!isError);
-        }
-    }, [isError, selectedEntity, setApiOnlineState]);
 
     // Set active week
     useEffect(() => {
@@ -106,7 +99,7 @@ export const ScheduleViewer = () => {
     }
 
     return (
-        <div className="w-full max-w-[1920px] mx-auto animate-in fade-in duration-500 min-h-full flex flex-col justify-center p-4 md:p-8">
+        <div className="w-full max-w-[1920px] mx-auto animate-in fade-in duration-500 min-h-full flex flex-col justify-center p-4 md:p-8 relative">
             <ScheduleHeader scheduleData={scheduleData} isUsingMockData={isUsingMockData}>
                 <WeekTabs
                     weeks={scheduleData.schedule}

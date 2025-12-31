@@ -74,9 +74,9 @@ function createWindow() {
     show: false,
     // Don't show immediately
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
-    width: 1400,
+    width: 1450,
     height: 900,
-    minWidth: 1400,
+    minWidth: 1450,
     minHeight: 900,
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 10, y: 10 },
