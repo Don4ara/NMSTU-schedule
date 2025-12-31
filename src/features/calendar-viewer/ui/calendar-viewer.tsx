@@ -111,6 +111,7 @@ export const CalendarViewer = () => {
 
     const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
     const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+    const goToToday = () => setCurrentDate(new Date());
 
     if (!trackedEntity) {
         return <CalendarEmptyState onSelect={(entity) => setTrackedEntity(entity)} />;
@@ -144,6 +145,7 @@ export const CalendarViewer = () => {
                 loading={loading}
                 onPrevMonth={prevMonth}
                 onNextMonth={nextMonth}
+                onToday={goToToday}
                 trackedEntityName={trackedEntity.name}
                 onClearTrackedEntity={() => setTrackedEntity(null)}
             />

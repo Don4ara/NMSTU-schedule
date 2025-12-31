@@ -8,8 +8,8 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { ScheduleCard } from '@/features/schedule-viewer/ui/components/schedule-card';
-// import { format } from 'date-fns';
-// import { ru } from 'date-fns/locale';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 interface DayDetailsDialogProps {
     isOpen: boolean;
@@ -24,10 +24,9 @@ export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
     date,
     events
 }) => {
-    console.log('DayDetailsDialog: render', { isOpen, date, eventsCount: events?.length });
+    // console.log('DayDetailsDialog: render', { isOpen, date, eventsCount: events?.length });
 
     if (!date) {
-        console.log('DayDetailsDialog: no date, returning null');
         return null;
     }
 
@@ -36,8 +35,7 @@ export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
             <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-xl capitalize">
-                        {/* {format(date, 'd MMMM, EEEE', { locale: ru })} */}
-                        {date.toLocaleDateString()}
+                        {format(date, 'd MMMM, EEEE', { locale: ru })}
                     </DialogTitle>
                 </DialogHeader>
 

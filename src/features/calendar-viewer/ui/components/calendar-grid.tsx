@@ -25,7 +25,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     getEventsForDate,
     onDayClick
 }) => {
-    console.log('CalendarGrid: render');
+    // console.log('CalendarGrid: render');
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     const empties = Array.from({ length: startDay }, (_, i) => i);
 
@@ -40,29 +40,43 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center">
-                <Loader2 className="animate-spin text-blue-500" size={40} />
+            <div className="flex-1 flex items-center justify-center h-full">
+                <Loader2 className="animate-spin text-blue-600" size={40} />
             </div>
         );
     }
 
     return (
-        <div className="flex-1 p-4 md:p-8 h-full flex flex-col min-h-0">
+        <div className="flex-1 p-4 md:p-6 h-full flex flex-col min-h-0 bg-slate-50/50">
             <div
-                className="grid grid-cols-7 gap-px bg-slate-200 border border-slate-200 rounded-xl overflow-hidden shadow-sm flex-1 h-full"
+                className="grid grid-cols-7 border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white flex-1"
                 style={{ gridTemplateRows: `auto repeat(${weeks}, minmax(0, 1fr))` }}
             >
                 {/* Weekday Headers */}
-                {WEEKDAYS.map(day => (
-                    <div key={day} className="bg-slate-50 py-2 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                {WEEKDAYS.map((day, index) => (
+                    <div
+                        key={day}
+                        className={`bg-slate-50 py-3 text-center text-xs font-semibold uppercase tracking-widest border-b border-slate-100 
+                            ${index !== 6 ? 'border-r border-slate-100' : ''}
+                            ${index >= 5 ? 'text-red-400' : 'text-slate-500'}
+                        `}
+                    >
                         {day}
                     </div>
                 ))}
 
                 {/* Empty cells */}
-                {empties.map(i => (
-                    <div key={`empty-${i}`} className="bg-white/40 min-h-0 h-full"></div>
-                ))}
+                {empties.map((i) => {
+                    const colIndex = i % 7;
+                    const isWeekend = colIndex >= 5;
+
+                    return (
+                        <div
+                            key={`empty-${i}`}
+                            className={`min-h-0 h-full border-b border-r border-slate-100 ${isWeekend ? 'bg-slate-50/60' : 'bg-slate-50/30'}`}
+                        ></div>
+                    );
+                })}
 
                 {/* Days */}
                 {days.map(day => {
@@ -73,32 +87,68 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                             t.course === event.course &&
                             t.type === event.type
                         ))
-                    ).slice(0, 3);
+                    ).slice(0, 4);
 
                     const isToday = isSameMonth && day === todayDate;
+
+                    // Determine grid placement
+                    const gridIndex = startDay + day - 1;
+                    const colIndex = gridIndex % 7;
+                    const isLastInRow = (colIndex + 1) % 7 === 0;
+                    const isWeekend = colIndex >= 5;
 
                     return (
                         <div
                             key={day}
                             onClick={() => onDayClick(day)}
-                            className={`bg-white min-h-0 h-full p-1.5 flex flex-col group hover:bg-slate-50 cursor-pointer transition-colors relative ${isToday ? 'bg-blue-50/30' : ''}`}
+                            className={`
+                                min-h-0 h-full p-2 flex flex-col group transition-all duration-200 relative
+                                border-b border-slate-100 ${!isLastInRow ? 'border-r' : ''}
+                                hover:bg-slate-50 cursor-pointer
+                                ${isToday ? 'bg-blue-50/10' : isWeekend ? 'bg-slate-50/40' : 'bg-white'}
+                            `}
                         >
-                            <span className={`
-                                text-xs font-semibold mb-1 w-6 h-6 flex items-center justify-center rounded-full
-                                ${isToday ? 'bg-blue-600 text-white shadow-md' : 'text-slate-700 group-hover:bg-slate-200'}
-                            `}>
-                                {day}
-                            </span>
+                            {/* Day Number */}
+                            <div className="flex justify-end mb-1">
+                                <span className={`
+                                    text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition-colors
+                                    ${isToday
+                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+                                        : isWeekend ? 'text-red-400 group-hover:bg-red-50' : 'text-slate-700 group-hover:bg-slate-200/70'}
+                                `}>
+                                    {day}
+                                </span>
+                            </div>
 
-                            <div className="flex flex-col gap-0.5 overflow-hidden">
-                                {distinctEvents.map((event, idx) => (
-                                    <div key={idx} className="flex items-center gap-1 px-1 py-0.5 rounded text-[9px] bg-slate-50 border border-slate-100 truncate">
-                                        <div className={`w-1 h-1 rounded-full shrink-0 ${event.type.toLowerCase().includes('лек') ? 'bg-blue-400' : event.type.toLowerCase().includes('лаб') ? 'bg-orange-400' : 'bg-emerald-400'}`}></div>
-                                        <span className="truncate font-medium text-slate-600 leading-tight">{event.course}</span>
-                                    </div>
-                                ))}
+                            {/* Events Stack */}
+                            <div className="flex flex-col gap-1 overflow-hidden">
+                                {distinctEvents.map((event, idx) => {
+                                    const isLecture = event.type.toLowerCase().includes('лек');
+                                    const isLab = event.type.toLowerCase().includes('лаб');
+                                    const colorClass = isLecture
+                                        ? 'bg-blue-100 text-blue-700 border-blue-200'
+                                        : isLab
+                                            ? 'bg-orange-100 text-orange-700 border-orange-200'
+                                            : 'bg-emerald-100 text-emerald-700 border-emerald-200';
+
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className={`
+                                                px-1.5 py-0.5 rounded text-[10px] font-medium border
+                                                truncate leading-tight transition-transform hover:scale-[1.02]
+                                                ${colorClass}
+                                            `}
+                                        >
+                                            {event.course}
+                                        </div>
+                                    );
+                                })}
+
                                 {distinctEvents.length < dateEvents.filter((event, index, self) => index === self.findIndex((t) => (t.event_index === event.event_index && t.course === event.course && t.type === event.type))).length && (
-                                    <span className="text-[8px] text-slate-400 pl-1 leading-none">+ еще {dateEvents.length - 3}</span>
+                                    <div className="text-[9px] font-semibold text-slate-400 pl-1">
+                                        + еще {dateEvents.length - 4}
+                                    </div>
                                 )}
                             </div>
                         </div>
