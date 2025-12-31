@@ -5,6 +5,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
 } from "@/shared/components/ui/dialog";
 import { Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { ScheduleCard } from '@/features/schedule-viewer/ui/components/schedule-card';
@@ -16,13 +17,15 @@ interface DayDetailsDialogProps {
     onClose: () => void;
     date: Date | null;
     events: ScheduleEvent[];
+    isGroup: boolean;
 }
 
 export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
     isOpen,
     onClose,
     date,
-    events
+    events,
+    isGroup
 }) => {
     // console.log('DayDetailsDialog: render', { isOpen, date, eventsCount: events?.length });
 
@@ -37,6 +40,9 @@ export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
                     <DialogTitle className="text-xl capitalize">
                         {format(date, 'd MMMM, EEEE', { locale: ru })}
                     </DialogTitle>
+                    <DialogDescription className="text-slate-500">
+                        Список занятий на этот день
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-3 py-4">
@@ -46,7 +52,7 @@ export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
                                 key={`${event.event_index}-${index}`}
                                 event={event}
                                 isActive={false}
-                                isGroup={false} // Or derive from context/props if needed
+                                isGroup={isGroup}
                             />
                         ))
                     ) : (

@@ -3,6 +3,7 @@ import React from 'react';
 import { MapPin, User, Users } from 'lucide-react';
 import { Event } from '@/entities/schedule/model/types';
 import { getEventTime, getEventTypeColor } from '../../lib/schedule-utils';
+import { useSchedule } from '@/app/provider/schedule-provider';
 
 interface ScheduleCardProps {
     event: Event;
@@ -23,6 +24,7 @@ const Badge = ({ children, className = "" }: { children: React.ReactNode, classN
 );
 
 export const ScheduleCard: React.FC<ScheduleCardProps> = ({ event, isActive, isGroup }) => {
+    const { setSelectedEntity, setViewMode } = useSchedule();
     return (
         <Card
             className={`flex flex-col overflow-hidden group border-l-[3px] hover:border-slate-300 transition-all shadow-none hover:shadow-sm ${isActive ? 'ring-2 ring-purple-500 bg-purple-50' : 'bg-white'}`}
@@ -57,9 +59,28 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ event, isActive, isG
                         <MapPin size={10} className="text-slate-400" />
                         <span className="truncate max-w-[80px]">{event.location}</span>
                     </div>
-                    <div className="flex items-center gap-1 min-w-0 justify-end">
-                        {isGroup ? <User size={10} className="text-slate-400" /> : <Users size={10} className="text-slate-400" />}
-                        <span className="truncate max-w-[100px] text-right">{event.reverse}</span>
+                    <div
+                        className="flex items-center gap-1 min-w-0 justify-end cursor-pointer hover:text-blue-600 transition-colors group/reverse"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (event.reverse_id) {
+                                setSelectedEntity({
+                                    id: event.reverse_id,
+                                    name: event.reverse,
+                                    type: isGroup ? 'teacher' : 'group',
+                                    url: ''
+                                });
+                                // Only switch view if we are not already in schedule view (optional, but good practice).
+                                // Actually, if we are in calendar view (dialog), we definitely want to switch to schedule or calendar of THAT entity.
+                                // The user request implies "click ... and it throws to HIS schedule".
+                                // Usually this means Schedule View.
+                                setViewMode('schedule');
+                            }
+                        }}
+                        title={`Перейти к расписанию: ${event.reverse}`}
+                    >
+                        {isGroup ? <User size={10} className="text-slate-400 group-hover/reverse:text-blue-500" /> : <Users size={10} className="text-slate-400 group-hover/reverse:text-blue-500" />}
+                        <span className="truncate max-w-[100px] text-right underline decoration-dotted decoration-slate-300 underline-offset-2 group-hover/reverse:decoration-blue-400">{event.reverse}</span>
                     </div>
                 </div>
             </div>

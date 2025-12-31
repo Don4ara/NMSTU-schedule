@@ -20,6 +20,9 @@ export const searchTimetable = async (query: string): Promise<SearchResult[]> =>
 export const getSchedule = async (type: 'group' | 'teacher', id: string | number): Promise<any> => {
     try {
         const data = await (window as any).ipcRenderer.invoke('get-schedule', type, String(id));
+        if (data && data.type === 'student_group') {
+            data.type = 'group';
+        }
         return data;
     } catch (error) {
         console.error("Failed to fetch schedule from API, trying offline:", error);
