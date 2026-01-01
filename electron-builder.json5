@@ -12,6 +12,13 @@
   "directories": {
     "output": "release/${version}"
   },
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "Don4ara",
+      "repo": "NMSTU-schedule"
+    }
+  ],
   "files": [
     "dist",
     "dist-electron",
