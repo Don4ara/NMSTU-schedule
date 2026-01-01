@@ -75,7 +75,7 @@ export const ScheduleComparisonPage = () => {
     return (
         <div className="h-full flex flex-col p-6 max-w-[1920px] mx-auto w-full relative">
             {/* Header section with Week Selector */}
-            <div className="flex items-center justify-end mb-4 shrink-0 z-10">
+            <div className="flex items-center justify-end mb-4 shrink-0 z-10 pl-30 pr-30">
                 {(primarySchedule?.schedule || comparisonSchedule?.schedule) && (
                     <div className="w-56">
                         <WeekTabs
@@ -88,7 +88,7 @@ export const ScheduleComparisonPage = () => {
             </div>
 
             {/* Entity Headers (Fixed at top) */}
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 mb-4 shrink-0 z-30 sticky top-0 bg-white py-4">
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 mb-4 shrink-0 z-30 sticky top-0 bg-white py-4 pr-30 pl-30">
                 {/* Primary Header (Left) */}
                 <div className={`px-6 flex justify-between items-center rounded-xl transition-all ${primaryEntity ? 'bg-white/50 border border-slate-100' : 'mt-0'}`}>
                     {primaryEntity ? (
@@ -148,7 +148,7 @@ export const ScheduleComparisonPage = () => {
             </div>
 
             {/* Comparison Content (Scrollable) */}
-            <div className="flex-1 overflow-y-auto min-h-0 pr-2 pl-2 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+            <div className="flex-1 overflow-y-auto min-h-0 pr-30 pl-30 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
 
 
                 <div className="space-y-12 pb-20">
