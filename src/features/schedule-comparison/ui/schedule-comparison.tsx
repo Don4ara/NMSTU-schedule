@@ -21,7 +21,7 @@ export const ScheduleComparisonPage = () => {
 
     // Sync primaryEntity with trackedEntity if trackedEntity changes externally or on load
     useEffect(() => {
-        if (trackedEntity && !primaryEntity) {
+        if (trackedEntity) {
             setPrimaryEntity(trackedEntity);
         }
     }, [trackedEntity]);
@@ -205,7 +205,20 @@ export const ScheduleComparisonPage = () => {
                                             if (!pEvent && !cEvent) return null;
 
                                             const time = getEventTime(idx).split(' - ');
-                                            const isIntersection = !!pEvent && !!cEvent;
+                                            const isTimeOverlap = !!pEvent && !!cEvent;
+
+                                            // Check for semantic intersection:
+                                            // 1. Direct relation (Group has this Teacher, or Teacher has this Group)
+                                            // 2. Same Course (Group vs Group taking same subject)
+                                            const isDirectRelation =
+                                                (String(pEvent?.reverse_id) === String(comparisonEntity?.id)) ||
+                                                (String(cEvent?.reverse_id) === String(primaryEntity?.id));
+
+                                            const isSameCourse = pEvent?.course === cEvent?.course;
+
+                                            // Highlight if strictly related OR same course. 
+                                            // If just time overlap but unmatched content, do not highlight as "Intersection" in this context.
+                                            const isIntersection = isTimeOverlap && (isDirectRelation || isSameCourse);
 
                                             return (
                                                 <div key={idx} className={`grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch group rounded-xl transition-all border-2 ${isIntersection ? 'bg-red-50/50 p-2 -mx-2 border-red-100' : 'border-transparent'}`}>
