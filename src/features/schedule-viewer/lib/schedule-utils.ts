@@ -46,7 +46,7 @@ export const getCurrentWeekName = (): string => {
     const diff = now.getTime() - startDate.getTime();
     const weekNumber = Math.ceil(diff / (1000 * 60 * 60 * 24 * 7));
 
-    return weekNumber % 2 !== 0 ? "Четная" : "Нечетная";
+    return weekNumber % 2 === 0 ? "Четная" : "Нечетная";
 };
 
 export const getCurrentWeekId = (): number => {

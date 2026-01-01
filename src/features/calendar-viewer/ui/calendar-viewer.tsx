@@ -53,10 +53,10 @@ export const CalendarViewer = () => {
         );
         const diffTime = Math.abs(targetDate.getTime() - academicStart.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const weekNum = Math.ceil((diffDays + academicStart.getDay() - 1) / 7);
+        const weekNum = Math.floor((diffDays + academicStart.getDay() - 1) / 7) + 1;
 
         const isOdd = weekNum % 2 !== 0;
-        const weekName = isOdd ? "Четная" : "Нечетная";
+        const weekName = isOdd ? "Нечетная" : "Четная";
 
         const weekData = scheduleData.schedule.find(w => w.week.toLowerCase() === weekName.toLowerCase());
         if (!weekData) return [];
