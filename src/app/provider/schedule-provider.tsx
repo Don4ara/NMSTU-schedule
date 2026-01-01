@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { SearchResult, checkApiHealth } from '@/shared/api/timetable';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -138,21 +138,30 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem(STORAGE_KEY);
     }
 
+    const contextValue = useMemo(() => ({
+        selectedEntity,
+        setSelectedEntity,
+        recentEntities,
+        clearHistory,
+        isApiOnline,
+        setApiOnlineState,
+        viewMode,
+        setViewMode,
+        trackedEntity,
+        setTrackedEntity,
+        comparisonEntity,
+        setComparisonEntity
+    }), [
+        selectedEntity,
+        recentEntities,
+        isApiOnline,
+        viewMode,
+        trackedEntity,
+        comparisonEntity
+    ]);
+
     return (
-        <ScheduleContext.Provider value={{
-            selectedEntity,
-            setSelectedEntity,
-            recentEntities,
-            clearHistory,
-            isApiOnline,
-            setApiOnlineState,
-            viewMode,
-            setViewMode,
-            trackedEntity,
-            setTrackedEntity,
-            comparisonEntity,
-            setComparisonEntity
-        }}>
+        <ScheduleContext.Provider value={contextValue}>
             {children}
         </ScheduleContext.Provider>
     );

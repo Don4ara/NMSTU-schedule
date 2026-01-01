@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule } from '@/shared/api/timetable';
 import { ScheduleData, Event as ScheduleEvent } from '@/entities/schedule/model/types';
@@ -30,17 +30,13 @@ export const CalendarViewer = () => {
         enabled: !!trackedEntity,
     });
 
-    // Stats
-    const [lectureCount, setLectureCount] = useState(0);
-    const [pairCount, setPairCount] = useState(0);
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
 
-    // Dialog State (moved up to avoid conditional hook call error)
+    // Dialog State
     const [selectedDay, setSelectedDay] = useState<Date | null>(null);
     const [selectedEvents, setSelectedEvents] = useState<ScheduleEvent[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
 
     // Calculate stats and map events to days
     // Note: This is an approximation since the API returns weeks, not dates directly.
@@ -76,8 +72,8 @@ export const CalendarViewer = () => {
     }, [scheduleData, year, month]);
 
     // Recalculate stats when month/schedule changes
-    useEffect(() => {
-        if (!scheduleData) return;
+    const { lectureCount, pairCount } = useMemo(() => {
+        if (!scheduleData) return { lectureCount: 0, pairCount: 0 };
 
         let lectures = 0;
         let pairs = 0;
@@ -104,8 +100,7 @@ export const CalendarViewer = () => {
             lectures += distinctEvents.filter((e: ScheduleEvent) => e.type.toLowerCase().includes('лекция')).length;
         }
 
-        setLectureCount(lectures);
-        setPairCount(pairs);
+        return { lectureCount: lectures, pairCount: pairs };
     }, [year, month, scheduleData, getEventsForDate]);
 
 
