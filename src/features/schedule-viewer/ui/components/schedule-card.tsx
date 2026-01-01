@@ -41,11 +41,9 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ event, isActive, isG
                             {event.type}
                         </Badge>
                     </div>
-                    {event.subgroup !== 0 && (
-                        <span className="text-[9px] text-slate-400 bg-slate-50 border border-slate-100 px-1 py-0.5 rounded leading-none">
-                            гр.{event.subgroup}
-                        </span>
-                    )}
+                    <span className="text-[9px] text-slate-400 bg-slate-50 border border-slate-100 px-1 py-0.5 rounded leading-none">
+                        {event.event_index} пара
+                    </span>
                 </div>
 
                 {/* Course Name */}
