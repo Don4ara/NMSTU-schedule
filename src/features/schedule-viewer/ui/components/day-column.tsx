@@ -22,7 +22,7 @@ export const DayColumn: React.FC<DayColumnProps> = ({ day, date, isGroup }) => {
                             day.day === 'Вторник' ? 'bg-blue-500' :
                                 day.day === 'Среда' ? 'bg-sky-500' :
                                     day.day === 'Четверг' ? 'bg-teal-500' :
-                                        day.day === 'Пятница' ? 'bg-emerald-500' : 'bg-orange-500'}
+                                               day.day === 'Пятница' ? 'bg-emerald-500' : 'bg-orange-500'}
                 `}></div>
                     {day.day}
                 </div>

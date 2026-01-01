@@ -101,11 +101,13 @@ export const ScheduleViewer = () => {
     return (
         <div className="w-full max-w-[1920px] mx-auto animate-in fade-in duration-500 min-h-full flex flex-col justify-center p-4 md:p-8 relative">
             <ScheduleHeader scheduleData={scheduleData} isUsingMockData={isUsingMockData}>
-                <WeekTabs
-                    weeks={scheduleData.schedule}
-                    activeWeekId={activeWeekId}
-                    onWeekChange={setActiveWeekId}
-                />
+                <div className="w-56">
+                    <WeekTabs
+                        weeks={scheduleData.schedule}
+                        activeWeekId={activeWeekId}
+                        onWeekChange={setActiveWeekId}
+                    />
+                </div>
             </ScheduleHeader>
 
             {/* Schedule Content */}
