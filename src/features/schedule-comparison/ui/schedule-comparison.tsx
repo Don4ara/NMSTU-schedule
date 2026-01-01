@@ -88,7 +88,7 @@ export const ScheduleComparisonPage = () => {
             </div>
 
             {/* Entity Headers (Fixed at top) */}
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 mb-4 shrink-0 z-30 sticky top-0 bg-white py-2">
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 mb-4 shrink-0 z-30 sticky top-0 bg-white py-4">
                 {/* Primary Header (Left) */}
                 <div className={`px-6 flex justify-between items-center rounded-xl transition-all ${primaryEntity ? 'bg-white/50 border border-slate-100' : 'mt-0'}`}>
                     {primaryEntity ? (
@@ -148,7 +148,7 @@ export const ScheduleComparisonPage = () => {
             </div>
 
             {/* Comparison Content (Scrollable) */}
-            <div className="flex-1 overflow-y-auto min-h-0 pr-2 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+            <div className="flex-1 overflow-y-auto min-h-0 pr-2 pl-2 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
 
 
                 <div className="space-y-12 pb-20">
@@ -208,7 +208,7 @@ export const ScheduleComparisonPage = () => {
                                             const isIntersection = !!pEvent && !!cEvent;
 
                                             return (
-                                                <div key={idx} className={`grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch group rounded-xl transition-all ${isIntersection ? 'bg-red-50/50 p-2 -mx-2 ring-1 ring-red-100' : ''}`}>
+                                                <div key={idx} className={`grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch group rounded-xl transition-all border-2 ${isIntersection ? 'bg-red-50/50 p-2 -mx-2 border-red-100' : 'border-transparent'}`}>
                                                     {/* Primary Event (Left) */}
                                                     <div className="min-h-[80px] flex">
                                                         {pEvent ? (
@@ -229,9 +229,9 @@ export const ScheduleComparisonPage = () => {
                                                     </div>
 
                                                     {/* Timeline (Center) */}
-                                                    <div className="w-20 flex flex-col items-center justify-center text-xs font-mono font-medium text-slate-400 select-none">
+                                                    <div className="w-20 flex flex-col items-center justify-center text-xs font-mono font-medium text-slate-400 select-none py-2">
                                                         <span className={`transition-colors ${isIntersection ? 'text-red-500 font-bold' : 'group-hover:text-slate-600'}`}>{time[0]}</span>
-                                                        <div className={`h-8 w-px my-1 transition-colors ${isIntersection ? 'bg-red-200' : 'bg-slate-200 group-hover:bg-slate-300'}`}></div>
+                                                        <div className={`w-px my-1 flex-1 transition-colors ${isIntersection ? 'bg-red-200' : 'bg-slate-200 group-hover:bg-slate-300'}`}></div>
                                                         <span className={`transition-colors ${isIntersection ? 'text-red-500 font-bold' : 'opacity-60 group-hover:text-slate-500'}`}>{time[1]}</span>
                                                     </div>
 
