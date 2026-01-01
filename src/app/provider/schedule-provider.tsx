@@ -167,6 +167,7 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSchedule = () => {
     const context = useContext(ScheduleContext);
     if (!context) {

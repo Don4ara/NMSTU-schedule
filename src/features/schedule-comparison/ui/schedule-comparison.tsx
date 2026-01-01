@@ -8,6 +8,7 @@ import { Button } from '@/shared/components/ui/button';
 import { getDateForDay, getCurrentWeekId, getEventTime } from '@/features/schedule-viewer/lib/schedule-utils';
 import { WeekTabs } from '@/features/schedule-viewer/ui/components/week-tabs';
 import { ScheduleCard } from '@/features/schedule-viewer/ui/components/schedule-card';
+import { ScheduleData, Week, Day, Event as ScheduleEvent } from '@/entities/schedule/model/types';
 
 export const ScheduleComparisonPage = () => {
     const { trackedEntity, comparisonEntity, setComparisonEntity } = useSchedule();
@@ -57,19 +58,19 @@ export const ScheduleComparisonPage = () => {
         setSearchTarget(null);
     };
 
-    const getDayData = (scheduleData: any, dayId: number) => {
+    const getDayData = (scheduleData: ScheduleData | undefined | null, dayId: number) => {
         if (!scheduleData || !scheduleData.schedule) return null;
-        const week = scheduleData.schedule.find((w: any) => w.week_id === activeWeekId);
+        const week = scheduleData.schedule.find((w: Week) => w.week_id === activeWeekId);
         if (!week) return null;
-        return week.days.find((d: any) => d.day_id === dayId);
+        return week.days.find((d: Day) => d.day_id === dayId);
     };
 
     const days = [1, 2, 3, 4, 5, 6]; // Monday to Saturday
     const eventIndices = [1, 2, 3, 4, 5, 6, 7]; // Standard pair slots
 
     // Helper to find event at specific index
-    const findEventAt = (events: any[], index: number) => {
-        return events?.find((e: any) => e.event_index === index);
+    const findEventAt = (events: ScheduleEvent[] | undefined, index: number) => {
+        return events?.find((e: ScheduleEvent) => e.event_index === index);
     };
 
     return (
@@ -158,7 +159,7 @@ export const ScheduleComparisonPage = () => {
 
                         // Calculate Date
                         const refSchedule = primarySchedule?.schedule || comparisonSchedule?.schedule;
-                        const weekName = refSchedule?.find((w: any) => w.week_id === activeWeekId)?.week || '';
+                        const weekName = refSchedule?.find((w: Week) => w.week_id === activeWeekId)?.week || '';
                         const date = getDateForDay(dayId, weekName);
 
                         const dayName = date.toLocaleDateString('ru-RU', { weekday: 'long' });
@@ -166,7 +167,7 @@ export const ScheduleComparisonPage = () => {
 
                         // Check if day has any events at all to maybe skip or show empty? 
                         // For comparison, showing a full day grid is usually better for clarity.
-                        const hasAnyEvents = (primaryDay?.events?.length > 0) || (comparisonDay?.events?.length > 0);
+                        const hasAnyEvents = (primaryDay?.events?.length ?? 0) > 0 || (comparisonDay?.events?.length ?? 0) > 0;
 
                         return (
                             <div key={dayId} className="relative">

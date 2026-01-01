@@ -6,7 +6,6 @@ import { GraduationCap } from "lucide-react"
 
 import {
     SidebarMenu,
-    SidebarMenuButton,
     SidebarMenuItem
 } from "@/shared/components/ui/sidebar"
 

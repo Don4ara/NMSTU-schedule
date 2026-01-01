@@ -62,7 +62,9 @@ export const getCurrentWeekId = (): number => {
     return weekName === "Нечетная" ? 2 : 1;
 };
 
-export const getNextEvent = (events: any[]) => {
+import { Event as ScheduleEvent } from '@/entities/schedule/model/types';
+
+export const getNextEvent = (events: ScheduleEvent[]) => {
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 

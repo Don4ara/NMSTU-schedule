@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getSchedule, saveOfflineSchedule } from '@/shared/api/timetable';
 import { getCurrentWeekName, getNextEvent, getEventTime, EVENT_RANGES } from '@/features/schedule-viewer/lib/schedule-utils';
 import { Loader2, MapPin, User, Clock, GraduationCap, LogOut } from 'lucide-react';
-import { ScheduleData, Week, Day } from '@/entities/schedule/model/types';
+import { ScheduleData, Week, Day, Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { Search } from '@/features/search/ui/search';
 import { format } from 'date-fns';
 
@@ -17,7 +17,7 @@ export const Dashboard = () => {
         return () => clearInterval(timer);
     }, []);
 
-    const { data: scheduleData, isLoading } = useQuery<ScheduleData>({
+    const { data: scheduleData, isLoading } = useQuery<ScheduleData | null>({
         queryKey: ['schedule', trackedEntity?.type, trackedEntity?.id],
         queryFn: () => getSchedule(trackedEntity!.type, trackedEntity!.id),
         enabled: !!trackedEntity,
@@ -72,9 +72,9 @@ export const Dashboard = () => {
     }
 
     // --- Data Processing & Logic ---
-    let currentEvent: any = null;
-    let nextEvent: any = null;
-    let todayEvents: any[] = [];
+    let currentEvent: ScheduleEvent | null | undefined = null;
+    let nextEvent: ScheduleEvent | null | undefined = null;
+    let todayEvents: ScheduleEvent[] = [];
 
 
     if (scheduleData?.schedule) {

@@ -18,7 +18,7 @@ export const ScheduleViewer = () => {
     const { selectedEntity } = useSchedule();
     const [activeWeekId, setActiveWeekId] = useState<number | null>(null);
 
-    const { data: apiData, isLoading, isError } = useQuery<ScheduleData>({
+    const { data: apiData, isLoading, isError } = useQuery<ScheduleData | null>({
         queryKey: ['schedule', selectedEntity?.type, selectedEntity?.id],
         queryFn: () => getSchedule(selectedEntity!.type, selectedEntity!.id),
         enabled: !!selectedEntity,
@@ -28,7 +28,7 @@ export const ScheduleViewer = () => {
 
     // Derived state
     const mockKey = selectedEntity ? `${selectedEntity.type}_${selectedEntity.id}` : '';
-    // @ts-ignore
+    // @ts-expect-error - Mock data structure mismatch for offline mode testing
     const mockData = (isError && selectedEntity) ? (MOCK_DB.schedules[mockKey] as ScheduleData | undefined) : null;
     const scheduleData: ScheduleData | null = apiData || mockData || null;
     const isUsingMockData = !!mockData;
