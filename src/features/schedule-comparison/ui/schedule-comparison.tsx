@@ -88,9 +88,9 @@ export const ScheduleComparisonPage = () => {
             </div>
 
             {/* Entity Headers (Fixed at top) */}
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 mb-4 shrink-0 z-20">
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 mb-4 shrink-0 z-30 sticky top-0 bg-white py-2">
                 {/* Primary Header (Left) */}
-                <div className={`px-6 flex justify-between items-center rounded-xl transition-all ${primaryEntity ? 'bg-white/50 border border-slate-100' : 'mt-4'}`}>
+                <div className={`px-6 flex justify-between items-center rounded-xl transition-all ${primaryEntity ? 'bg-white/50 border border-slate-100' : 'mt-0'}`}>
                     {primaryEntity ? (
                         <div className="w-full flex justify-between items-center group py-2">
                             <div className="min-w-0">
@@ -120,7 +120,7 @@ export const ScheduleComparisonPage = () => {
                 <div className="w-20"></div>
 
                 {/* Comparison Header (Right) */}
-                <div className={`px-6 flex justify-between items-center rounded-xl transition-all ${comparisonEntity ? 'bg-white/50 border border-slate-100' : 'mt-4'}`}>
+                <div className={`px-6 flex justify-between items-center rounded-xl transition-all ${comparisonEntity ? 'bg-white/50 border border-slate-100' : 'mt-0'}`}>
                     {comparisonEntity ? (
                         <div className="w-full flex justify-between items-center group py-2">
                             <div className="min-w-0">
@@ -205,9 +205,10 @@ export const ScheduleComparisonPage = () => {
                                             if (!pEvent && !cEvent) return null;
 
                                             const time = getEventTime(idx).split(' - ');
+                                            const isIntersection = !!pEvent && !!cEvent;
 
                                             return (
-                                                <div key={idx} className="grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch group">
+                                                <div key={idx} className={`grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch group rounded-xl transition-all ${isIntersection ? 'bg-red-50/50 p-2 -mx-2 ring-1 ring-red-100' : ''}`}>
                                                     {/* Primary Event (Left) */}
                                                     <div className="min-h-[80px] flex">
                                                         {pEvent ? (
@@ -229,9 +230,9 @@ export const ScheduleComparisonPage = () => {
 
                                                     {/* Timeline (Center) */}
                                                     <div className="w-20 flex flex-col items-center justify-center text-xs font-mono font-medium text-slate-400 select-none">
-                                                        <span className="group-hover:text-slate-600 transition-colors">{time[0]}</span>
-                                                        <div className="h-8 w-px bg-slate-200 my-1 group-hover:bg-slate-300 transition-colors"></div>
-                                                        <span className="opacity-60 group-hover:text-slate-500 transition-colors">{time[1]}</span>
+                                                        <span className={`transition-colors ${isIntersection ? 'text-red-500 font-bold' : 'group-hover:text-slate-600'}`}>{time[0]}</span>
+                                                        <div className={`h-8 w-px my-1 transition-colors ${isIntersection ? 'bg-red-200' : 'bg-slate-200 group-hover:bg-slate-300'}`}></div>
+                                                        <span className={`transition-colors ${isIntersection ? 'text-red-500 font-bold' : 'opacity-60 group-hover:text-slate-500'}`}>{time[1]}</span>
                                                     </div>
 
                                                     {/* Comparison Event (Right) */}
