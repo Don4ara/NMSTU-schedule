@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule } from '@/shared/api/timetable';
-import { ScheduleData, Event as ScheduleEvent } from '@/entities/schedule/model/types';
+import { ScheduleData, Week, Day, Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { useQuery } from '@tanstack/react-query';
 import { CalendarHeader } from './components/calendar-header';
 import { CalendarGrid } from './components/calendar-grid';
@@ -24,7 +24,7 @@ export const CalendarViewer = () => {
     const { trackedEntity, setTrackedEntity } = useSchedule();
     const [currentDate, setCurrentDate] = useState(new Date());
 
-    const { data: scheduleData, isLoading: loading } = useQuery<ScheduleData>({
+    const { data: scheduleData, isLoading: loading } = useQuery<ScheduleData | null>({
         queryKey: ['schedule', trackedEntity?.type, trackedEntity?.id],
         queryFn: () => getSchedule(trackedEntity!.type, trackedEntity!.id),
         enabled: !!trackedEntity,
@@ -58,7 +58,7 @@ export const CalendarViewer = () => {
         const isOdd = weekNum % 2 !== 0;
         const weekName = isOdd ? "Нечетная" : "Четная";
 
-        const weekData = scheduleData.schedule.find(w => w.week.toLowerCase() === weekName.toLowerCase());
+        const weekData = scheduleData.schedule.find((w: Week) => w.week.toLowerCase() === weekName.toLowerCase());
         if (!weekData) return [];
 
         // Map JS day (0-6 Sun-Sat) to API day (1-7 Mon-Sun?) 
@@ -67,7 +67,7 @@ export const CalendarViewer = () => {
         const jsDay = targetDate.getDay();
         const apiDayId = jsDay === 0 ? 7 : jsDay;
 
-        const dayData = weekData.days.find(d => d.day_id === apiDayId);
+        const dayData = weekData.days.find((d: Day) => d.day_id === apiDayId);
         return dayData?.events || [];
     }, [scheduleData, year, month]);
 
