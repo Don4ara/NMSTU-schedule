@@ -49,7 +49,7 @@ jobs:
       - name: Publish Release (macOS)
         if: matrix.os == 'macos-latest'
         env:
-          GH_TOKEN: ${{ secrets.SECRET_TOKEN_2 }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm exec electron-builder -- --publish always --mac
 
       - name: Publish Release (Linux)
