@@ -1,4 +1,4 @@
-import { nativeTheme, ipcMain, app, BrowserWindow } from "electron";
+import { nativeTheme, ipcMain, app, BrowserWindow, nativeImage } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import fs from "node:fs/promises";
@@ -70,7 +70,7 @@ function createWindow() {
   win = new BrowserWindow({
     show: false,
     // Don't show immediately
-    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    icon: path.join(process.env.VITE_PUBLIC, "Icon_app.png"),
     width: 1450,
     height: 900,
     minWidth: 1450,
@@ -92,6 +92,11 @@ function createWindow() {
     win.loadURL(VITE_DEV_SERVER_URL);
   } else {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
+  }
+  if (process.platform === "darwin") {
+    const iconPath = path.join(process.env.VITE_PUBLIC, "Icon_app.png");
+    const image = nativeImage.createFromPath(iconPath);
+    app.dock.setIcon(image.resize({ width: 128, height: 128 }));
   }
 }
 app.on("window-all-closed", () => {

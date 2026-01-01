@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme, nativeImage } from 'electron'
 
 // Force light theme for window controls visibility
 nativeTheme.themeSource = 'light'
@@ -106,7 +106,7 @@ let win: BrowserWindow | null
 function createWindow() {
   win = new BrowserWindow({
     show: false, // Don't show immediately
-    icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    icon: path.join(process.env.VITE_PUBLIC, 'Icon_app.png'),
     width: 1450,
     height: 900,
     minWidth: 1450,
@@ -135,6 +135,11 @@ function createWindow() {
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
+  }
+  if (process.platform === 'darwin') {
+    const iconPath = path.join(process.env.VITE_PUBLIC, 'Icon_app.png');
+    const image = nativeImage.createFromPath(iconPath);
+    app.dock.setIcon(image.resize({ width: 128, height: 128 }));
   }
 }
 
