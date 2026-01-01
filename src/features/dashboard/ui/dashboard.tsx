@@ -280,7 +280,7 @@ export const Dashboard = () => {
                                         {/* Content */}
                                         <div className={`rounded-xl p-3 transition-all ${event === currentEvent ? 'bg-blue-50/50 -ml-2 pl-4 border border-blue-100' : 'hover:bg-slate-50/50'}`}>
                                             <div className="flex justify-between items-baseline mb-1">
-                                                <span className={`text-xs font-bold uppercase tracking-wider ${event.type.includes('Лек') ? 'text-blue-600' : 'text-emerald-600'}`}>{event.type}</span>
+                                                <span className={`text-xs font-bold uppercase tracking-wider ${event.type.toLowerCase().includes('лек') ? 'text-blue-600' : event.type.toLowerCase().includes('лаб') ? 'text-orange-600' : 'text-emerald-600'}`}>{event.type}</span>
                                                 <span className="text-xs font-mono text-slate-400">{getEventTime(event.event_index).split(' - ')[0]}</span>
                                             </div>
                                             <div className={`text-sm font-semibold mb-1 leading-snug ${event === currentEvent ? 'text-blue-900' : 'text-slate-800'}`}>
