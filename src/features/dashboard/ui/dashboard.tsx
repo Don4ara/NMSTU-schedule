@@ -2,17 +2,19 @@ import { useEffect, useState } from 'react';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { useQuery } from '@tanstack/react-query';
 import { getSchedule, saveOfflineSchedule } from '@/shared/api/timetable';
-import { getCurrentWeekName, getNextEvent, getEventTime, getRemainingTime } from '@/features/schedule-viewer/lib/schedule-utils';
-import { Loader2, Calendar, MapPin, User, Clock, GraduationCap, LogOut, SearchIcon } from 'lucide-react';
+import { getCurrentWeekName, getNextEvent, getEventTime, EVENT_RANGES } from '@/features/schedule-viewer/lib/schedule-utils';
+import { Loader2, Calendar as CalendarIcon, MapPin, User, Clock, GraduationCap, LogOut } from 'lucide-react';
 import { ScheduleData, Week, Day } from '@/entities/schedule/model/types';
 import { Search } from '@/features/search/ui/search';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 export const Dashboard = () => {
     const { trackedEntity, setTrackedEntity, setViewMode, setSelectedEntity } = useSchedule();
-    const [, setCurrentTime] = useState(new Date());
+    const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
@@ -74,17 +76,12 @@ export const Dashboard = () => {
     let currentEvent: any = null;
     let nextEvent: any = null;
     let todayEvents: any[] = [];
-    let weekEventsCount = 0;
-
-    // Tomorrow logic
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    const tomorrowDayId = tomorrow.getDay() === 0 ? 7 : tomorrow.getDay();
-    let tomorrowStart: string | null = null;
-    let tomorrowEventsCount = 0;
+    const currentDate = new Date();
+    const calendarStart = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 });
+    const calendarEnd = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 });
+    const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
     if (scheduleData?.schedule) {
-        // Current Week & Today
         const weekData = scheduleData.schedule.find((w: Week) => w.week.toLowerCase() === currentWeekName.toLowerCase());
         const dayData = weekData?.days.find((d: Day) => d.day_id === dayId);
 
@@ -93,30 +90,6 @@ export const Dashboard = () => {
             const { current, next } = getNextEvent(todayEvents);
             currentEvent = current;
             nextEvent = next;
-        }
-
-        // Weekly Stats
-        if (weekData) {
-            weekData.days.forEach(d => {
-                weekEventsCount += d.events.length;
-            });
-        }
-
-        // Tomorrow Preview
-        let targetWeekName = currentWeekName;
-        // Simple logic: flip week parity if tomorrow is Monday
-        if (tomorrowDayId === 1) {
-            targetWeekName = currentWeekName === "Четная" ? "Нечетная" : "Четная";
-        }
-
-        const tmrWeekData = scheduleData.schedule.find((w: Week) => w.week.toLowerCase() === targetWeekName.toLowerCase());
-        const tmrDayData = tmrWeekData?.days.find((d: Day) => d.day_id === tomorrowDayId);
-        if (tmrDayData) {
-            const tmrEvents = tmrDayData.events;
-            tomorrowEventsCount = tmrEvents.length;
-            if (tmrEvents.length > 0) {
-                tomorrowStart = getEventTime(tmrEvents[0].event_index).split(' - ')[0];
-            }
         }
     }
 
@@ -204,31 +177,64 @@ export const Dashboard = () => {
                                 </div>
                             </div>
 
-                            <div className="relative z-10">
-                                <div className="flex justify-between text-xs font-medium text-slate-400 mb-2">
-                                    <span>Прогресс занятия</span>
-                                    <span>
-                                        {(() => {
-                                            const remaining = getRemainingTime(currentEvent.event_index);
-                                            return remaining ? `${remaining} мин` : '';
-                                        })()}
-                                    </span>
+                            <div className="relative z-10 mt-auto">
+                                <div className="flex justify-between text-xs font-medium text-slate-400 mb-1">
+                                    <span>До конца пары</span>
                                 </div>
-                                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                    <div className="h-full bg-blue-500 w-2/3 rounded-full relative">
-                                        <div className="absolute inset-0 bg-white/30 animate-[shimmer_2s_infinite]"></div>
-                                    </div>
+                                <div className="text-3xl font-mono font-bold text-blue-600 tracking-tight">
+                                    {(() => {
+                                        const range = EVENT_RANGES[currentEvent.event_index];
+                                        if (!range) return '--:--';
+
+                                        const totalSeconds = (range[1] * 60) - (currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds());
+
+                                        if (totalSeconds <= 0) return '00:00';
+
+                                        const h = Math.floor(totalSeconds / 3600);
+                                        const m = Math.floor((totalSeconds % 3600) / 60);
+                                        const s = totalSeconds % 60;
+
+                                        if (h > 0) {
+                                            return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                                        }
+                                        return `${m}:${s.toString().padStart(2, '0')}`;
+                                    })()}
                                 </div>
                             </div>
                         </>
                     ) : nextEvent ? (
-                        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center">
-                            <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mb-6">
-                                <Clock size={32} />
+                        <div className="relative z-10 h-full flex flex-col justify-between">
+                            <div className="flex flex-col items-center text-center mt-8">
+                                <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mb-6">
+                                    <Clock size={32} />
+                                </div>
+                                <h3 className="text-xl font-semibold text-slate-900 mb-2">Следующая пара</h3>
+                                <p className="text-2xl font-bold text-slate-800 mb-1 max-w-md mx-auto">{nextEvent.course}</p>
+                                <p className="text-slate-500 mb-2">{nextEvent.location} • {getEventTime(nextEvent.event_index).split(' - ')[0]}</p>
                             </div>
-                            <h3 className="text-xl font-semibold text-slate-900 mb-2">Следующая пара</h3>
-                            <p className="text-2xl font-bold text-slate-800 mb-1 max-w-md mx-auto">{nextEvent.course}</p>
-                            <p className="text-slate-500 mb-6">{nextEvent.location} • {getEventTime(nextEvent.event_index).split(' - ')[0]}</p>
+
+                            <div className="text-center mb-4">
+                                <div className="text-xs font-medium text-slate-400 mb-1">До начала</div>
+                                <div className="text-3xl font-mono font-bold text-slate-700 tracking-tight">
+                                    {(() => {
+                                        const range = EVENT_RANGES[nextEvent.event_index];
+                                        if (!range) return '--:--';
+
+                                        const totalSeconds = (range[0] * 60) - (currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds());
+
+                                        if (totalSeconds <= 0) return '00:00';
+
+                                        const h = Math.floor(totalSeconds / 3600);
+                                        const m = Math.floor((totalSeconds % 3600) / 60);
+                                        const s = totalSeconds % 60;
+
+                                        if (h > 0) {
+                                            return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                                        }
+                                        return `${m}:${s.toString().padStart(2, '0')}`;
+                                    })()}
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <div className="relative z-10 h-full flex flex-col justify-center items-center text-center">
@@ -283,33 +289,59 @@ export const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* 4. Stats & Tomorrow (Sub-main area) - Col Span 2 split */}
+                {/* 4. Clock & Calendar (Sub-main area) - Col Span 2 split */}
                 <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Weekly Stats */}
-                    <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
-                        <div>
-                            <div className="text-sm font-medium text-slate-500 mb-1">Нагрузка (нед)</div>
-                            <div className="text-3xl font-bold text-slate-900">{weekEventsCount} <span className="text-lg font-medium text-slate-400">пар</span></div>
+                    {/* Digital Clock */}
+                    <div className="bg-slate-900 rounded-3xl p-6 shadow-sm text-white flex flex-col justify-between relative overflow-hidden h-[200px] border border-slate-900">
+                        <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl -ml-16 -mb-16 pointer-events-none"></div>
+
+                        <div className="relative z-10 flex justify-between items-start">
+                            <span className="text-white/60 font-medium text-sm capitalize">
+                                {format(currentTime, 'EEEE, d MMMM', { locale: ru })}
+                            </span>
+                            <Clock className="text-white/40" size={20} />
                         </div>
-                        <div className="w-12 h-12 rounded-full border-4 border-slate-100 border-t-blue-500 flex items-center justify-center bg-slate-50">
-                            <span className="text-xs font-bold text-slate-700">75%</span>
+
+                        <div className="relative z-10 text-center my-auto">
+                            <div className="text-5xl font-bold tracking-tight font-mono">
+                                {format(currentTime, 'HH:mm:ss')}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Tomorrow Preview */}
-                    <div className="bg-slate-900 rounded-3xl p-6 shadow-sm text-white flex flex-col justify-between relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
-
-                        <div className="relative z-10 flex justify-between items-start">
-                            <div>
-                                <div className="text-sm font-medium text-white/60 mb-1">Завтра</div>
-                                <div className="text-xl font-bold">{tomorrowStart ? `К ${tomorrowStart}` : 'Выходной'}</div>
-                            </div>
-                            <Calendar className="text-white/40" size={20} />
+                    {/* Mini Calendar */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col h-[200px]">
+                        <div className="flex justify-between items-center mb-4">
+                            <span className="font-bold text-slate-800 capitalize">
+                                {format(currentDate, 'LLLL yyyy', { locale: ru })}
+                            </span>
+                            <CalendarIcon className="text-slate-400" size={18} />
                         </div>
 
-                        <div className="relative z-10 mt-4">
-                            <div className="text-xs text-white/60">Всего пар: {tomorrowEventsCount}</div>
+                        <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-slate-400 font-medium">
+                            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(d => (
+                                <div key={d}>{d}</div>
+                            ))}
+                        </div>
+
+                        <div className="grid grid-cols-7 gap-1 text-center text-xs flex-1">
+                            {calendarDays.map((day, i) => {
+                                const isCurrentMonth = isSameMonth(day, currentDate);
+                                const isTodayDate = isToday(day);
+                                return (
+                                    <div
+                                        key={i}
+                                        className={`
+                                            flex items-center justify-center rounded-lg h-8 
+                                            ${!isCurrentMonth ? 'text-slate-300' : 'text-slate-700'}
+                                            ${isTodayDate ? 'bg-blue-600 text-white font-bold shadow-sm' : ''}
+                                        `}
+                                    >
+                                        {format(day, 'd')}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

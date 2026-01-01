@@ -66,31 +66,6 @@ const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
 const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist");
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
 let win;
-let splashWin;
-function createSplashWindow() {
-  splashWin = new BrowserWindow({
-    width: 400,
-    height: 400,
-    transparent: true,
-    frame: false,
-    alwaysOnTop: true,
-    resizable: false,
-    movable: false,
-    center: true,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true
-    }
-  });
-  if (VITE_DEV_SERVER_URL) {
-    splashWin.loadFile(path.join(process.env.VITE_PUBLIC, "splash.html"));
-  } else {
-    splashWin.loadFile(path.join(RENDERER_DIST, "splash.html"));
-  }
-  splashWin.on("closed", () => {
-    splashWin = null;
-  });
-}
 function createWindow() {
   win = new BrowserWindow({
     show: false,
@@ -111,17 +86,7 @@ function createWindow() {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
   });
   win.once("ready-to-show", () => {
-    if (splashWin) {
-      setTimeout(() => {
-        if (splashWin) {
-          splashWin.close();
-          splashWin = null;
-        }
-        win == null ? void 0 : win.show();
-      }, 1500);
-    } else {
-      win == null ? void 0 : win.show();
-    }
+    win == null ? void 0 : win.show();
   });
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
@@ -151,7 +116,6 @@ if (!gotTheLock) {
     }
   });
   app.whenReady().then(() => {
-    createSplashWindow();
     createWindow();
   });
 }

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule, searchTimetable, SearchResult } from '@/shared/api/timetable';
-import { Search, Plus, Calendar, X } from 'lucide-react';
+import { Search, Plus, X } from 'lucide-react';
 import { Input } from '@/shared/components/ui/input';
 import { Button } from '@/shared/components/ui/button';
 import { DayColumn } from '@/features/schedule-viewer/ui/components/day-column';
