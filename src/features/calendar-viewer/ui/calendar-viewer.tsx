@@ -1,12 +1,13 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule } from '@/shared/api/timetable';
-import { ScheduleData, Week, Day, Event as ScheduleEvent } from '@/entities/schedule/model/types';
+import { ScheduleData, Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { useQuery } from '@tanstack/react-query';
 import { CalendarHeader } from './components/calendar-header';
 import { CalendarGrid } from './components/calendar-grid';
 import { CalendarEmptyState } from './components/calendar-empty-state';
 import { DayDetailsDialog } from './components/day-details-dialog';
+import CalendarWorker from '@/shared/workers/calendar.worker?worker';
 
 // Helper to get days in month
 const getDaysInMonth = (year: number, month: number) => {
@@ -33,6 +34,39 @@ export const CalendarViewer = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
+    // Worker State
+    const workerRef = useRef<Worker | null>(null);
+    const [workerDaysMap, setWorkerDaysMap] = useState<Record<number, ScheduleEvent[]>>({});
+    const [workerStats, setWorkerStats] = useState({ lectureCount: 0, pairCount: 0 });
+    const [calculating, setCalculating] = useState(false);
+
+    // Initialize Worker
+    useEffect(() => {
+        workerRef.current = new CalendarWorker();
+        workerRef.current.onmessage = (e) => {
+            const { daysMap, lectureCount, pairCount } = e.data;
+            setWorkerDaysMap(daysMap);
+            setWorkerStats({ lectureCount, pairCount });
+            setCalculating(false);
+        };
+
+        return () => {
+            workerRef.current?.terminate();
+        };
+    }, []);
+
+    // Send data to worker when dependencies change
+    useEffect(() => {
+        if (workerRef.current) {
+            setCalculating(true);
+            workerRef.current.postMessage({
+                scheduleData,
+                year,
+                month
+            });
+        }
+    }, [scheduleData, year, month]);
+
     // Dialog State
     const [selectedDay, setSelectedDay] = useState<Date | null>(null);
     const [selectedEvents, setSelectedEvents] = useState<ScheduleEvent[]>([]);
@@ -42,66 +76,8 @@ export const CalendarViewer = () => {
     // Note: This is an approximation since the API returns weeks, not dates directly.
     // We need to map weeks to dates based on Sept 1st start.
     const getEventsForDate = useCallback((date: number) => {
-        if (!scheduleData?.schedule) return [];
-
-        const targetDate = new Date(year, month, date);
-
-        // Calculate week number from Sept 1st
-        const academicStart = new Date(
-            targetDate.getMonth() < 8 ? targetDate.getFullYear() - 1 : targetDate.getFullYear(),
-            8, 1
-        );
-        const diffTime = Math.abs(targetDate.getTime() - academicStart.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const weekNum = Math.floor((diffDays + academicStart.getDay() - 1) / 7) + 1;
-
-        const isOdd = weekNum % 2 !== 0;
-        const weekName = isOdd ? "Нечетная" : "Четная";
-
-        const weekData = scheduleData.schedule.find((w: Week) => w.week.toLowerCase() === weekName.toLowerCase());
-        if (!weekData) return [];
-
-        // Map JS day (0-6 Sun-Sat) to API day (1-7 Mon-Sun?) 
-        // API: Mon=1 ... Sun=7.
-        // JS: Sun=0, Mon=1...
-        const jsDay = targetDate.getDay();
-        const apiDayId = jsDay === 0 ? 7 : jsDay;
-
-        const dayData = weekData.days.find((d: Day) => d.day_id === apiDayId);
-        return dayData?.events || [];
-    }, [scheduleData, year, month]);
-
-    // Recalculate stats when month/schedule changes
-    const { lectureCount, pairCount } = useMemo(() => {
-        if (!scheduleData) return { lectureCount: 0, pairCount: 0 };
-
-        let lectures = 0;
-        let pairs = 0;
-        const daysInMonth = getDaysInMonth(year, month);
-        const today = new Date();
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            // Only count remaining from today if current month, else whole month if future
-            const checkDate = new Date(year, month, d);
-            if (checkDate < new Date(today.setHours(0, 0, 0, 0))) continue; // Skip past days
-
-            const events = getEventsForDate(d);
-
-            // Filter distinct events like in ScheduleViewer
-            const distinctEvents = events.filter((event: ScheduleEvent, index: number, self: ScheduleEvent[]) =>
-                index === self.findIndex((t) => (
-                    t.event_index === event.event_index &&
-                    t.course === event.course &&
-                    t.type === event.type
-                ))
-            );
-
-            pairs += distinctEvents.length;
-            lectures += distinctEvents.filter((e: ScheduleEvent) => e.type.toLowerCase().includes('лекция')).length;
-        }
-
-        return { lectureCount: lectures, pairCount: pairs };
-    }, [year, month, scheduleData, getEventsForDate]);
+        return workerDaysMap[date] || [];
+    }, [workerDaysMap]);
 
 
     const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
@@ -115,15 +91,10 @@ export const CalendarViewer = () => {
     const daysInMonth = getDaysInMonth(year, month);
     const startDay = getFirstDayOfMonth(year, month);
 
-
-
     const handleDayClick = (day: number) => {
         console.log('CalendarViewer: handleDayClick', day);
         const date = new Date(year, month, day);
         const events = getEventsForDate(day);
-
-        console.log('CalendarViewer: setting selected day', date);
-        console.log('CalendarViewer: setting selected events', events);
 
         setSelectedDay(date);
         setSelectedEvents(events);
@@ -135,9 +106,9 @@ export const CalendarViewer = () => {
             <CalendarHeader
                 month={month}
                 year={year}
-                lectureCount={lectureCount}
-                pairCount={pairCount}
-                loading={loading}
+                lectureCount={workerStats.lectureCount}
+                pairCount={workerStats.pairCount}
+                loading={loading || calculating}
                 onPrevMonth={prevMonth}
                 onNextMonth={nextMonth}
                 onToday={goToToday}
