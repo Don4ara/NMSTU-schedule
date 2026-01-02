@@ -119,6 +119,9 @@ function createWindow() {
     },
   })
 
+  // Remove the menu bar (File, Edit, etc.) on Windows/Linux
+  win.setMenu(null)
+
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())

@@ -1,18 +1,23 @@
+import React, { Suspense } from 'react';
+import { Loader2 } from "lucide-react";
 import { MainLayoutSide } from "@/shared/components/layout/MainLayoutSide";
 import { ScheduleProvider, useSchedule } from "@/app/provider/schedule-provider";
-import { ScheduleViewer } from "@/features/schedule-viewer/ui/schedule-viewer";
-import { CalendarViewer } from "@/features/calendar-viewer/ui/calendar-viewer";
-import { ScheduleComparisonPage } from "@/features/schedule-comparison/ui/schedule-comparison";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/shared/api/query-client";
 
-import { Dashboard } from "@/features/dashboard/ui/dashboard";
+// Lazy load components to optimize RAM usage
+const Dashboard = React.lazy(() => import("@/features/dashboard/ui/dashboard").then(module => ({ default: module.Dashboard })));
+const CalendarViewer = React.lazy(() => import("@/features/calendar-viewer/ui/calendar-viewer").then(module => ({ default: module.CalendarViewer })));
+const ScheduleComparisonPage = React.lazy(() => import("@/features/schedule-comparison/ui/schedule-comparison").then(module => ({ default: module.ScheduleComparisonPage })));
+const ScheduleViewer = React.lazy(() => import("@/features/schedule-viewer/ui/schedule-viewer").then(module => ({ default: module.ScheduleViewer })));
 
 const AppContent = () => {
   const { viewMode } = useSchedule();
   return (
     <MainLayoutSide>
-      {viewMode === 'dashboard' ? <Dashboard /> : viewMode === 'calendar' ? <CalendarViewer /> : viewMode === 'comparison' ? <ScheduleComparisonPage /> : <ScheduleViewer />}
+      <Suspense fallback={<div className="flex h-full w-full items-center justify-center text-muted-foreground"><Loader2 className="h-10 w-10 animate-spin" /></div>}>
+        {viewMode === 'dashboard' ? <Dashboard /> : viewMode === 'calendar' ? <CalendarViewer /> : viewMode === 'comparison' ? <ScheduleComparisonPage /> : <ScheduleViewer />}
+      </Suspense>
     </MainLayoutSide>
   );
 };
