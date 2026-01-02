@@ -43,7 +43,7 @@ jobs:
       - name: Publish Release (Windows)
         if: matrix.os == 'windows-latest'
         env:
-          GH_TOKEN: ${{ secrets.SECRET_TOKEN_2 }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm exec electron-builder -- --publish always --win -c.publish.releaseType=release
 
       - name: Publish Release (macOS)
@@ -55,5 +55,5 @@ jobs:
       - name: Publish Release (Linux)
         if: matrix.os == 'ubuntu-latest'
         env:
-          GH_TOKEN: ${{ secrets.SECRET_TOKEN_2 }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm exec electron-builder -- --publish always --linux -c.publish.releaseType=release
