@@ -16,7 +16,8 @@
     {
       "provider": "github",
       "owner": "Don4ara",
-      "repo": "NMSTU-schedule"
+      "repo": "NMSTU-schedule",
+      "releaseType": "release"
     }
   ],
   "files": [
