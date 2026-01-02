@@ -134,15 +134,9 @@ function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
-
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
-  }
-  if (process.platform === 'darwin') {
-    const iconPath = path.join(process.env.VITE_PUBLIC, 'Icon_app.png');
-    const image = nativeImage.createFromPath(iconPath);
-    app.dock.setIcon(image.resize({ width: 128, height: 128 }));
   }
 }
 
@@ -178,6 +172,12 @@ if (!gotTheLock) {
   })
 
   app.whenReady().then(() => {
+    // Set branding
+    if (process.platform === 'darwin') {
+      app.dock.setIcon(path.join(process.env.VITE_PUBLIC, 'Icon_app.png'));
+      app.setName('NMSTU-Shedule');
+    }
+
     createWindow()
   })
 }
