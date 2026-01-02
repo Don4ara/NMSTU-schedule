@@ -1,132 +1,94 @@
-import { nativeTheme, ipcMain, app, BrowserWindow, nativeImage } from "electron";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-import fs from "node:fs/promises";
-nativeTheme.themeSource = "light";
-const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
-ipcMain.handle("search-timetable", async (_event, query) => {
+import { nativeTheme as m, ipcMain as i, app as o, BrowserWindow as l, nativeImage as w } from "electron";
+import { fileURLToPath as g } from "node:url";
+import n from "node:path";
+import d from "node:fs/promises";
+m.themeSource = "light";
+const p = n.dirname(g(import.meta.url));
+i.handle("search-timetable", async (r, s) => {
   try {
-    const response = await fetch(`https://timetable.magtu.ru/api/v2/search?q=${encodeURIComponent(query)}`);
-    if (!response.ok) {
-      throw new Error(`Error fetching data: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Main process search error:", error);
-    return [];
+    const t = await fetch(`https://timetable.magtu.ru/api/v2/search?q=${encodeURIComponent(s)}`);
+    if (!t.ok)
+      throw new Error(`Error fetching data: ${t.statusText}`);
+    return await t.json();
+  } catch (t) {
+    return console.error("Main process search error:", t), [];
   }
 });
-ipcMain.handle("get-schedule", async (_event, type, id) => {
+i.handle("get-schedule", async (r, s, t) => {
   try {
-    const endpoint = type === "group" ? "groups" : "teachers";
-    const response = await fetch(`https://timetable.magtu.ru/api/v2/${endpoint}/${id}/schedule`);
-    if (!response.ok) {
-      throw new Error(`Error fetching schedule: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Main process schedule fetch error:", error);
-    throw error;
+    const c = await fetch(`https://timetable.magtu.ru/api/v2/${s === "group" ? "groups" : "teachers"}/${t}/schedule`);
+    if (!c.ok)
+      throw new Error(`Error fetching schedule: ${c.statusText}`);
+    return await c.json();
+  } catch (a) {
+    throw console.error("Main process schedule fetch error:", a), a;
   }
 });
-ipcMain.handle("check-api-status", async () => {
+i.handle("check-api-status", async () => {
   try {
-    const response = await fetch("https://timetable.magtu.ru/api/v2/search?q=test");
-    return response.ok;
-  } catch (error) {
-    return false;
+    return (await fetch("https://timetable.magtu.ru/api/v2/search?q=test")).ok;
+  } catch {
+    return !1;
   }
 });
-ipcMain.handle("save-offline-schedule", async (_event, data) => {
+i.handle("save-offline-schedule", async (r, s) => {
   try {
-    const userDataPath = app.getPath("userData");
-    const filePath = path.join(userDataPath, "offline-schedule.json");
-    await fs.writeFile(filePath, JSON.stringify(data));
-    return true;
-  } catch (error) {
-    console.error("Failed to save offline schedule:", error);
-    throw error;
+    const t = o.getPath("userData"), a = n.join(t, "offline-schedule.json");
+    return await d.writeFile(a, JSON.stringify(s)), !0;
+  } catch (t) {
+    throw console.error("Failed to save offline schedule:", t), t;
   }
 });
-ipcMain.handle("get-offline-schedule", async () => {
+i.handle("get-offline-schedule", async () => {
   try {
-    const userDataPath = app.getPath("userData");
-    const filePath = path.join(userDataPath, "offline-schedule.json");
-    const fileContent = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(fileContent);
-  } catch (error) {
+    const r = o.getPath("userData"), s = n.join(r, "offline-schedule.json"), t = await d.readFile(s, "utf-8");
+    return JSON.parse(t);
+  } catch {
     return null;
   }
 });
-process.env.APP_ROOT = path.join(__dirname$1, "..");
-const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
-const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
-let win;
-function createWindow() {
-  win = new BrowserWindow({
-    show: false,
+process.env.APP_ROOT = n.join(p, "..");
+const h = process.env.VITE_DEV_SERVER_URL, T = n.join(process.env.APP_ROOT, "dist-electron"), u = n.join(process.env.APP_ROOT, "dist");
+process.env.VITE_PUBLIC = h ? n.join(process.env.APP_ROOT, "public") : u;
+let e;
+function f() {
+  if (e = new l({
+    show: !1,
     // Don't show immediately
-    icon: path.join(process.env.VITE_PUBLIC, "Icon_app.png"),
+    icon: n.join(process.env.VITE_PUBLIC, "Icon_app.png"),
     width: 1450,
     height: 900,
     minWidth: 1450,
     minHeight: 900,
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 10, y: 10 },
-    transparent: true,
+    transparent: !0,
     webPreferences: {
-      preload: path.join(__dirname$1, "preload.mjs")
+      preload: n.join(p, "preload.mjs")
     }
-  });
-  win.setMenu(null);
-  win.webContents.on("did-finish-load", () => {
-    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  });
-  win.once("ready-to-show", () => {
-    win == null ? void 0 : win.show();
-  });
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
-  } else {
-    win.loadFile(path.join(RENDERER_DIST, "index.html"));
-  }
-  if (process.platform === "darwin") {
-    const iconPath = path.join(process.env.VITE_PUBLIC, "Icon_app.png");
-    const image = nativeImage.createFromPath(iconPath);
-    app.dock.setIcon(image.resize({ width: 128, height: 128 }));
+  }), e.setMenu(null), e.webContents.on("did-finish-load", () => {
+    e == null || e.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  }), e.once("ready-to-show", () => {
+    e == null || e.show();
+  }), h ? e.loadURL(h) : e.loadFile(n.join(u, "index.html")), process.platform === "darwin") {
+    const r = n.join(process.env.VITE_PUBLIC, "Icon_app.png"), s = w.createFromPath(r);
+    o.dock.setIcon(s.resize({ width: 128, height: 128 }));
   }
 }
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-    win = null;
-  }
+o.on("window-all-closed", () => {
+  process.platform !== "darwin" && (o.quit(), e = null);
 });
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+o.on("activate", () => {
+  l.getAllWindows().length === 0 && f();
 });
-const gotTheLock = app.requestSingleInstanceLock();
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on("second-instance", () => {
-    if (win) {
-      if (win.isMinimized()) win.restore();
-      win.focus();
-    }
-  });
-  app.whenReady().then(() => {
-    createWindow();
-  });
-}
+const P = o.requestSingleInstanceLock();
+P ? (o.on("second-instance", () => {
+  e && (e.isMinimized() && e.restore(), e.focus());
+}), o.whenReady().then(() => {
+  f();
+})) : o.quit();
 export {
-  MAIN_DIST,
-  RENDERER_DIST,
-  VITE_DEV_SERVER_URL
+  T as MAIN_DIST,
+  u as RENDERER_DIST,
+  h as VITE_DEV_SERVER_URL
 };
