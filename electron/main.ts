@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeTheme, nativeImage } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron'
 
 // Force light theme for window controls visibility
 nativeTheme.themeSource = 'light'
