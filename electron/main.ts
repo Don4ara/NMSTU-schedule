@@ -79,6 +79,20 @@ ipcMain.handle('get-offline-schedule', async () => {
   }
 })
 
+// Fullscreen toggle handler
+ipcMain.handle('toggle-fullscreen', async () => {
+  if (win) {
+    const isFullScreen = win.isFullScreen();
+    win.setFullScreen(!isFullScreen);
+    return !isFullScreen;
+  }
+  return false;
+})
+
+ipcMain.handle('is-fullscreen', async () => {
+  return win ? win.isFullScreen() : false;
+})
+
 // ... (rest of the file)
 
 // The built directory structure

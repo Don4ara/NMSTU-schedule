@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Calendar, LayoutList, LayoutDashboard, SplitSquareHorizontal } from "lucide-react"
+import { Calendar, LayoutList, LayoutDashboard, SplitSquareHorizontal, Maximize, Minimize } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -13,8 +13,10 @@ import { TaskflowSwitcher } from "@/shared/components/team-switcher/ui/team-swit
 
 import { RecentHistory } from "@/features/search/ui/recent-history"
 import { useSchedule } from "@/app/provider/schedule-provider"
+import { useFullscreen } from "@/shared/hooks/use-fullscreen"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { viewMode, setViewMode } = useSchedule();
+    const { isFullscreen, toggleFullscreen } = useFullscreen();
 
     return (
         <Sidebar collapsible="none" {...props}>
@@ -71,6 +73,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {viewMode === 'schedule' && <RecentHistory />}
             </SidebarContent>
             <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            onClick={toggleFullscreen}
+                            tooltip={isFullscreen ? "Выйти из полноэкранного режима" : "Полноэкранный режим"}
+                        >
+                            {isFullscreen ? <Minimize /> : <Maximize />}
+                            <span>{isFullscreen ? "Выйти из полного экрана" : "Полный экран"}</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
             </SidebarFooter>
         </Sidebar >
     )

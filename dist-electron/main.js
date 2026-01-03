@@ -60,6 +60,17 @@ ipcMain.handle("get-offline-schedule", async () => {
     return null;
   }
 });
+ipcMain.handle("toggle-fullscreen", async () => {
+  if (win) {
+    const isFullScreen = win.isFullScreen();
+    win.setFullScreen(!isFullScreen);
+    return !isFullScreen;
+  }
+  return false;
+});
+ipcMain.handle("is-fullscreen", async () => {
+  return win ? win.isFullScreen() : false;
+});
 process.env.APP_ROOT = path.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
