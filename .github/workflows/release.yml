@@ -83,6 +83,15 @@ jobs:
         with:
           path: artifacts
 
+      - name: Consolidate Artifacts
+        shell: bash
+        run: |
+          mkdir -p release-files
+          # Copy all files, overwriting duplicates (keeps last one)
+          find artifacts -type f \( -name "*Setup.exe" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.blockmap" -o -name "*-mac.yml" -o -name "latest*.yml" \) -exec cp {} release-files/ \;
+          echo "Files to upload:"
+          ls -lh release-files/
+
       - name: Generate Release Notes
         shell: bash
         run: |
@@ -111,12 +120,6 @@ jobs:
           body_path: release-notes.md
           draft: false
           prerelease: false
-          files: |
-            artifacts/**/*Setup.exe
-            artifacts/**/*.dmg
-            artifacts/**/*.AppImage
-            artifacts/**/*.blockmap
-            artifacts/**/*-mac.yml
-            artifacts/**/latest*.yml
+          files: release-files/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
