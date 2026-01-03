@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Calendar, LayoutList, LayoutDashboard, SplitSquareHorizontal, Maximize, Minimize } from "lucide-react"
+import { Calendar, LayoutList, LayoutDashboard, SplitSquareHorizontal, Maximize, Minimize, Sun, Moon } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -14,9 +14,15 @@ import { TaskflowSwitcher } from "@/shared/components/team-switcher/ui/team-swit
 import { RecentHistory } from "@/features/search/ui/recent-history"
 import { useSchedule } from "@/app/provider/schedule-provider"
 import { useFullscreen } from "@/shared/hooks/use-fullscreen"
+import { useTheme } from "@/app/provider/theme-provider"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { viewMode, setViewMode } = useSchedule();
     const { isFullscreen, toggleFullscreen } = useFullscreen();
+    const { theme, setTheme } = useTheme();
+
+    const toggleTheme = () => {
+        setTheme(theme === "dark" ? "light" : "dark");
+    };
 
     return (
         <Sidebar collapsible="none" {...props}>
@@ -74,6 +80,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarContent>
             <SidebarFooter>
                 <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            onClick={toggleTheme}
+                            tooltip={theme === "dark" ? "Светлая тема" : "Темная тема"}
+                        >
+                            {theme === "dark" ? <Sun /> : <Moon />}
+                            <span>{theme === "dark" ? "Светлая тема" : "Темная тема"}</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             onClick={toggleFullscreen}

@@ -18,7 +18,7 @@ export function MainLayoutSide({
         >
             <AppSidebar variant="sidebar" />
             <SidebarInset>
-                <div className="flex flex-1 flex-col overflow-y-auto">
+                <div className="flex flex-1 flex-col overflow-y-auto bg-background">
                     <div className="flex-1">{children}</div>
                 </div>
             </SidebarInset>

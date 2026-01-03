@@ -6,6 +6,7 @@ import { ScheduleProvider, useSchedule } from "@/app/provider/schedule-provider"
 import { queryClient } from "@/shared/api/query-client";
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+import { ThemeProvider } from './provider/theme-provider';
 
 const persister = createSyncStoragePersister({
   storage: window.localStorage,
@@ -71,7 +72,9 @@ function App() {
     <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
       <div className="absolute top-0 left-0 z-50 h-8 w-full titlebar" />
       <ScheduleProvider>
-        <AppContent />
+        <ThemeProvider>
+          <AppContent />
+        </ThemeProvider>
       </ScheduleProvider>
     </PersistQueryClientProvider>
   )
