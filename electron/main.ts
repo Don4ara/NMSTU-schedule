@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme, nativeImage } from 'electron'
 
 // Force light theme for window controls visibility
 nativeTheme.themeSource = 'light'
@@ -174,8 +174,15 @@ if (!gotTheLock) {
   app.whenReady().then(() => {
     // Set branding
     if (process.platform === 'darwin') {
-      app.dock.setIcon(path.join(process.env.VITE_PUBLIC, 'Icon_app.png'));
-      app.setName('NMSTU-Shedule');
+      try {
+        const iconPath = path.join(process.env.VITE_PUBLIC, 'Icon_app.png');
+        const image = nativeImage.createFromPath(iconPath);
+        app.dock.setIcon(image);
+        // app.setName is often read-only in packaged apps (Info.plist source of truth)
+        // app.setName('NMSTU-Shedule'); 
+      } catch (e) {
+        console.error("Failed to set dock icon:", e);
+      }
     }
 
     createWindow()

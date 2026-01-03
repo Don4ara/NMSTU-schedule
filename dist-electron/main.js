@@ -94,11 +94,6 @@ function createWindow() {
   } else {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
-  if (process.platform === "darwin") {
-    const iconPath = path.join(process.env.VITE_PUBLIC, "Icon_app.png");
-    const image = nativeImage.createFromPath(iconPath);
-    app.dock.setIcon(image.resize({ width: 128, height: 128 }));
-  }
 }
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
@@ -122,6 +117,15 @@ if (!gotTheLock) {
     }
   });
   app.whenReady().then(() => {
+    if (process.platform === "darwin") {
+      try {
+        const iconPath = path.join(process.env.VITE_PUBLIC, "Icon_app.png");
+        const image = nativeImage.createFromPath(iconPath);
+        app.dock.setIcon(image);
+      } catch (e) {
+        console.error("Failed to set dock icon:", e);
+      }
+    }
     createWindow();
   });
 }

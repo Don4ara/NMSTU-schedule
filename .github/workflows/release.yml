@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -27,6 +29,23 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
+
+      - name: Generate Release Notes
+        shell: bash
+        run: |
+          # Try to get the previous tag. If none exists, log all commits.
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found. Generating notes for all commits."
+            git log --pretty=format:"- %s" > release-notes.md
+          else
+            echo "Generating release notes from $PREV_TAG to HEAD"
+            git log ${PREV_TAG}..HEAD --pretty=format:"- %s" > release-notes.md
+          fi
+          
+          echo "Release Notes Content:"
+          cat release-notes.md
 
       - name: Check Release Version
         shell: bash
@@ -44,16 +63,16 @@ jobs:
         if: matrix.os == 'windows-latest'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm exec electron-builder -- --publish always --win
+        run: npm exec electron-builder -- --publish always --win -c.releaseInfo.releaseNotesFile=release-notes.md
 
       - name: Publish Release (macOS)
         if: matrix.os == 'macos-latest'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm exec electron-builder -- --publish always --mac
+        run: npm exec electron-builder -- --publish always --mac -c.releaseInfo.releaseNotesFile=release-notes.md
 
       - name: Publish Release (Linux)
         if: matrix.os == 'ubuntu-latest'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm exec electron-builder -- --publish always --linux
+        run: npm exec electron-builder -- --publish always --linux -c.releaseInfo.releaseNotesFile=release-notes.md
