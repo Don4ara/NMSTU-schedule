@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BookOpen } from 'lucide-react';
 import { Day } from '@/entities/schedule/model/types';
 import { isEventActive } from '../../lib/schedule-utils';
@@ -11,7 +11,19 @@ interface DayColumnProps {
     isGroup: boolean;
 }
 
-export const DayColumn: React.FC<DayColumnProps> = ({ day, date, isGroup }) => {
+export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => {
+    // Memoize expensive duplicate filtering
+    const uniqueEvents = useMemo(() => {
+        return day.events.filter((event, index, self) =>
+            index === self.findIndex((t) => (
+                t.event_index === event.event_index &&
+                t.course === event.course &&
+                t.type === event.type &&
+                t.subgroup === event.subgroup
+            ))
+        );
+    }, [day.events]);
+
     return (
         <div className="flex flex-col" id={`day-${day.day_id}`}>
             <h3 className="flex items-center justify-between text-sm font-bold text-slate-700 mb-3 px-1">
@@ -22,7 +34,7 @@ export const DayColumn: React.FC<DayColumnProps> = ({ day, date, isGroup }) => {
                             day.day === 'Вторник' ? 'bg-blue-500' :
                                 day.day === 'Среда' ? 'bg-sky-500' :
                                     day.day === 'Четверг' ? 'bg-teal-500' :
-                                               day.day === 'Пятница' ? 'bg-emerald-500' : 'bg-orange-500'}
+                                        day.day === 'Пятница' ? 'bg-emerald-500' : 'bg-orange-500'}
                 `}></div>
                     {day.day}
                 </div>
@@ -36,28 +48,19 @@ export const DayColumn: React.FC<DayColumnProps> = ({ day, date, isGroup }) => {
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {day.events
-                        .filter((event, index, self) =>
-                            index === self.findIndex((t) => (
-                                t.event_index === event.event_index &&
-                                t.course === event.course &&
-                                t.type === event.type &&
-                                t.subgroup === event.subgroup
-                            ))
-                        )
-                        .map((event, idx) => {
-                            const isActive = isEventActive(day.day_id, event.event_index);
-                            return (
-                                <ScheduleCard
-                                    key={idx}
-                                    event={event}
-                                    isActive={isActive}
-                                    isGroup={isGroup}
-                                />
-                            );
-                        })}
+                    {uniqueEvents.map((event, idx) => {
+                        const isActive = isEventActive(day.day_id, event.event_index);
+                        return (
+                            <ScheduleCard
+                                key={idx}
+                                event={event}
+                                isActive={isActive}
+                                isGroup={isGroup}
+                            />
+                        );
+                    })}
                 </div>
             )}
         </div>
     );
-};
+});

@@ -1,7 +1,7 @@
 // @see - https://www.electron.build/configuration/configuration
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "NMSTUPlaner",
+  "appId": "com.nmstu.planer",
   "asar": true,
   "compression": "maximum",
   "electronLanguages": [
@@ -36,6 +36,9 @@
       }
     ],
     "icon": "public/Icon_app.png",
+    "category": "public.app-category.productivity",
+    "bundleVersion": "1.5.1",
+    "minimumSystemVersion": "10.15.0",
     "artifactName": "${productName}-Mac-${version}-${arch}-Installer.${ext}"
   },
   "win": {

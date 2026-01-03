@@ -2,8 +2,13 @@ import React, { Suspense } from 'react';
 import { Loader2 } from "lucide-react";
 import { MainLayoutSide } from "@/shared/components/layout/MainLayoutSide";
 import { ScheduleProvider, useSchedule } from "@/app/provider/schedule-provider";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/shared/api/query-client";
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+
+const persister = createSyncStoragePersister({
+  storage: window.localStorage,
+});
 
 // Lazy load components to optimize RAM usage
 const Dashboard = React.lazy(() => import("@/features/dashboard/ui/dashboard").then(module => ({ default: module.Dashboard })));
@@ -24,12 +29,12 @@ const AppContent = () => {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
       <div className="absolute top-0 left-0 z-50 h-8 w-full titlebar" />
       <ScheduleProvider>
         <AppContent />
       </ScheduleProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   )
 }
 

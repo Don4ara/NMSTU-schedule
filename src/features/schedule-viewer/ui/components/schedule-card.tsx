@@ -23,7 +23,7 @@ const Badge = ({ children, className = "" }: { children: React.ReactNode, classN
     </span>
 );
 
-export const ScheduleCard: React.FC<ScheduleCardProps> = ({ event, isActive, isGroup }) => {
+export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, isGroup }) => {
     const { setSelectedEntity, setViewMode } = useSchedule();
     return (
         <Card
@@ -50,10 +50,10 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ event, isActive, isG
                 </h4>
 
                 {/* Footer: Location & Teacher */}
-                <div className="mt-auto flex items-center justify-between text-[10px] text-slate-500 pt-1.5 border-t border-slate-50">
+                <div className="mt-auto flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-50">
                     <div className="flex items-center gap-1 min-w-0 shrink-0">
-                        <MapPin size={10} className="text-slate-400" />
-                        <span className="truncate max-w-[80px]">{event.location}</span>
+                        <MapPin size={12} className="text-slate-400" />
+                        <span className="truncate max-w-[90px] font-medium">{event.location}</span>
                     </div>
                     <div
                         className="flex items-center gap-1 min-w-0 justify-end cursor-pointer hover:text-blue-600 transition-colors group/reverse"
@@ -75,11 +75,11 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ event, isActive, isG
                         }}
                         title={`Перейти к расписанию: ${event.reverse}`}
                     >
-                        {isGroup ? <User size={10} className="text-slate-400 group-hover/reverse:text-blue-500" /> : <Users size={10} className="text-slate-400 group-hover/reverse:text-blue-500" />}
-                        <span className="truncate max-w-[100px] text-right underline decoration-dotted decoration-slate-300 underline-offset-2 group-hover/reverse:decoration-blue-400">{event.reverse}</span>
+                        {isGroup ? <User size={12} className="text-slate-400 group-hover/reverse:text-blue-500" /> : <Users size={12} className="text-slate-400 group-hover/reverse:text-blue-500" />}
+                        <span className="truncate max-w-[120px] text-right underline decoration-dotted decoration-slate-300 underline-offset-2 group-hover/reverse:decoration-blue-400 font-medium">{event.reverse}</span>
                     </div>
                 </div>
             </div>
         </Card>
     );
-};
+});
