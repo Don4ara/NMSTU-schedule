@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule } from '@/shared/api/timetable';
 import { ScheduleData, Event as ScheduleEvent } from '@/entities/schedule/model/types';
@@ -102,7 +103,15 @@ export const CalendarViewer = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-white/50 backdrop-blur-sm max-w-[1920px] mx-auto w-full justify-center p-4 md:p-8 relative">
+        <motion.div
+            className="flex flex-col h-full bg-white/50 backdrop-blur-sm max-w-[1920px] mx-auto w-full justify-center p-4 md:p-8 relative"
+            layout
+            transition={{
+                type: "spring" as const,
+                stiffness: 300,
+                damping: 30,
+            }}
+        >
             <CalendarHeader
                 month={month}
                 year={year}
@@ -134,6 +143,6 @@ export const CalendarViewer = () => {
                 events={selectedEvents}
                 isGroup={trackedEntity?.type === 'group'}
             />
-        </div>
+        </motion.div>
     );
 };

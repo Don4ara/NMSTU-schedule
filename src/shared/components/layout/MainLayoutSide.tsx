@@ -1,4 +1,5 @@
 import * as React from "react";
+import { motion } from "framer-motion";
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
 import { AppSidebar } from "@/shared/components/appsidebar/ui/app-sidebar";
 
@@ -18,9 +19,17 @@ export function MainLayoutSide({
         >
             <AppSidebar variant="sidebar" />
             <SidebarInset>
-                <div className="flex flex-1 flex-col overflow-y-auto">
+                <motion.div
+                    className="flex flex-1 flex-col overflow-y-auto"
+                    layout
+                    transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                    }}
+                >
                     <div className="flex-1">{children}</div>
-                </div>
+                </motion.div>
             </SidebarInset>
         </SidebarProvider>
     );
