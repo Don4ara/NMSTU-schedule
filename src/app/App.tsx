@@ -12,21 +12,20 @@ const persister = createSyncStoragePersister({
 });
 
 // Lazy load components to optimize RAM usage
-const Dashboard = React.lazy(() => import("@/features/dashboard/ui/dashboard").then(module => ({ default: module.Dashboard })));
-const CalendarViewer = React.lazy(() => import("@/features/calendar-viewer/ui/calendar-viewer").then(module => ({ default: module.CalendarViewer })));
-const ScheduleComparisonPage = React.lazy(() => import("@/features/schedule-comparison/ui/schedule-comparison").then(module => ({ default: module.ScheduleComparisonPage })));
-const ScheduleViewer = React.lazy(() => import("@/features/schedule-viewer/ui/schedule-viewer").then(module => ({ default: module.ScheduleViewer })));
+const Dashboard = React.lazy(() => import("@/pages/home/ui").then(module => ({ default: module.Dashboard })));
+const CalendarViewer = React.lazy(() => import("@/pages/calendar/ui").then(module => ({ default: module.CalendarViewer })));
+const ScheduleComparisonPage = React.lazy(() => import("@/pages/comparison/ui").then(module => ({ default: module.ScheduleComparisonPage })));
+const ScheduleViewer = React.lazy(() => import("@/pages/schedule/ui").then(module => ({ default: module.ScheduleViewer })));
 
 const pageVariants = {
-  initial: { opacity: 0, scale: 0.98 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.98 }
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 }
 };
 
 const pageTransition = {
-  type: "spring" as const,
-  stiffness: 300,
-  damping: 30,
+  duration: 0.15,
+  ease: [0.4, 0, 0.2, 1] as const // easeInOut cubic bezier
 };
 
 const AppContent = () => {
@@ -57,6 +56,7 @@ const AppContent = () => {
             exit="exit"
             transition={pageTransition}
             className="h-full w-full"
+            style={{ willChange: 'opacity' }}
           >
             {renderView()}
           </motion.div>

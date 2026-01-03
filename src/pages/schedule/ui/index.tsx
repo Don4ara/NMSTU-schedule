@@ -6,13 +6,13 @@ import {
     WifiOff,
 } from 'lucide-react';
 import { useSchedule } from '@/app/provider/schedule-provider';
-import { MOCK_DB } from '../lib/mock-data';
+import { MOCK_DB } from '@/features/schedule-viewer/lib/mock-data';
 import { ScheduleData, Week } from '@/entities/schedule/model/types';
 import { getSchedule } from '@/shared/api/timetable';
-import { getCurrentWeekName, getDateForDay } from '../lib/schedule-utils';
-import { ScheduleHeader } from './components/schedule-header';
-import { WeekTabs } from './components/week-tabs';
-import { DayColumn } from './components/day-column';
+import { getCurrentWeekName, getDateForDay } from '@/features/schedule-viewer/lib/schedule-utils';
+import { ScheduleHeader } from '@/features/schedule-viewer/ui/components/schedule-header';
+import { WeekTabs } from '@/features/schedule-viewer/ui/components/week-tabs';
+import { DayColumn } from '@/features/schedule-viewer/ui/components/day-column';
 
 
 export const ScheduleViewer = () => {

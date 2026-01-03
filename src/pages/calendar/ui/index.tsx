@@ -4,10 +4,10 @@ import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule } from '@/shared/api/timetable';
 import { ScheduleData, Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { useQuery } from '@tanstack/react-query';
-import { CalendarHeader } from './components/calendar-header';
-import { CalendarGrid } from './components/calendar-grid';
-import { CalendarEmptyState } from './components/calendar-empty-state';
-import { DayDetailsDialog } from './components/day-details-dialog';
+import { CalendarHeader } from '@/features/calendar-viewer/ui/components/calendar-header';
+import { CalendarGrid } from '@/features/calendar-viewer/ui/components/calendar-grid';
+import { CalendarEmptyState } from '@/features/calendar-viewer/ui/components/calendar-empty-state';
+import { DayDetailsDialog } from '@/features/calendar-viewer/ui/components/day-details-dialog';
 import CalendarWorker from '@/shared/workers/calendar.worker?worker';
 
 // Helper to get days in month
