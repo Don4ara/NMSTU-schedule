@@ -33,15 +33,12 @@ export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, is
             <div className="p-2 flex flex-col gap-1.5 relative h-full">
                 {/* Header: Time, Type */}
                 <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 text-[10px]">
-                        <span className={`font-mono font-medium px-1 py-0.5 rounded leading-none ${isActive ? 'bg-purple-200 text-purple-800' : 'bg-slate-100 text-slate-500'}`}>
-                            {getEventTime(event.event_index)}
-                        </span>
-                        <Badge className={`${getEventTypeColor(event.type)} border px-1 py-0 text-[9px] h-4`}>
-                            {event.type}
-                        </Badge>
-                    </div>
-
+                    <span className={`font-mono font-medium px-1 py-0.5 rounded leading-none text-[10px] ${isActive ? 'bg-purple-200 text-purple-800' : 'bg-slate-100 text-slate-500'}`}>
+                        {getEventTime(event.event_index)}
+                    </span>
+                    <Badge className={`${getEventTypeColor(event.type)} border px-1 py-0 text-[9px] h-4`}>
+                        {event.type}
+                    </Badge>
                 </div>
 
                 {/* Course Name */}
