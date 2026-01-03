@@ -94,12 +94,6 @@ export const Dashboard = () => {
     return (
         <motion.div
             className="h-full overflow-y-auto bg-slate-50/50 p-4 md:p-6 lg:p-8 select-none flex flex-col font-sans text-slate-900"
-            layout
-            transition={{
-                type: "spring" as const,
-                stiffness: 300,
-                damping: 30,
-            }}
         >
             <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6 auto-rows-min my-auto">
 

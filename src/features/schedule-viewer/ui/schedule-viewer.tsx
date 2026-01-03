@@ -102,12 +102,6 @@ export const ScheduleViewer = () => {
     return (
         <motion.div
             className="w-full max-w-[1920px] mx-auto animate-in fade-in duration-500 min-h-full flex flex-col justify-center p-4 md:p-8 relative"
-            layout
-            transition={{
-                type: "spring" as const,
-                stiffness: 300,
-                damping: 30,
-            }}
         >
             <ScheduleHeader scheduleData={scheduleData} isUsingMockData={isUsingMockData}>
                 <div className="w-56">

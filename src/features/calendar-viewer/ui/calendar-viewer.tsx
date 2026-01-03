@@ -105,12 +105,6 @@ export const CalendarViewer = () => {
     return (
         <motion.div
             className="flex flex-col h-full bg-white/50 backdrop-blur-sm max-w-[1920px] mx-auto w-full justify-center p-4 md:p-8 relative"
-            layout
-            transition={{
-                type: "spring" as const,
-                stiffness: 300,
-                damping: 30,
-            }}
         >
             <CalendarHeader
                 month={month}
