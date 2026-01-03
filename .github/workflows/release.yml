@@ -58,11 +58,12 @@ jobs:
         with:
           name: release-${{ matrix.os }}
           path: |
-            release/**/*.exe
+            release/**/*Setup.exe
             release/**/*.dmg
             release/**/*.AppImage
             release/**/*.blockmap
-            release/**/*.yml
+            release/**/*-mac.yml
+            release/**/latest*.yml
           retention-days: 1
 
   publish:
@@ -111,10 +112,11 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            artifacts/**/*.exe
+            artifacts/**/*Setup.exe
             artifacts/**/*.dmg
             artifacts/**/*.AppImage
             artifacts/**/*.blockmap
-            artifacts/**/*.yml
+            artifacts/**/*-mac.yml
+            artifacts/**/latest*.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
