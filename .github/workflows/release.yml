@@ -5,7 +5,7 @@ on:
       - main
 
 jobs:
-  release:
+  build:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -30,10 +30,61 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Check Release Version
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Preparing release for version: $VERSION"
+
+      - name: Compile Source Code
+        run: |
+          npm exec tsc
+          npm exec vite build
+
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
+        run: npm exec electron-builder -- --win --publish never
+
+      - name: Build (macOS)
+        if: matrix.os == 'macos-latest'
+        run: npm exec electron-builder -- --mac --publish never
+
+      - name: Build (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: npm exec electron-builder -- --linux --publish never
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.os }}
+          path: |
+            release/**/*.exe
+            release/**/*.dmg
+            release/**/*.AppImage
+            release/**/*.blockmap
+            release/**/*.yml
+          retention-days: 1
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
       - name: Generate Release Notes
         shell: bash
         run: |
-          # Try to get the previous tag. If none exists, log all commits.
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           
           if [ -z "$PREV_TAG" ]; then
@@ -47,32 +98,23 @@ jobs:
           echo "Release Notes Content:"
           cat release-notes.md
 
-      - name: Check Release Version
-        shell: bash
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "Preparing release for version: $VERSION"
-          echo "Ensure this version is updated in package.json before pushing if you want a new release."
+      - name: Get Version
+        id: version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Compile Source Code
-        run: |
-          npm exec tsc
-          npm exec vite build
-
-      - name: Publish Release (Windows)
-        if: matrix.os == 'windows-latest'
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: Release v${{ steps.version.outputs.VERSION }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.AppImage
+            artifacts/**/*.blockmap
+            artifacts/**/*.yml
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm exec electron-builder -- --publish always --win -c.releaseInfo.releaseNotesFile=release-notes.md
-
-      - name: Publish Release (macOS)
-        if: matrix.os == 'macos-latest'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm exec electron-builder -- --publish always --mac -c.releaseInfo.releaseNotesFile=release-notes.md
-
-      - name: Publish Release (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm exec electron-builder -- --publish always --linux -c.releaseInfo.releaseNotesFile=release-notes.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
