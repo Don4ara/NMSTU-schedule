@@ -131,11 +131,20 @@ function createWindow() {
     backgroundColor: '#00000000', // Прозрачный фон, но темный при необходимости
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
+      devTools: !!VITE_DEV_SERVER_URL, // DevTools только в dev режиме
     },
   })
 
   // Remove the menu bar (File, Edit, etc.) on Windows/Linux
   win.setMenu(null)
+
+  // Отключаем DevTools в production
+  if (!VITE_DEV_SERVER_URL) {
+    // Блокируем открытие DevTools
+    win.webContents.on('devtools-opened', () => {
+      win?.webContents.closeDevTools()
+    })
+  }
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {

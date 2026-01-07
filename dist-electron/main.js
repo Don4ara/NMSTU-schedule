@@ -92,10 +92,17 @@ function createWindow() {
     backgroundColor: "#00000000",
     // Прозрачный фон, но темный при необходимости
     webPreferences: {
-      preload: path.join(__dirname$1, "preload.mjs")
+      preload: path.join(__dirname$1, "preload.mjs"),
+      devTools: !!VITE_DEV_SERVER_URL
+      // DevTools только в dev режиме
     }
   });
   win.setMenu(null);
+  if (!VITE_DEV_SERVER_URL) {
+    win.webContents.on("devtools-opened", () => {
+      win == null ? void 0 : win.webContents.closeDevTools();
+    });
+  }
   win.webContents.on("did-finish-load", () => {
     if (win && !win.isDestroyed()) {
       win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
