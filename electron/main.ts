@@ -81,7 +81,7 @@ ipcMain.handle('get-offline-schedule', async () => {
 
 // Fullscreen toggle handler
 ipcMain.handle('toggle-fullscreen', async () => {
-  if (win) {
+  if (win && !win.isDestroyed()) {
     const isFullScreen = win.isFullScreen();
     win.setFullScreen(!isFullScreen);
     return !isFullScreen;
@@ -90,7 +90,7 @@ ipcMain.handle('toggle-fullscreen', async () => {
 })
 
 ipcMain.handle('is-fullscreen', async () => {
-  return win ? win.isFullScreen() : false;
+  return (win && !win.isDestroyed()) ? win.isFullScreen() : false;
 })
 
 // ... (rest of the file)
@@ -138,7 +138,9 @@ function createWindow() {
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', (new Date).toLocaleString())
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('main-process-message', (new Date).toLocaleString())
+    }
   })
 
   // Wait for the main window to be ready before showing it
@@ -179,7 +181,7 @@ if (!gotTheLock) {
 } else {
   app.on('second-instance', () => {
     // Someone tried to run a second instance, we should focus our window.
-    if (win) {
+    if (win && !win.isDestroyed()) {
       if (win.isMinimized()) win.restore()
       win.focus()
     }

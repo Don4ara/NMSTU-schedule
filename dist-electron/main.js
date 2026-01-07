@@ -61,7 +61,7 @@ ipcMain.handle("get-offline-schedule", async () => {
   }
 });
 ipcMain.handle("toggle-fullscreen", async () => {
-  if (win) {
+  if (win && !win.isDestroyed()) {
     const isFullScreen = win.isFullScreen();
     win.setFullScreen(!isFullScreen);
     return !isFullScreen;
@@ -69,7 +69,7 @@ ipcMain.handle("toggle-fullscreen", async () => {
   return false;
 });
 ipcMain.handle("is-fullscreen", async () => {
-  return win ? win.isFullScreen() : false;
+  return win && !win.isDestroyed() ? win.isFullScreen() : false;
 });
 process.env.APP_ROOT = path.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
@@ -95,7 +95,9 @@ function createWindow() {
   });
   win.setMenu(null);
   win.webContents.on("did-finish-load", () => {
-    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+    if (win && !win.isDestroyed()) {
+      win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+    }
   });
   win.once("ready-to-show", () => {
     win == null ? void 0 : win.show();
@@ -122,7 +124,7 @@ if (!gotTheLock) {
   app.quit();
 } else {
   app.on("second-instance", () => {
-    if (win) {
+    if (win && !win.isDestroyed()) {
       if (win.isMinimized()) win.restore();
       win.focus();
     }

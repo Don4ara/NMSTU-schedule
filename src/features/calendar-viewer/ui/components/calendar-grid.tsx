@@ -47,18 +47,18 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     }
 
     return (
-        <div className="flex-1 p-4 md:p-6 h-full flex flex-col min-h-0 bg-slate-50/50">
+        <div className="flex-1 mt-6 h-full flex flex-col min-h-0">
             <div
-                className="grid grid-cols-7 border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white flex-1"
+                className="grid grid-cols-7 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm dark:bg-slate-900 flex-1"
                 style={{ gridTemplateRows: `auto repeat(${weeks}, minmax(0, 1fr))` }}
             >
                 {/* Weekday Headers */}
                 {WEEKDAYS.map((day, index) => (
                     <div
                         key={day}
-                        className={`bg-slate-50 py-3 text-center text-xs font-semibold uppercase tracking-widest border-b border-slate-100 
-                            ${index !== 6 ? 'border-r border-slate-100' : ''}
-                            ${index >= 5 ? 'text-red-400' : 'text-slate-500'}
+                        className={`bg-slate-50 dark:bg-slate-800 py-3 text-center text-xs font-semibold uppercase tracking-widest border-b border-slate-100 dark:border-slate-700 
+                            ${index !== 6 ? 'border-r border-slate-100 dark:border-slate-700' : ''}
+                            ${index >= 5 ? 'text-red-400 dark:text-red-500' : 'text-slate-500 dark:text-slate-400'}
                         `}
                     >
                         {day}
@@ -73,7 +73,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                     return (
                         <div
                             key={`empty-${i}`}
-                            className={`min-h-0 h-full border-b border-r border-slate-100 ${isWeekend ? 'bg-slate-50/60' : 'bg-slate-50/30'}`}
+                            className={`min-h-0 h-full border-b border-r border-slate-100 dark:border-slate-700 ${isWeekend ? 'bg-slate-50/60 dark:bg-slate-800/60' : 'bg-slate-50/30 dark:bg-slate-800/30'}`}
                         ></div>
                     );
                 })}
@@ -103,9 +103,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                             onClick={() => onDayClick(day)}
                             className={`
                                 min-h-0 h-full p-2 flex flex-col group transition-all duration-200 relative
-                                border-b border-slate-100 ${!isLastInRow ? 'border-r' : ''}
-                                hover:bg-slate-50 cursor-pointer
-                                ${isToday ? 'bg-blue-50/10' : isWeekend ? 'bg-slate-50/40' : 'bg-white'}
+                                border-b border-slate-100 dark:border-slate-700 ${!isLastInRow ? 'border-r dark:border-slate-700' : ''}
+                                hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer
+                                ${isToday ? 'bg-blue-50/10 dark:bg-blue-900/20 dark:bg-blue-50/10' : isWeekend ? 'dark:bg-slate-800/40' : 'bg-white dark:bg-slate-900'}
                             `}
                         >
                             {/* Day Number */}
@@ -113,8 +113,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                                 <span className={`
                                     text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition-colors
                                     ${isToday
-                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
-                                        : isWeekend ? 'text-red-400 group-hover:bg-red-50' : 'text-slate-700 group-hover:bg-slate-200/70'}
+                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900'
+                                        : isWeekend ? 'text-red-400 dark:text-red-500 group-hover:bg-red-50 dark:group-hover:bg-red-900/20' : 'text-slate-700 dark:text-slate-300 group-hover:bg-slate-200/70 dark:group-hover:bg-slate-700'}
                                 `}>
                                     {day}
                                 </span>

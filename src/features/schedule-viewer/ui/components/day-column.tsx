@@ -42,7 +42,7 @@ export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => 
             </h3>
 
             {day.events.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 py-6 bg-white rounded-lg border border-dashed border-slate-200">
+                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 py-6 rounded-lg border border-dashed border-slate-200">
                     <BookOpen className="mb-2 opacity-20" size={20} />
                     <span className="text-xs font-medium">Нет занятий</span>
                 </div>
