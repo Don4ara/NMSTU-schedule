@@ -8,6 +8,9 @@ import { Loader2, MapPin, User, Clock, GraduationCap, LogOut } from 'lucide-reac
 import { ScheduleData, Week, Day, Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { Search } from '@/features/search/ui/search';
 import { format } from 'date-fns';
+import {Button} from "@/shared/components/ui/button.tsx";
+import {Separator} from "@/shared/components/ui/separator.tsx";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/shared/components/ui/tooltip.tsx";
 
 export const Dashboard = () => {
     const { trackedEntity, setTrackedEntity, setViewMode, setSelectedEntity } = useSchedule();
@@ -47,7 +50,7 @@ export const Dashboard = () => {
 
     if (!trackedEntity) {
         return (
-            <div className="h-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500 bg-slate-50/50">
+            <div className="h-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
                 <div className="max-w-2xl w-full flex flex-col items-center">
                     <div className="bg-white p-6 rounded-full shadow-sm mb-8 border border-slate-100">
                         <GraduationCap size={64} className="text-blue-600" />
@@ -93,7 +96,7 @@ export const Dashboard = () => {
     // --- Render ---
     return (
         <motion.div
-            className="h-full overflow-y-auto bg-slate-50/50 p-4 md:p-6 lg:p-8 select-none flex flex-col font-sans text-slate-900"
+            className="h-full overflow-y-auto p-4 md:p-6 lg:p-8 select-none flex flex-col font-sans text-slate-900"
         >
             <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6 auto-rows-min my-auto">
 
@@ -110,33 +113,47 @@ export const Dashboard = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
-                        <button
+                    <div className="flex items-center gap-1 p-1 rounded-xl">
+                        <Button
+                            size="sm"
                             onClick={() => {
-                                // Specific logic: When going from Dashboard, show the Tracked Entity
                                 if (trackedEntity) setSelectedEntity(trackedEntity);
                                 setViewMode('schedule');
                             }}
-                            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"
+                            className="px-4 h-9 font-medium text-slate-600 transition-all"
                         >
                             Расписание
-                        </button>
+                        </Button>
 
-                        <div className="w-px h-4 bg-slate-200"></div>
-                        <button
+                        <Separator orientation="vertical" className="h-4 bg-slate-200" />
+
+                        <Button
+                            size="sm"
                             onClick={() => setViewMode('calendar')}
-                            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"
+                            className="px-4 h-9 font-medium text-slate-600 transition-all"
                         >
                             Календарь
-                        </button>
-                        <div className="w-px h-4 bg-slate-200"></div>
-                        <button
-                            onClick={() => setTrackedEntity(null)}
-                            className="px-3 py-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Выйти"
-                        >
-                            <LogOut size={18} />
-                        </button>
+                        </Button>
+
+                        <Separator orientation="vertical" className="h-4 bg-slate-200" />
+
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => setTrackedEntity(null)}
+                                        className="h-9 w-9 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                    >
+                                        <LogOut className="h-[18px] w-[18px]" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Выйти</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     </div>
                 </div>
 

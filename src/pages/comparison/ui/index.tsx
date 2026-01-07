@@ -89,7 +89,7 @@ export const ScheduleComparisonPage = () => {
             </div>
 
             {/* Entity Headers (Fixed at top) */}
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 mb-4 shrink-0 z-30 sticky top-0 bg-white py-4 pr-30 pl-30">
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 mb-4 shrink-0 z-30 sticky top-0 py-4 pr-30 pl-30">
                 {/* Primary Header (Left) */}
                 <div className={`px-6 flex justify-between items-center rounded-xl transition-all ${primaryEntity ? 'bg-white/50 border border-slate-100' : 'mt-0'}`}>
                     {primaryEntity ? (
