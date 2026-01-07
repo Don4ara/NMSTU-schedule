@@ -1,24 +1,24 @@
-import {useEffect, useState} from 'react';
-import {motion} from 'framer-motion';
-import {useSchedule} from '@/app/provider/schedule-provider';
-import {useQuery} from '@tanstack/react-query';
-import {getSchedule, saveOfflineSchedule} from '@/shared/api/timetable';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useSchedule } from '@/app/provider/schedule-provider';
+import { useQuery } from '@tanstack/react-query';
+import { getSchedule, saveOfflineSchedule } from '@/shared/api/timetable';
 import {
     getCurrentWeekName,
     getNextEvent,
     getEventTime,
     EVENT_RANGES
 } from '@/features/schedule-viewer/lib/schedule-utils';
-import {Loader2, MapPin, User, Clock, GraduationCap, LogOut} from 'lucide-react';
-import {ScheduleData, Week, Day, Event as ScheduleEvent} from '@/entities/schedule/model/types';
-import {Search} from '@/features/search/ui/search';
-import {format} from 'date-fns';
-import {Button} from "@/shared/components/ui/button.tsx";
-import {Separator} from "@/shared/components/ui/separator.tsx";
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/shared/components/ui/tooltip.tsx";
+import { Loader2, MapPin, User, Clock, GraduationCap, LogOut } from 'lucide-react';
+import { ScheduleData, Week, Day, Event as ScheduleEvent } from '@/entities/schedule/model/types';
+import { Search } from '@/features/search/ui/search';
+import { format } from 'date-fns';
+import { Button } from "@/shared/components/ui/button.tsx";
+import { Separator } from "@/shared/components/ui/separator.tsx";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip.tsx";
 
 export const Dashboard = () => {
-    const {trackedEntity, setTrackedEntity, setViewMode, setSelectedEntity} = useSchedule();
+    const { trackedEntity, setTrackedEntity, setViewMode, setSelectedEntity } = useSchedule();
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
@@ -26,7 +26,7 @@ export const Dashboard = () => {
         return () => clearInterval(timer);
     }, []);
 
-    const {data: scheduleData, isLoading} = useQuery<ScheduleData | null>({
+    const { data: scheduleData, isLoading } = useQuery<ScheduleData | null>({
         queryKey: ['schedule', trackedEntity?.type, trackedEntity?.id],
         queryFn: () => getSchedule(trackedEntity!.type, trackedEntity!.id),
         enabled: !!trackedEntity,
@@ -48,7 +48,7 @@ export const Dashboard = () => {
     if (isLoading) {
         return (
             <div className="h-full flex items-center justify-center">
-                <Loader2 className="animate-spin text-blue-600" size={40}/>
+                <Loader2 className="animate-spin text-blue-600" size={40} />
             </div>
         );
     }
@@ -59,7 +59,7 @@ export const Dashboard = () => {
                 className="h-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
                 <div className="max-w-2xl w-full flex flex-col items-center">
                     <div className="bg-white p-6 rounded-full shadow-sm mb-8 border border-slate-100">
-                        <GraduationCap size={64} className="text-blue-600"/>
+                        <GraduationCap size={64} className="text-blue-600" />
                     </div>
                     <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
                         Добро пожаловать
@@ -69,11 +69,11 @@ export const Dashboard = () => {
                     </p>
                     <div
                         className="w-full max-w-md relative z-10 scale-110 transform transition-all group focus-within:scale-110">
-                            <Search
-                                placeholder="Найти группу..."
-                                className="w-full"
-                                onSelectResult={(result) => setTrackedEntity(result)}
-                            />
+                        <Search
+                            placeholder="Найти группу..."
+                            className="w-full"
+                            onSelectResult={(result) => setTrackedEntity(result)}
+                        />
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@ export const Dashboard = () => {
 
         if (dayData) {
             todayEvents = dayData.events;
-            const {current, next} = getNextEvent(todayEvents);
+            const { current, next } = getNextEvent(todayEvents);
             currentEvent = current;
             nextEvent = next;
         }
@@ -136,7 +136,7 @@ export const Dashboard = () => {
                             Расписание
                         </Button>
 
-                        <Separator orientation="vertical" className="h-4 bg-slate-200 dark:bg-slate-700"/>
+                        <Separator orientation="vertical" className="h-4 bg-slate-200 dark:bg-slate-700" />
 
                         <Button
                             size="sm"
@@ -147,7 +147,7 @@ export const Dashboard = () => {
                             Календарь
                         </Button>
 
-                        <Separator orientation="vertical" className="h-4 bg-slate-200 dark:bg-slate-700"/>
+                        <Separator orientation="vertical" className="h-4 bg-slate-200 dark:bg-slate-700" />
 
                         <TooltipProvider>
                             <Tooltip>
@@ -158,7 +158,7 @@ export const Dashboard = () => {
                                         onClick={() => setTrackedEntity(null)}
                                         className="h-9 w-9 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
                                     >
-                                        <LogOut className="h-[18px] w-[18px]"/>
+                                        <LogOut className="h-[18px] w-[18px]" />
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent className="dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200">
@@ -183,19 +183,19 @@ export const Dashboard = () => {
                         {currentEvent ? (
                             <>
                                 <div className="relative z-10 flex justify-between items-start">
-                <span
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100/50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider border border-blue-100 dark:border-blue-800">
-                    <span className="relative flex h-2 w-2">
-                        <span
-                            className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span
-                            className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                    </span>
-                    Сейчас
-                </span>
+                                    <span
+                                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100/50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider border border-blue-100 dark:border-blue-800">
+                                        <span className="relative flex h-2 w-2">
+                                            <span
+                                                className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                            <span
+                                                className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                                        </span>
+                                        Сейчас
+                                    </span>
                                     <span className="font-mono text-slate-400 dark:text-slate-500 font-medium">
-                    {getEventTime(currentEvent.event_index)}
-                </span>
+                                        {getEventTime(currentEvent.event_index)}
+                                    </span>
                                 </div>
 
                                 <div className="relative z-10 my-auto py-4">
@@ -205,12 +205,12 @@ export const Dashboard = () => {
                                     <div className="flex flex-wrap gap-4 text-slate-600 dark:text-slate-400">
                                         <div
                                             className="flex items-center gap-2 bg-white/60 dark:bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-700 backdrop-blur-sm">
-                                            <MapPin size={18} className="text-blue-500 dark:text-blue-400"/>
+                                            <MapPin size={18} className="text-blue-500 dark:text-blue-400" />
                                             <span className="font-medium">{currentEvent.location}</span>
                                         </div>
                                         <div
                                             className="flex items-center gap-2 bg-white/60 dark:bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-700 backdrop-blur-sm">
-                                            <User size={18} className="text-violet-500 dark:text-violet-400"/>
+                                            <User size={18} className="text-violet-500 dark:text-violet-400" />
                                             <span className="font-medium">{currentEvent.reverse}</span>
                                         </div>
                                     </div>
@@ -248,7 +248,7 @@ export const Dashboard = () => {
                                 <div className="flex flex-col items-center text-center mt-8">
                                     <div
                                         className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400 flex items-center justify-center mb-6">
-                                        <Clock size={32}/>
+                                        <Clock size={32} />
                                     </div>
                                     <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Следующая
                                         пара</h3>
@@ -286,7 +286,7 @@ export const Dashboard = () => {
                             <div className="relative z-10 h-full flex flex-col justify-center items-center text-center">
                                 <div
                                     className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 dark:text-emerald-400 flex items-center justify-center mb-6">
-                                    <GraduationCap size={32}/>
+                                    <GraduationCap size={32} />
                                 </div>
                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Занятия
                                     окончены</h3>
@@ -323,49 +323,57 @@ export const Dashboard = () => {
                     </div>
 
                     <div className="flex-1 pr-2 custom-scrollbar relative">
-                        {/* Timeline Line */}
-                        <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-slate-100"></div>
+                        {/* Линия таймлайна — белая в темной теме */}
+                        <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-white/20"></div>
 
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             {todayEvents.length > 0 ? (
                                 todayEvents.map((event, idx) => (
                                     <div key={idx} className="relative pl-10 group">
-                                        {/* Dot */}
+                                        {/* Точка (индикатор) — центрирована относительно линии */}
                                         <div
-                                            className={`absolute left-2 top-1.5 w-3 h-3 rounded-full border-2 border-white ring-1 ring-slate-200 z-10 transition-colors ${event === currentEvent ? 'bg-blue-500 ring-blue-300 scale-125' : 'bg-slate-200'}`}></div>
+                                            className={`absolute left-[10px] top-[22px] w-3 h-3 rounded-full border-2 z-10 transition-all duration-300 
+                        ${event === currentEvent
+                                                    ? 'bg-blue-500 border-white dark:border-slate-900 ring-4 ring-blue-500/30 scale-125'
+                                                    : 'bg-slate-300 dark:bg-white border-white dark:border-slate-900 group-hover:bg-blue-400'}`}
+                                        ></div>
 
-                                        {/* Content */}
-                                        <div className={`rounded-xl p-3 transition-all ${event === currentEvent
-                                            ? 'bg-blue-50/50 -ml-2 pl-4 border border-blue-100 dark:bg-blue-900/20 dark:border-blue-800'
-                                            : 'hover:bg-slate-50/50 dark:hover:bg-white/5'}`}>
-
-                                            <div className="flex justify-between items-baseline mb-1">
-                                                <span className={`text-xs font-bold uppercase tracking-wider ${
-                                                    event.type.toLowerCase().includes('лек') ? 'text-blue-600 dark:text-blue-400' :
-                                                        event.type.toLowerCase().includes('лаб') ? 'text-orange-600 dark:text-orange-400' :
-                                                            'text-emerald-600 dark:text-emerald-400'
-                                                }`}>
+                                        {/* Карточка события */}
+                                        <div className={`rounded-2xl p-3.5 transition-all duration-300 border
+                        ${event === currentEvent
+                                                ? 'bg-blue-50/50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 -ml-2 pl-5'
+                                                : 'bg-transparent border-transparent hover:bg-white dark:hover:bg-white/5 hover:border-slate-100 dark:hover:border-white/10'
+                                            }`}
+                                        >
+                                            <div className="flex justify-between items-baseline mb-1.5">
+                                                <span className={`text-xs font-bold uppercase tracking-widest ${event.type.toLowerCase().includes('лек') ? 'text-blue-600 dark:text-blue-400' :
+                                                    event.type.toLowerCase().includes('лаб') ? 'text-orange-600 dark:text-orange-400' :
+                                                        'text-emerald-600 dark:text-emerald-400'
+                                                    }`}>
                                                     {event.type}
                                                 </span>
-                                                                                        <span className="text-xs font-mono text-slate-400 dark:text-slate-500">
+                                                <span className="text-xs font-mono font-medium text-slate-400 dark:text-slate-300/50">
                                                     {getEventTime(event.event_index).split(' - ')[0]}
                                                 </span>
                                             </div>
 
                                             <div
-                                                className={`text-sm font-semibold mb-1 leading-snug ${event === currentEvent ? 'text-blue-900 dark:text-blue-100' : 'text-slate-800 dark:text-slate-200'}`}>
+                                                className={`text-sm font-bold mb-1 leading-snug ${event === currentEvent ? 'text-blue-900 dark:text-white' : 'text-slate-800 dark:text-slate-100'
+                                                    }`}
+                                            >
                                                 {event.course}
                                             </div>
 
-                                            <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                                                {event.location}
+                                            <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                                <MapPin size={12} className="opacity-70" />
+                                                <span className="truncate">{event.location}</span>
                                             </div>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-center py-10 text-slate-400 text-sm">
-                                    Нет занятий сегодня
+                                <div className="text-center py-12 text-slate-400 dark:text-slate-500">
+                                    <p className="text-sm font-medium">Нет занятий сегодня</p>
                                 </div>
                             )}
                         </div>
