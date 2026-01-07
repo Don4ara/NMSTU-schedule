@@ -69,14 +69,11 @@ export const Dashboard = () => {
                     </p>
                     <div
                         className="w-full max-w-md relative z-10 scale-110 transform transition-all group focus-within:scale-110">
-                        <div
-                            className="bg-white p-2 rounded-xl shadow-lg border border-slate-200/60 ring-4 ring-slate-50">
                             <Search
                                 placeholder="Найти группу..."
                                 className="w-full"
                                 onSelectResult={(result) => setTrackedEntity(result)}
                             />
-                        </div>
                     </div>
                 </div>
             </div>
@@ -126,29 +123,31 @@ export const Dashboard = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-1 p-1 rounded-xl">
+                    <div className="flex items-center gap-1 p-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-colors">
                         <Button
                             size="sm"
+                            variant="ghost"
                             onClick={() => {
                                 if (trackedEntity) setSelectedEntity(trackedEntity);
                                 setViewMode('schedule');
                             }}
-                            className="px-4 h-9 font-medium text-slate-600 transition-all"
+                            className="px-4 h-9 font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
                         >
                             Расписание
                         </Button>
 
-                        <Separator orientation="vertical" className="h-4 bg-slate-200"/>
+                        <Separator orientation="vertical" className="h-4 bg-slate-200 dark:bg-slate-700"/>
 
                         <Button
                             size="sm"
+                            variant="ghost"
                             onClick={() => setViewMode('calendar')}
-                            className="px-4 h-9 font-medium text-slate-600 transition-all"
+                            className="px-4 h-9 font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
                         >
                             Календарь
                         </Button>
 
-                        <Separator orientation="vertical" className="h-4 bg-slate-200"/>
+                        <Separator orientation="vertical" className="h-4 bg-slate-200 dark:bg-slate-700"/>
 
                         <TooltipProvider>
                             <Tooltip>
@@ -157,12 +156,12 @@ export const Dashboard = () => {
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => setTrackedEntity(null)}
-                                        className="h-9 w-9 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                        className="h-9 w-9 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
                                     >
                                         <LogOut className="h-[18px] w-[18px]"/>
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent className="dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200">
                                     <p>Выйти</p>
                                 </TooltipContent>
                             </Tooltip>
