@@ -155,6 +155,11 @@ html.theme-transition *:after {
     @apply h-full w-full m-0 p-0 overflow-hidden;
   }
 
+  /* Темный фон на html для предотвращения белых полос при ресайзе */
+  html.dark {
+    background-color: oklch(0.145 0 0);
+  }
+
   body {
     @apply bg-background text-foreground select-none;
   }

@@ -128,6 +128,7 @@ function createWindow() {
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 10, y: 10 },
     transparent: true,
+    backgroundColor: '#00000000', // Прозрачный фон, но темный при необходимости
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
