@@ -17,7 +17,7 @@ export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ scheduleData, is
         <div className="sticky top-0 z-20 backdrop-blur-md pt-12 pb-4 mb-6 border-b px-4 md:px-8">
             <div className="flex flex-row items-end justify-between gap-4">
                 <div>
-                    <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2">
                         {scheduleData.type === 'group' ? (
                             <>
                                 <Users size={14} />
