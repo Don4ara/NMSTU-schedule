@@ -7,7 +7,6 @@ interface CalendarGridProps {
     loading: boolean;
     daysInMonth: number;
     startDay: number; // 0-6 (Mon-Sun in our adjusted logic)
-    currentDay: number;
     currentMonth: number;
     currentYear: number;
     getEventsForDate: (date: number) => ScheduleEvent[];
@@ -86,9 +85,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 border-b border-r border-slate-200/60 dark:border-slate-800/50
                 transition-colors duration-200
                 ${isWeekend
-                                ? 'bg-white dark:bg-slate-900/40'
-                                : 'bg-white dark:bg-slate-950'       
-                            }
+                                    ? 'bg-white dark:bg-slate-900/40'
+                                    : 'bg-white dark:bg-slate-950'
+                                }
             `}
                         />
                     );

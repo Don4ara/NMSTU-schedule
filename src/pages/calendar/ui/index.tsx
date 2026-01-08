@@ -131,9 +131,8 @@ export const CalendarViewer = () => {
                 isUpdating={isUpdating}
                 daysInMonth={daysInMonth}
                 startDay={startDay}
-                currentDay={new Date().getDate()}
-                currentMonth={new Date().getMonth()}
-                currentYear={new Date().getFullYear()}
+                currentMonth={month}
+                currentYear={year}
                 getEventsForDate={getEventsForDate}
                 onDayClick={handleDayClick}
             />
