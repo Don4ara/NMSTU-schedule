@@ -74,8 +74,12 @@ export const CalendarViewer = () => {
     // Note: This is an approximation since the API returns weeks, not dates directly.
     // We need to map weeks to dates based on Sept 1st start.
     const getEventsForDate = useCallback((date: number) => {
+        // If loaded data doesn't match current view, don't show anything (prevent ghost data)
+        if (!loadedPeriod || loadedPeriod.year !== year || loadedPeriod.month !== month) {
+            return [];
+        }
         return workerDaysMap[date] || [];
-    }, [workerDaysMap]);
+    }, [workerDaysMap, loadedPeriod, year, month]);
 
 
     const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
@@ -100,7 +104,10 @@ export const CalendarViewer = () => {
     };
 
     const isStale = !loadedPeriod || loadedPeriod.year !== year || loadedPeriod.month !== month;
-    const isLoadingState = loading || calculating || isStale;
+    const isUpdating = calculating || isStale;
+    // Блокируем весь интерфейс только при первоначальной загрузке данных с API
+    // Пересчеты и смена месяца идут фоном (isUpdating)
+    const isLoadingState = loading;
 
     return (
         <motion.div
@@ -121,6 +128,7 @@ export const CalendarViewer = () => {
 
             <CalendarGrid
                 loading={isLoadingState}
+                isUpdating={isUpdating}
                 daysInMonth={daysInMonth}
                 startDay={startDay}
                 currentDay={new Date().getDate()}

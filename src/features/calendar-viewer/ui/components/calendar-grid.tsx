@@ -12,6 +12,7 @@ interface CalendarGridProps {
     currentYear: number;
     getEventsForDate: (date: number) => ScheduleEvent[];
     onDayClick: (day: number) => void;
+    isUpdating?: boolean;
 }
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -23,7 +24,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     currentMonth,
     currentYear,
     getEventsForDate,
-    onDayClick
+    onDayClick,
+    isUpdating = false
 }) => {
     // console.log('CalendarGrid: render');
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -49,9 +51,16 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     return (
         <div className="flex-1 mt-6 h-full flex flex-col min-h-0">
             <div
-                className="grid grid-cols-7 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm dark:bg-slate-900 flex-1"
+                className={`grid grid-cols-7 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm dark:bg-slate-900 flex-1 relative transition-opacity duration-300 ${isUpdating ? 'opacity-70 pointer-events-none' : 'opacity-100'}`}
                 style={{ gridTemplateRows: `auto repeat(${weeks}, minmax(0, 1fr))` }}
             >
+                {/* Loader Overlay for non-blocking updates */}
+                {isUpdating && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/20 dark:bg-black/10 backdrop-blur-[1px]">
+                        <Loader2 className="animate-spin text-blue-600/50" size={32} />
+                    </div>
+                )}
+
                 {/* Weekday Headers */}
                 {WEEKDAYS.map((day, index) => (
                     <div
@@ -65,7 +74,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                     </div>
                 ))}
 
-                {/* Empty cells */}
                 {empties.map((i) => {
                     const colIndex = i % 7;
                     const isWeekend = colIndex >= 5;
@@ -73,8 +81,16 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                     return (
                         <div
                             key={`empty-${i}`}
-                            className={`min-h-0 h-full border-b border-r border-slate-100 dark:border-slate-700 ${isWeekend ? 'bg-slate-50/60 dark:bg-slate-800/60' : 'bg-slate-50/30 dark:bg-slate-800/30'}`}
-                        ></div>
+                            className={`
+                min-h-[100px] h-full 
+                border-b border-r border-slate-200/60 dark:border-slate-800/50
+                transition-colors duration-200
+                ${isWeekend
+                                ? 'bg-white dark:bg-slate-900/40'
+                                : 'bg-white dark:bg-slate-950'       
+                            }
+            `}
+                        />
                     );
                 })}
 
