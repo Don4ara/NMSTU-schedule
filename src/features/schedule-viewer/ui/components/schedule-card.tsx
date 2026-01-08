@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapPin, User, Users } from 'lucide-react';
 import { Event } from '@/entities/schedule/model/types';
-import { getEventTime, getEventTypeColor } from '../../lib/schedule-utils';
+import { getEventTime, getScheduleCardTheme } from '../../lib/schedule-utils';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { Card } from "@/shared/components/ui/card";
 
@@ -14,28 +14,7 @@ interface ScheduleCardProps {
 export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, isGroup }) => {
     const { setSelectedEntity, setViewMode } = useSchedule();
 
-    // Определяем цвета на основе типа события
-    const getTypeColors = () => {
-        const typeColor = getEventTypeColor(event.type);
-        if (typeColor.includes('blue')) {
-            return {
-                border: '#3b82f6',
-                badge: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700',
-            };
-        }
-        if (typeColor.includes('orange')) {
-            return {
-                border: '#f97316',
-                badge: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700',
-            };
-        }
-        return {
-            border: '#10b981',
-            badge: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700',
-        };
-    };
-
-    const colors = getTypeColors();
+    const colors = getScheduleCardTheme(event.type);
 
     return (
         <Card

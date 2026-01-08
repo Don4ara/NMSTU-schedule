@@ -1,4 +1,4 @@
-
+import { Event as ScheduleEvent, ScheduleData, Week, Day } from '@/entities/schedule/model/types';
 export const getEventTime = (index: number) => {
     const times: Record<number, string> = {
         1: "08:30 - 10:00",
@@ -62,7 +62,7 @@ export const getCurrentWeekId = (): number => {
     return weekName === "Нечетная" ? 2 : 1;
 };
 
-import { Event as ScheduleEvent } from '@/entities/schedule/model/types';
+
 
 export const getNextEvent = (events: ScheduleEvent[]) => {
     const now = new Date();
@@ -141,4 +141,43 @@ export const getDateForDay = (dayId: number, targetWeekName: string): Date => {
     const targetDate = new Date(targetMonday);
     targetDate.setDate(targetMonday.getDate() + (dayId - 1));
     return targetDate;
+};
+/**
+ * Finds an event at a specific index (period) in a list of events.
+ */
+export const findEventAt = (events: ScheduleEvent[] | undefined, index: number) => {
+    return events?.find((e: ScheduleEvent) => e.event_index === index);
+};
+
+/**
+ * Returns theme colors for a schedule card based on event type.
+ */
+export const getScheduleCardTheme = (eventType: string) => {
+    const typeColor = getEventTypeColor(eventType);
+    if (typeColor.includes('blue')) {
+        return {
+            border: '#3b82f6',
+            badge: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700',
+        };
+    }
+    if (typeColor.includes('orange')) {
+        return {
+            border: '#f97316',
+            badge: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700',
+        };
+    }
+    return {
+        border: '#10b981',
+        badge: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700',
+    };
+};
+
+/**
+ * Retrieves the day data for a specific week and day from the schedule.
+ */
+export const getWeekDayData = (scheduleData: ScheduleData | undefined | null, weekId: number, dayId: number) => {
+    if (!scheduleData || !scheduleData.schedule) return null;
+    const week = scheduleData.schedule.find((w: Week) => w.week_id === weekId);
+    if (!week) return null;
+    return week.days.find((d: Day) => d.day_id === dayId);
 };

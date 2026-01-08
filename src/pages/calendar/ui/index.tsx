@@ -9,17 +9,10 @@ import { CalendarGrid } from '@/features/calendar-viewer/ui/components/calendar-
 import { CalendarEmptyState } from '@/features/calendar-viewer/ui/components/calendar-empty-state';
 import { DayDetailsDialog } from '@/features/calendar-viewer/ui/components/day-details-dialog';
 import CalendarWorker from '@/shared/workers/calendar.worker?worker';
+import { getDaysInMonth, getFirstDayOfMonth } from '@/shared/lib/date-utils';
 
 // Helper to get days in month
-const getDaysInMonth = (year: number, month: number) => {
-    return new Date(year, month + 1, 0).getDate();
-};
 
-// Helper to get start day of month (0-6, Sun-Sat) - adjust for Monday start
-const getFirstDayOfMonth = (year: number, month: number) => {
-    const day = new Date(year, month, 1).getDay();
-    return day === 0 ? 6 : day - 1; // Convert Sun(0) to 6, Mon(1) to 0
-};
 
 export const CalendarViewer = () => {
     console.log('CalendarViewer: render');

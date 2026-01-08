@@ -5,10 +5,10 @@ import { getSchedule, searchTimetable, SearchResult } from '@/shared/api/timetab
 import { Search, Plus, X } from 'lucide-react';
 import { Input } from '@/shared/components/ui/input';
 import { Button } from '@/shared/components/ui/button';
-import { getDateForDay, getCurrentWeekId, getEventTime } from '@/features/schedule-viewer/lib/schedule-utils';
+import { getDateForDay, getCurrentWeekId, getEventTime, findEventAt, getWeekDayData } from '@/features/schedule-viewer/lib/schedule-utils';
 import { WeekTabs } from '@/features/schedule-viewer/ui/components/week-tabs';
 import { ScheduleCard } from '@/features/schedule-viewer/ui/components/schedule-card';
-import { ScheduleData, Week, Day, Event as ScheduleEvent } from '@/entities/schedule/model/types';
+import { Week } from '@/entities/schedule/model/types';
 
 export const ScheduleComparisonPage = () => {
     const { trackedEntity, comparisonEntity, setComparisonEntity } = useSchedule();
@@ -58,20 +58,10 @@ export const ScheduleComparisonPage = () => {
         setSearchTarget(null);
     };
 
-    const getDayData = (scheduleData: ScheduleData | undefined | null, dayId: number) => {
-        if (!scheduleData || !scheduleData.schedule) return null;
-        const week = scheduleData.schedule.find((w: Week) => w.week_id === activeWeekId);
-        if (!week) return null;
-        return week.days.find((d: Day) => d.day_id === dayId);
-    };
-
     const days = [1, 2, 3, 4, 5, 6]; // Monday to Saturday
     const eventIndices = [1, 2, 3, 4, 5, 6, 7]; // Standard pair slots
 
-    // Helper to find event at specific index
-    const findEventAt = (events: ScheduleEvent[] | undefined, index: number) => {
-        return events?.find((e: ScheduleEvent) => e.event_index === index);
-    };
+
 
     return (
         <div className="h-full flex flex-col p-6 max-w-[1920px] mx-auto w-full relative">
@@ -154,8 +144,8 @@ export const ScheduleComparisonPage = () => {
 
                 <div className="space-y-12 pb-20">
                     {days.map(dayId => {
-                        const primaryDay = getDayData(primarySchedule, dayId);
-                        const comparisonDay = getDayData(comparisonSchedule, dayId);
+                        const primaryDay = getWeekDayData(primarySchedule, activeWeekId, dayId);
+                        const comparisonDay = getWeekDayData(comparisonSchedule, activeWeekId, dayId);
 
                         // Calculate Date
                         const refSchedule = primarySchedule?.schedule || comparisonSchedule?.schedule;
@@ -274,7 +264,8 @@ export const ScheduleComparisonPage = () => {
                                 )}
                             </div>
                         );
-                    })}
+                    })
+                    }
                 </div>
             </div>
 

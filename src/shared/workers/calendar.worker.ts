@@ -1,9 +1,8 @@
 import { ScheduleData, Week, Day, Event } from '../../entities/schedule/model/types';
+import { getDaysInMonth } from '@/shared/lib/date-utils';
 
 // Helper to get days in month
-const getDaysInMonth = (year: number, month: number) => {
-    return new Date(year, month + 1, 0).getDate();
-};
+
 
 self.onmessage = (e: MessageEvent) => {
     const { scheduleData, year, month } = e.data as {
