@@ -38,13 +38,13 @@ export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => 
                 `}></div>
                     {day.day}
                 </div>
-                <span className="text-slate-400 font-medium text-xs">{date}</span>
+                <span className="font-bold text-xs dark:text-white">{date}</span>
             </h3>
 
             {day.events.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-slate-400 py-6 rounded-lg border border-dashed border-slate-200">
-                    <BookOpen className="mb-2 opacity-20" size={20} />
-                    <span className="text-xs font-medium">Нет занятий</span>
+                    <BookOpen className="text-black mb-2 opacity-20 dark:text-white" size={20} />
+                    <span className="text-xs font-medium dark:text-white">Нет занятий</span>
                 </div>
             ) : (
                 <div className="space-y-2">

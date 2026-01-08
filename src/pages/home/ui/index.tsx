@@ -40,7 +40,7 @@ export const Dashboard = () => {
 
     const today = new Date();
     const currentHour = today.getHours();
-    const greeting = currentHour < 12 ? 'Доброе утро' : currentHour < 18 ? 'Добрый день' : 'Добрый вечер';
+    const greeting = currentHour < 12 ? 'Доброе утро' : currentHour < 21 ? 'Добрый день' : 'Добрый вечер';
 
     const dayId = today.getDay() === 0 ? 7 : today.getDay(); // 1-7 Mon-Sun
     const currentWeekName = getCurrentWeekName();
@@ -193,7 +193,7 @@ export const Dashboard = () => {
                                         </span>
                                         Сейчас
                                     </span>
-                                    <span className="font-mono text-slate-400 dark:text-slate-500 font-medium">
+                                    <span className="font-mono text-black dark:text-white font-medium">
                                         {getEventTime(currentEvent.event_index)}
                                     </span>
                                 </div>
@@ -218,7 +218,7 @@ export const Dashboard = () => {
 
                                 <div className="relative z-10 mt-auto">
                                     <div
-                                        className="flex justify-between text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">
+                                        className="flex justify-between text-xs font-medium text-slate-900 dark:text-white mb-1">
                                         <span>До конца пары</span>
                                     </div>
                                     <div
@@ -352,7 +352,7 @@ export const Dashboard = () => {
                                                     }`}>
                                                     {event.type}
                                                 </span>
-                                                <span className="text-xs font-mono font-medium text-slate-400 dark:text-slate-300/50">
+                                                <span className="text-xs font-mono font-medium text-black dark:text-white">
                                                     {getEventTime(event.event_index).split(' - ')[0]}
                                                 </span>
                                             </div>
