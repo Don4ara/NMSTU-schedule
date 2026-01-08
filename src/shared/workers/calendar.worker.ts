@@ -13,7 +13,7 @@ self.onmessage = (e: MessageEvent) => {
     };
 
     if (!scheduleData || !scheduleData.schedule) {
-        self.postMessage({ daysMap: {}, lectureCount: 0, pairCount: 0 });
+        self.postMessage({ daysMap: {}, lectureCount: 0, pairCount: 0, year, month });
         return;
     }
 
@@ -74,7 +74,7 @@ self.onmessage = (e: MessageEvent) => {
         }
     }
 
-    self.postMessage({ daysMap, lectureCount, pairCount });
+    self.postMessage({ daysMap, lectureCount, pairCount, year, month });
 };
 
 export { };

@@ -40,14 +40,16 @@ export const CalendarViewer = () => {
     const [workerDaysMap, setWorkerDaysMap] = useState<Record<number, ScheduleEvent[]>>({});
     const [workerStats, setWorkerStats] = useState({ lectureCount: 0, pairCount: 0 });
     const [calculating, setCalculating] = useState(false);
+    const [loadedPeriod, setLoadedPeriod] = useState<{ year: number, month: number } | null>(null);
 
     // Initialize Worker
     useEffect(() => {
         workerRef.current = new CalendarWorker();
         workerRef.current.onmessage = (e) => {
-            const { daysMap, lectureCount, pairCount } = e.data;
+            const { daysMap, lectureCount, pairCount, year: loadedYear, month: loadedMonth } = e.data;
             setWorkerDaysMap(daysMap);
             setWorkerStats({ lectureCount, pairCount });
+            setLoadedPeriod({ year: loadedYear, month: loadedMonth });
             setCalculating(false);
         };
 
@@ -59,6 +61,8 @@ export const CalendarViewer = () => {
     // Send data to worker when dependencies change
     useEffect(() => {
         if (workerRef.current) {
+            // Очищаем старые данные сразу при смене месяца
+            setWorkerDaysMap({});
             setCalculating(true);
             workerRef.current.postMessage({
                 scheduleData,
@@ -102,6 +106,9 @@ export const CalendarViewer = () => {
         setIsDialogOpen(true);
     };
 
+    const isStale = !loadedPeriod || loadedPeriod.year !== year || loadedPeriod.month !== month;
+    const isLoadingState = loading || calculating || isStale;
+
     return (
         <motion.div
             className="flex flex-col h-full backdrop-blur-sm max-w-[1920px] mx-auto w-full justify-center p-4 md:p-8 relative"
@@ -111,7 +118,7 @@ export const CalendarViewer = () => {
                 year={year}
                 lectureCount={workerStats.lectureCount}
                 pairCount={workerStats.pairCount}
-                loading={loading || calculating}
+                loading={isLoadingState}
                 onPrevMonth={prevMonth}
                 onNextMonth={nextMonth}
                 onToday={goToToday}
@@ -120,7 +127,7 @@ export const CalendarViewer = () => {
             />
 
             <CalendarGrid
-                loading={loading}
+                loading={isLoadingState}
                 daysInMonth={daysInMonth}
                 startDay={startDay}
                 currentDay={new Date().getDate()}
