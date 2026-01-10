@@ -10,9 +10,10 @@ interface SearchProps {
     onSelectResult?: (result: SearchResult) => void;
     className?: string;
     placeholder?: string;
+    variant?: 'overlay' | 'static';
 }
 
-export function Search({ onSelectResult, className, placeholder }: SearchProps) {
+export function Search({ onSelectResult, className, placeholder, variant = 'overlay' }: SearchProps) {
     const { setSelectedEntity } = useSchedule()
     const [query, setQuery] = React.useState("")
     const [debouncedQuery, setDebouncedQuery] = React.useState("")
@@ -64,7 +65,10 @@ export function Search({ onSelectResult, className, placeholder }: SearchProps) 
                     }}
                     onBlur={() => {
                         // Delay hiding to allow click event on result
-                        setTimeout(() => setShowResults(false), 200)
+                        // Only hide on blur if we are in overlay mode
+                        if (variant === 'overlay') {
+                            setTimeout(() => setShowResults(false), 200)
+                        }
                     }}
                 />
                 {isLoading && (
@@ -72,8 +76,11 @@ export function Search({ onSelectResult, className, placeholder }: SearchProps) 
                 )}
             </div>
             {showResults && results.length > 0 && (
-                <div className="absolute top-full z-50 mt-1 w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md">
-                    <div className="max-h-[300px] overflow-y-auto p-1">
+                <div className={cn(
+                    "z-50 mt-1 w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+                    variant === 'overlay' ? "absolute top-full" : "relative"
+                )}>
+                    <div className={cn("overflow-y-auto p-1", variant === 'overlay' ? "max-h-[300px]" : "max-h-[60vh]")}>
                         {results.map((result) => (
                             <div
                                 key={`${result.type}-${result.id}`}
