@@ -55,7 +55,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     return (
         <div className="flex-1 mt-6 h-full flex flex-col min-h-0 overflow-x-auto custom-scrollbar">
             <div
-                className={`grid grid-cols-[30px_repeat(7,minmax(120px,1fr))] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm dark:bg-slate-900 flex-1 relative transition-opacity duration-300 ${isUpdating ? 'opacity-70 pointer-events-none' : 'opacity-100'}`}
+                className={`grid grid-cols-[30px_repeat(7,minmax(120px,1fr))] border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm dark:bg-slate-900 flex-1 relative transition-opacity duration-300 ${isUpdating ? 'opacity-70 pointer-events-none' : 'opacity-100'}`}
                 style={{ gridTemplateRows: `auto repeat(${weeks}, minmax(0, 1fr))` }}
             >
                 {/* Loader Overlay */}
@@ -66,11 +66,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 )}
 
                 {/* Header Row */}
-                <div className="bg-slate-50 dark:bg-slate-800 border-b border-r border-slate-100 dark:border-slate-700"></div>
+                <div className="bg-white dark:bg-slate-800 border-b border-r border-slate-100 dark:border-slate-700"></div>
                 {WEEKDAYS.map((day, index) => (
                     <div
                         key={day}
-                        className={`bg-slate-50 dark:bg-slate-800 py-3 text-center text-xs font-semibold uppercase tracking-widest border-b border-slate-100 dark:border-slate-700 
+                        className={`bg-white dark:bg-slate-800 py-3 text-center text-xs font-semibold uppercase tracking-widest border-b border-slate-100 dark:border-slate-700 
                             ${index !== 6 ? 'border-r border-slate-100 dark:border-slate-700' : ''}
                             ${index >= 5 ? 'text-red-400 dark:text-red-500' : 'text-slate-500 dark:text-slate-400'}
                         `}
@@ -131,8 +131,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 
                                 // Styles for adjacent month days
                                 const bgClass = isCurrentMonth
-                                    ? (isToday ? 'bg-blue-50/30 dark:bg-blue-900/10' : isWeekend ? 'bg-slate-50/20 dark:bg-slate-900/30' : 'bg-white dark:bg-slate-900')
-                                    : 'bg-slate-50/40 dark:bg-slate-900/20 text-slate-400 dark:text-slate-600';
+                                    ? (isToday ? 'bg-blue-50/50 dark:bg-blue-900/10' : 'bg-white dark:bg-slate-900')
+                                    : 'bg-white dark:bg-slate-900/20 text-slate-300 dark:text-slate-600';
 
                                 const textClass = isCurrentMonth
                                     ? (isToday ? 'bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900' : isWeekend ? 'text-red-400 dark:text-red-500' : 'text-slate-600 dark:text-slate-400')
@@ -144,8 +144,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                                         onClick={() => onDayClick(cellDate)}
                                         className={`
                                             min-h-0 h-full p-1.5 flex flex-col group transition-all duration-200 relative
-                                            border-b border-slate-200/60 dark:border-slate-800 ${!isLastInRow ? 'border-r dark:border-slate-800' : ''}
-                                            hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer
+                                            border-b border-slate-100 dark:border-slate-800 ${!isLastInRow ? 'border-r border-slate-100 dark:border-slate-800' : ''}
+                                            hover:bg-blue-50/30 dark:hover:bg-slate-800 cursor-pointer
                                             ${bgClass}
                                         `}
                                     >

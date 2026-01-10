@@ -32,7 +32,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
     onClearTrackedEntity
 }) => {
     return (
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200 sticky top-0 z-10 backdrop-blur-xl">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 sticky top-0 z-10 backdrop-blur-xl">
             <div className="flex items-center gap-6">
                 <div className="flex items-center gap-1">
                     <button
