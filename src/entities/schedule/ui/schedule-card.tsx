@@ -1,20 +1,41 @@
 import React from 'react';
 import { MapPin, User, Users } from 'lucide-react';
-import { Event } from '@/entities/schedule/model/types';
-import { getEventTime, getScheduleCardTheme } from '../../lib/schedule-utils';
-import { useSchedule } from '@/app/provider/schedule-provider';
+import { Event } from '../model/types';
 import { Card } from "@/shared/components/ui/card";
+
+// Note: Helper functions like getEventTime/getScheduleCardTheme are essentially "lib" or "model" helpers. 
+// Ideally should be in entities/schedule/lib/ but for now we might import them from where they are or move them.
+// To avoid circular dependency hell, let's assume they might be moved to shared/lib or entities/schedule/lib.
+// For this step, I will keep imports if they work, or better:
+// The `getScheduleCardTheme` is purely visual logic for this entity. It belongs in `entities/schedule/lib`.
+// Let's assume for now we still import from features to avoid breaking build, BUT strict FSD forbids entities importing features.
+// SO, `getEventTime` and `getScheduleCardTheme` MUST actally be moved to `entities/schedule/lib`.
+// I will create them there in the next steps. For now, I'll temporarily duplicate or fix imports after moving utils.
+// Actually, I'll update the imports to point to a new location `../lib/schedule-utils` which I will create.
+
+import { getEventTime, getScheduleCardTheme } from '../lib/schedule-utils';
 
 interface ScheduleCardProps {
     event: Event;
     isActive: boolean;
     isGroup: boolean;
+    onReverseClick?: (id: number, name: string, type: 'group' | 'teacher') => void;
 }
 
-export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, isGroup }) => {
-    const { setSelectedEntity, setViewMode } = useSchedule();
+export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, isGroup, onReverseClick }) => {
 
     const colors = getScheduleCardTheme(event.type);
+
+    const handleReverseClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (event.reverse_id && onReverseClick) {
+            onReverseClick(
+                event.reverse_id,
+                event.reverse,
+                isGroup ? 'teacher' : 'group'
+            );
+        }
+    };
 
     return (
         <Card
@@ -42,7 +63,7 @@ export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, is
                         {getEventTime(event.event_index)}
                     </span>
 
-                    {/* Цветной Badge с поддержкой темной темы */}
+                    {/* Цветной Badge */}
                     <span className={`
                         inline-flex items-center justify-center rounded-full border 
                         px-1.5 py-0 text-[9px] h-4 font-medium
@@ -68,18 +89,7 @@ export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, is
 
                     <div
                         className="flex items-center gap-1 min-w-0 justify-end cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors group/reverse dark:text-white"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (event.reverse_id) {
-                                setSelectedEntity({
-                                    id: event.reverse_id,
-                                    name: event.reverse,
-                                    type: isGroup ? 'teacher' : 'group',
-                                    url: ''
-                                });
-                                setViewMode('schedule');
-                            }
-                        }}
+                        onClick={handleReverseClick}
                         title={`Перейти к расписанию: ${event.reverse}`}
                     >
                         {isGroup

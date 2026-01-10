@@ -1,10 +1,9 @@
-import * as React from "react"
 import { SearchIcon, Loader2 } from "lucide-react"
 import { Input } from "@/shared/components/ui/input"
-import { SearchResult, searchTimetable } from "@/shared/api/timetable"
+import { SearchResult } from "@/shared/api/timetable"
 import { useSchedule } from "@/app/provider/schedule-provider"
 import { cn } from "@/shared/lib/utils"
-import { useQuery } from '@tanstack/react-query';
+import { useSearch } from "../model/use-search"
 
 interface SearchProps {
     onSelectResult?: (result: SearchResult) => void;
@@ -15,31 +14,7 @@ interface SearchProps {
 
 export function Search({ onSelectResult, className, placeholder, variant = 'overlay' }: SearchProps) {
     const { setSelectedEntity } = useSchedule()
-    const [query, setQuery] = React.useState("")
-    const [debouncedQuery, setDebouncedQuery] = React.useState("")
-    const [showResults, setShowResults] = React.useState(false)
-
-    React.useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedQuery(query)
-        }, 300)
-        return () => clearTimeout(timer)
-    }, [query])
-
-    const { data: results = [], isLoading } = useQuery({
-        queryKey: ['search', debouncedQuery],
-        queryFn: () => searchTimetable(debouncedQuery),
-        enabled: debouncedQuery.length > 0,
-        staleTime: 1000 * 60, // Cache results for a minute
-    });
-
-    React.useEffect(() => {
-        if (results.length > 0 && query.length > 0) {
-            setShowResults(true)
-        } else {
-            setShowResults(false) // Hide if no results or query cleared
-        }
-    }, [results, query]);
+    const { query, setQuery, results, isLoading, showResults, setShowResults } = useSearch()
 
     const handleSelect = (result: SearchResult) => {
         if (onSelectResult) {
@@ -101,3 +76,4 @@ export function Search({ onSelectResult, className, placeholder, variant = 'over
         </div>
     )
 }
+
