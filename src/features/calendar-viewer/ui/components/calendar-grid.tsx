@@ -53,9 +53,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     const weeks = 6;
 
     return (
-        <div className="flex-1 mt-6 h-full flex flex-col min-h-0">
+        <div className="flex-1 mt-6 h-full flex flex-col min-h-0 overflow-x-auto custom-scrollbar">
             <div
-                className={`grid grid-cols-[30px_repeat(7,1fr)] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm dark:bg-slate-900 flex-1 relative transition-opacity duration-300 ${isUpdating ? 'opacity-70 pointer-events-none' : 'opacity-100'}`}
+                className={`grid grid-cols-[30px_repeat(7,minmax(120px,1fr))] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm dark:bg-slate-900 flex-1 relative transition-opacity duration-300 ${isUpdating ? 'opacity-70 pointer-events-none' : 'opacity-100'}`}
                 style={{ gridTemplateRows: `auto repeat(${weeks}, minmax(0, 1fr))` }}
             >
                 {/* Loader Overlay */}
