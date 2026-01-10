@@ -40,14 +40,24 @@ export const isEventActive = (dayId: number, eventIndex: number): boolean => {
 };
 
 export const getCurrentWeekName = (): string => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const startYear = now.getMonth() < 8 ? currentYear - 1 : currentYear;
+    return getWeekParity(new Date());
+};
+
+export const getWeekParity = (date: Date): string => {
+    const currentYear = date.getFullYear();
+    const startYear = date.getMonth() < 8 ? currentYear - 1 : currentYear;
     const startDate = new Date(startYear, 8, 1);
 
-    const diff = now.getTime() - startDate.getTime();
-    const weekNumber = Math.ceil(diff / (1000 * 60 * 60 * 24 * 7));
+    // Reset hours to avoid timezone/DST issues affecting day diff
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const s = new Date(startDate);
+    s.setHours(0, 0, 0, 0);
 
+    const diff = d.getTime() - s.getTime();
+    if (diff < 0) return "Нечетная"; // Before sept 1st
+
+    const weekNumber = Math.ceil((diff + 1) / (1000 * 60 * 60 * 24 * 7));
     return weekNumber % 2 === 0 ? "Четная" : "Нечетная";
 };
 

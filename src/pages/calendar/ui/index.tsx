@@ -30,20 +30,16 @@ export const CalendarViewer = () => {
 
     // Worker State
     const workerRef = useRef<Worker | null>(null);
-    const [workerDaysMap, setWorkerDaysMap] = useState<Record<number, ScheduleEvent[]>>({});
-    const [workerStats, setWorkerStats] = useState({ lectureCount: 0, pairCount: 0 });
-    const [calculating, setCalculating] = useState(false);
-    const [loadedPeriod, setLoadedPeriod] = useState<{ year: number, month: number } | null>(null);
+    const [fullScheduleMap, setFullScheduleMap] = useState<Record<string, ScheduleEvent[]>>({});
+    const [isWorkerLoading, setIsWorkerLoading] = useState(false);
 
     // Initialize Worker
     useEffect(() => {
         workerRef.current = new CalendarWorker();
         workerRef.current.onmessage = (e) => {
-            const { daysMap, lectureCount, pairCount, year: loadedYear, month: loadedMonth } = e.data;
-            setWorkerDaysMap(daysMap);
-            setWorkerStats({ lectureCount, pairCount });
-            setLoadedPeriod({ year: loadedYear, month: loadedMonth });
-            setCalculating(false);
+            const { fullScheduleMap } = e.data;
+            setFullScheduleMap(fullScheduleMap);
+            setIsWorkerLoading(false);
         };
 
         return () => {
@@ -51,36 +47,41 @@ export const CalendarViewer = () => {
         };
     }, []);
 
-    // Send data to worker when dependencies change
+    // Send data to worker when schedule loaded
     useEffect(() => {
-        if (workerRef.current) {
-            // Очищаем старые данные сразу при смене месяца
-            setWorkerDaysMap({});
-            setCalculating(true);
+        if (workerRef.current && scheduleData) {
+            setIsWorkerLoading(true);
+            // Calculate for the academic year relevant to "now" to ensure we cover likely range
+            // Actually, better to anchor on current date view? 
+            // Let's anchor on the current real date to start, 
+            // but if user navigates far, we might need re-calc? 
+            // For now, let's assume one academic year is enough context.
+            // Or better: pass the year from scheduleData? API doesn't give year.
+            // Let's use the year from the *current real date* to determine academic year.
+            const now = new Date();
+            const currentRealYear = now.getFullYear();
+            const academicStartYear = now.getMonth() < 8 ? currentRealYear - 1 : currentRealYear;
+
             workerRef.current.postMessage({
                 scheduleData,
-                year,
-                month
+                baseYear: academicStartYear
             });
         }
-    }, [scheduleData, year, month]);
+    }, [scheduleData]);
 
     // Dialog State
     const [selectedDay, setSelectedDay] = useState<Date | null>(null);
     const [selectedEvents, setSelectedEvents] = useState<ScheduleEvent[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    // Calculate stats and map events to days
-    // Note: This is an approximation since the API returns weeks, not dates directly.
-    // We need to map weeks to dates based on Sept 1st start.
-    const getEventsForDate = useCallback((date: number) => {
-        // If loaded data doesn't match current view, don't show anything (prevent ghost data)
-        if (!loadedPeriod || loadedPeriod.year !== year || loadedPeriod.month !== month) {
-            return [];
-        }
-        return workerDaysMap[date] || [];
-    }, [workerDaysMap, loadedPeriod, year, month]);
+    // Get events from full map
+    const getEventsForDate = useCallback((date: Date) => {
+        const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        return fullScheduleMap[dateKey] || [];
+    }, [fullScheduleMap]);
 
+    // Calculate stats for CURRENT VIEWED MONTH synchronously
+    const { lectureCount, pairCount } = useMemoSimpleStats(fullScheduleMap, year, month);
 
     const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
     const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
@@ -90,24 +91,20 @@ export const CalendarViewer = () => {
         return <CalendarEmptyState onSelect={(entity) => setTrackedEntity(entity)} />;
     }
 
-    const daysInMonth = getDaysInMonth(year, month);
     const startDay = getFirstDayOfMonth(year, month);
 
-    const handleDayClick = (day: number) => {
-        console.log('CalendarViewer: handleDayClick', day);
-        const date = new Date(year, month, day);
-        const events = getEventsForDate(day);
+    const handleDayClick = (date: Date) => {
+        console.log('CalendarViewer: handleDayClick', date);
+        const events = getEventsForDate(date);
 
         setSelectedDay(date);
         setSelectedEvents(events);
         setIsDialogOpen(true);
     };
 
-    const isStale = !loadedPeriod || loadedPeriod.year !== year || loadedPeriod.month !== month;
-    const isUpdating = calculating || isStale;
-    // Блокируем весь интерфейс только при первоначальной загрузке данных с API
-    // Пересчеты и смена месяца идут фоном (isUpdating)
-    const isLoadingState = loading;
+    // No loading state for month switches anymore!
+    const isLoadingState = loading || isWorkerLoading;
+    const isUpdating = false; // Always instant now
 
     return (
         <motion.div
@@ -116,8 +113,8 @@ export const CalendarViewer = () => {
             <CalendarHeader
                 month={month}
                 year={year}
-                lectureCount={workerStats.lectureCount}
-                pairCount={workerStats.pairCount}
+                lectureCount={lectureCount}
+                pairCount={pairCount}
                 loading={isLoadingState}
                 onPrevMonth={prevMonth}
                 onNextMonth={nextMonth}
@@ -129,7 +126,6 @@ export const CalendarViewer = () => {
             <CalendarGrid
                 loading={isLoadingState}
                 isUpdating={isUpdating}
-                daysInMonth={daysInMonth}
                 startDay={startDay}
                 currentMonth={month}
                 currentYear={year}
@@ -147,3 +143,36 @@ export const CalendarViewer = () => {
         </motion.div>
     );
 };
+
+// Helper for stats
+function useMemoSimpleStats(fullScheduleMap: Record<string, ScheduleEvent[]>, year: number, month: number) {
+    const days = getDaysInMonth(year, month);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let lectureCount = 0;
+    let pairCount = 0;
+
+    for (let d = 1; d <= days; d++) {
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const events = fullScheduleMap[dateKey] || [];
+
+        const checkDate = new Date(year, month, d);
+
+        // Only count current or future days logic? 
+        // Previous logic: "if (checkDate >= new Date(today.setHours(0, 0, 0, 0)))"
+        // Let's keep that.
+        if (checkDate >= today) {
+            const distinctEvents = events.filter((event, index, self) =>
+                index === self.findIndex((t) => (
+                    t.event_index === event.event_index &&
+                    t.course === event.course &&
+                    t.type === event.type
+                ))
+            );
+            pairCount += distinctEvents.length;
+            lectureCount += distinctEvents.filter(e => e.type.toLowerCase().includes('лекция')).length;
+        }
+    }
+    return { lectureCount, pairCount };
+}

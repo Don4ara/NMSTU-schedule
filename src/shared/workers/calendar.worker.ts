@@ -1,79 +1,55 @@
 import { ScheduleData, Week, Day, Event } from '../../entities/schedule/model/types';
-import { getDaysInMonth } from '@/shared/lib/date-utils';
-
-// Helper to get days in month
-
 
 self.onmessage = (e: MessageEvent) => {
-    const { scheduleData, year, month } = e.data as {
+    const { scheduleData, baseYear } = e.data as {
         scheduleData: ScheduleData | null;
-        year: number;
-        month: number;
+        baseYear: number; // The year the academic year starts (e.g., 2025 for 2025-2026)
     };
 
     if (!scheduleData || !scheduleData.schedule) {
-        self.postMessage({ daysMap: {}, lectureCount: 0, pairCount: 0, year, month });
+        self.postMessage({ fullScheduleMap: {} });
         return;
     }
 
-    const daysMap: Record<number, Event[]> = {};
-    let lectureCount = 0;
-    let pairCount = 0;
+    const fullScheduleMap: Record<string, Event[]> = {};
 
-    const daysInMonth = getDaysInMonth(year, month);
-    const today = new Date();
+    // Determine academic year range: Sept 1, baseYear -> Aug 31, baseYear + 1
+    const startDate = new Date(baseYear, 8, 1); // Sept 1
+    const endDate = new Date(baseYear + 1, 7, 31); // Aug 31 next year
 
-    // Cache weeks to avoid finding them repeatedly
+    // Cache weeks
     const evenWeek = scheduleData.schedule.find((w: Week) => w.week.toLowerCase() === "четная");
     const oddWeek = scheduleData.schedule.find((w: Week) => w.week.toLowerCase() === "нечетная");
 
-    for (let d = 1; d <= daysInMonth; d++) {
-        const targetDate = new Date(year, month, d);
+    const currentDate = new Date(startDate);
 
+    while (currentDate <= endDate) {
         // Calculate week number from Sept 1st
-        const academicStart = new Date(
-            targetDate.getMonth() < 8 ? targetDate.getFullYear() - 1 : targetDate.getFullYear(),
-            8, 1
-        );
-        const diffTime = Math.abs(targetDate.getTime() - academicStart.getTime());
+        const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const weekNum = Math.floor((diffDays + academicStart.getDay() - 1) / 7) + 1;
+        const weekNum = Math.floor((diffDays + startDate.getDay() - 1) / 7) + 1;
 
         const isOdd = weekNum % 2 !== 0;
         const weekData = isOdd ? oddWeek : evenWeek;
 
+        const dateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+
         if (weekData) {
             // Map JS day (0-6 Sun-Sat) to API day (1-7 Mon-Sun)
-            const jsDay = targetDate.getDay();
+            const jsDay = currentDate.getDay();
             const apiDayId = jsDay === 0 ? 7 : jsDay;
 
             const dayData = weekData.days.find((d: Day) => d.day_id === apiDayId);
-            const events = dayData?.events || [];
-
-            daysMap[d] = events;
-
-            // Statistics calculation
-            // Only count remaining from today if current month, else whole month if future
-            // (Preserving logic from original component)
-            const checkDate = new Date(year, month, d);
-            if (checkDate >= new Date(today.setHours(0, 0, 0, 0))) {
-                const distinctEvents = events.filter((event: Event, index: number, self: Event[]) =>
-                    index === self.findIndex((t) => (
-                        t.event_index === event.event_index &&
-                        t.course === event.course &&
-                        t.type === event.type
-                    ))
-                );
-
-                pairCount += distinctEvents.length;
-                lectureCount += distinctEvents.filter((e: Event) => e.type.toLowerCase().includes('лекция')).length;
-            }
+            fullScheduleMap[dateKey] = dayData?.events || [];
         } else {
-            daysMap[d] = [];
+            fullScheduleMap[dateKey] = [];
         }
+
+        // Next day
+        currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    self.postMessage({ daysMap, lectureCount, pairCount, year, month });
+    self.postMessage({ fullScheduleMap });
 };
 
 export { };
