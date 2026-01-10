@@ -1,4 +1,15 @@
 import { app, BrowserWindow, ipcMain, nativeTheme, nativeImage } from 'electron'
+import axios from 'axios';
+import axiosRetry from 'axios-retry';
+
+// Configure Axios Retry
+axiosRetry(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+  }
+});
 
 // Force light theme for window controls visibility
 nativeTheme.themeSource = 'light'
@@ -15,12 +26,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // IPC Handler for Timetable Search
 ipcMain.handle('search-timetable', async (_event, query) => {
   try {
-    const response = await fetch(`https://timetable.magtu.ru/api/v2/search?q=${encodeURIComponent(query)}`);
-    if (!response.ok) {
-      throw new Error(`Error fetching data: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data;
+    const response = await axios.get(`https://timetable.magtu.ru/api/v2/search`, {
+      params: { q: query },
+      timeout: 10000
+    });
+    return response.data;
   } catch (error) {
     console.error("Main process search error:", error);
     return [];
@@ -30,14 +40,10 @@ ipcMain.handle('search-timetable', async (_event, query) => {
 ipcMain.handle('get-schedule', async (_event, type: 'group' | 'teacher', id: string) => {
   try {
     const endpoint = type === 'group' ? 'groups' : 'teachers';
-    const response = await fetch(`https://timetable.magtu.ru/api/v2/${endpoint}/${id}/schedule`);
-
-    if (!response.ok) {
-      throw new Error(`Error fetching schedule: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data;
+    const response = await axios.get(`https://timetable.magtu.ru/api/v2/${endpoint}/${id}/schedule`, {
+      timeout: 15000
+    });
+    return response.data;
   } catch (error) {
     console.error("Main process schedule fetch error:", error);
     throw error;
@@ -46,8 +52,8 @@ ipcMain.handle('get-schedule', async (_event, type: 'group' | 'teacher', id: str
 
 ipcMain.handle('check-api-status', async () => {
   try {
-    const response = await fetch('https://timetable.magtu.ru/api/v2/search?q=test');
-    return response.ok;
+    await axios.get('https://timetable.magtu.ru/api/v2/search?q=test', { timeout: 5000 });
+    return true;
   } catch (error) {
     return false;
   }
