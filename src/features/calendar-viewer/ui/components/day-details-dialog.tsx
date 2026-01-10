@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Dialog,
     DialogContent,
@@ -8,7 +9,8 @@ import {
     DialogDescription,
 } from "@/shared/components/ui/dialog";
 import { Event as ScheduleEvent } from '@/entities/schedule/model/types';
-import { ScheduleCard } from '@/features/schedule-viewer/ui/components/schedule-card';
+import { ScheduleCard } from '@/entities/schedule';
+import { useSchedule } from '@/app/provider/schedule-provider';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -28,6 +30,19 @@ export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
     isGroup
 }) => {
     // console.log('DayDetailsDialog: render', { isOpen, date, eventsCount: events?.length });
+    const navigate = useNavigate();
+    const { setSelectedEntity } = useSchedule();
+
+    const handleReverseClick = (id: number, name: string, type: 'group' | 'teacher') => {
+        setSelectedEntity({
+            id,
+            name,
+            type,
+            url: ''
+        });
+        navigate('/schedule');
+        onClose(); // Close dialog when jumping
+    };
 
     if (!date) {
         return null;
@@ -53,6 +68,7 @@ export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
                                 event={event}
                                 isActive={false}
                                 isGroup={isGroup}
+                                onReverseClick={handleReverseClick}
                             />
                         ))
                     ) : (

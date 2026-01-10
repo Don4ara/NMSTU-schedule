@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule, SearchResult } from '@/shared/api/timetable';
 import { Plus, X } from 'lucide-react';
@@ -7,14 +8,15 @@ import { Plus, X } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { getDateForDay, getCurrentWeekId, getEventTime, findEventAt, getWeekDayData } from '@/features/schedule-viewer/lib/schedule-utils';
 import { WeekTabs } from '@/features/schedule-viewer/ui/components/week-tabs';
-import { ScheduleCard } from '@/features/schedule-viewer/ui/components/schedule-card';
+import { ScheduleCard } from '@/entities/schedule';
 import { Week } from '@/entities/schedule/model/types';
 
 import { ScheduleSearchDialog } from '@/features/search/ui/schedule-search-dialog';
 
 
 export const ScheduleComparisonPage = () => {
-    const { trackedEntity, comparisonEntity, setComparisonEntity } = useSchedule();
+    const navigate = useNavigate();
+    const { trackedEntity, comparisonEntity, setComparisonEntity, setSelectedEntity } = useSchedule();
     const [primaryEntity, setPrimaryEntity] = useState<SearchResult | null>(trackedEntity);
 
     const [searchTarget, setSearchTarget] = useState<'primary' | 'secondary' | null>(null);
@@ -26,6 +28,15 @@ export const ScheduleComparisonPage = () => {
         }
     }, [trackedEntity]);
 
+    const handleReverseClick = (id: number, name: string, type: 'group' | 'teacher') => {
+        setSelectedEntity({
+            id,
+            name,
+            type,
+            url: ''
+        });
+        navigate('/schedule');
+    };
 
 
     const { data: primarySchedule } = useQuery({
@@ -172,7 +183,12 @@ export const ScheduleComparisonPage = () => {
                                                 {/* Left Event */}
                                                 <div className="py-2 pl-2">
                                                     {pEvent ? (
-                                                        <ScheduleCard event={pEvent} isActive={false} isGroup={primaryEntity?.type === 'group'} />
+                                                        <ScheduleCard
+                                                            event={pEvent}
+                                                            isActive={false}
+                                                            isGroup={primaryEntity?.type === 'group'}
+                                                            onReverseClick={handleReverseClick}
+                                                        />
                                                     ) : (
                                                         <div className="h-full rounded-lg border border-dashed border-slate-200 dark:border-slate-800 bg-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     )}
@@ -198,7 +214,12 @@ export const ScheduleComparisonPage = () => {
                                                 {/* Right Event */}
                                                 <div className="py-2 pr-2">
                                                     {cEvent ? (
-                                                        <ScheduleCard event={cEvent} isActive={false} isGroup={comparisonEntity?.type === 'group'} />
+                                                        <ScheduleCard
+                                                            event={cEvent}
+                                                            isActive={false}
+                                                            isGroup={comparisonEntity?.type === 'group'}
+                                                            onReverseClick={handleReverseClick}
+                                                        />
                                                     ) : (
                                                         <div className="h-full rounded-lg border border-dashed border-slate-200 dark:border-slate-800 bg-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     )}

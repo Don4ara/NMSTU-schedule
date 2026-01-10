@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
-import { AppSidebar } from "@/shared/components/appsidebar/ui/app-sidebar";
+import { AppSidebar } from "@/widgets/sidebar";
 
 export function MainLayoutSide({
     children,

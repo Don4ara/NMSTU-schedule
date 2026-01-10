@@ -2,8 +2,6 @@ import { createContext, useContext, useState, useEffect, ReactNode, useMemo } fr
 import { SearchResult, checkApiHealth } from '@/shared/api/timetable';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-type ViewMode = 'schedule' | 'calendar' | 'dashboard' | 'comparison';
-
 interface ScheduleContextType {
     // ... existing interface ...
     selectedEntity: SearchResult | null;
@@ -13,8 +11,6 @@ interface ScheduleContextType {
     isApiOnline: boolean | null;
     setApiOnlineState: (status: boolean) => void;
     // New Calendar features
-    viewMode: ViewMode;
-    setViewMode: (mode: ViewMode) => void;
     trackedEntity: SearchResult | null;
     setTrackedEntity: (entity: SearchResult | null) => void;
     comparisonEntity: SearchResult | null;
@@ -26,7 +22,7 @@ const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined
 const STORAGE_KEY = 'schedule_recent_history';
 const TRACKED_ENTITY_KEY = 'calendar_tracked_entity';
 const COMPARISON_ENTITY_KEY = 'schedule_comparison_entity';
-const VIEW_MODE_KEY = 'app_view_mode';
+
 
 export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
     const queryClient = useQueryClient();
@@ -42,9 +38,7 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
     const [isApiOnline, setIsApiOnline] = useState<boolean | null>(null);
 
     // New state
-    const [viewMode, setViewModeState] = useState<ViewMode>(() => {
-        return (localStorage.getItem(VIEW_MODE_KEY) as ViewMode) || 'dashboard';
-    });
+
     const [trackedEntity, setTrackedEntityState] = useState<SearchResult | null>(() => {
         const saved = localStorage.getItem(TRACKED_ENTITY_KEY);
         return saved ? JSON.parse(saved) : null;
@@ -94,10 +88,7 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
         setIsApiOnline(status);
     }
 
-    const setViewMode = (mode: ViewMode) => {
-        setViewModeState(mode);
-        localStorage.setItem(VIEW_MODE_KEY, mode);
-    }
+
 
     const setTrackedEntity = (entity: SearchResult | null) => {
         setTrackedEntityState(entity);
@@ -145,8 +136,6 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
         clearHistory,
         isApiOnline,
         setApiOnlineState,
-        viewMode,
-        setViewMode,
         trackedEntity,
         setTrackedEntity,
         comparisonEntity,
@@ -155,10 +144,10 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
         selectedEntity,
         recentEntities,
         isApiOnline,
-        viewMode,
         trackedEntity,
         comparisonEntity
     ]);
+
 
     return (
         <ScheduleContext.Provider value={contextValue}>

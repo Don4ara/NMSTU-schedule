@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { useQuery } from '@tanstack/react-query';
 import { getSchedule, saveOfflineSchedule } from '@/shared/api/timetable';
@@ -18,13 +19,15 @@ import { Separator } from "@/shared/components/ui/separator.tsx";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip.tsx";
 
 export const Dashboard = () => {
-    const { trackedEntity, setTrackedEntity, setViewMode, setSelectedEntity } = useSchedule();
+    const navigate = useNavigate();
+    const { trackedEntity, setTrackedEntity, setSelectedEntity } = useSchedule();
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
 
     const { data: scheduleData, isLoading } = useQuery<ScheduleData | null>({
         queryKey: ['schedule', trackedEntity?.type, trackedEntity?.id],
@@ -129,7 +132,7 @@ export const Dashboard = () => {
                             variant="ghost"
                             onClick={() => {
                                 if (trackedEntity) setSelectedEntity(trackedEntity);
-                                setViewMode('schedule');
+                                navigate('/schedule');
                             }}
                             className="px-4 h-9 font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
                         >
@@ -141,7 +144,7 @@ export const Dashboard = () => {
                         <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => setViewMode('calendar')}
+                            onClick={() => navigate('/calendar')}
                             className="px-4 h-9 font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
                         >
                             Календарь
