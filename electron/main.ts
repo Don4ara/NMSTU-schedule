@@ -130,6 +130,9 @@ function createWindow() {
     transparent: true,
     backgroundColor: '#00000000', // Прозрачный фон, но темный при необходимости
     webPreferences: {
+      sandbox: true,
+      contextIsolation: true,
+      nodeIntegration: false,
       preload: path.join(__dirname, 'preload.mjs'),
       devTools: !!VITE_DEV_SERVER_URL, // DevTools только в dev режиме
     },
@@ -169,6 +172,10 @@ function createWindow() {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
+app.on('before-quit', () => {
+  // Graceful shutdown of any spawned processes (if added later)
+})
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
