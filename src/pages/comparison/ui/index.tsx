@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSchedule } from '@/app/provider/schedule-provider';
-import { getSchedule, searchTimetable, SearchResult } from '@/shared/api/timetable';
-import { Search, Plus, X } from 'lucide-react';
-import { Input } from '@/shared/components/ui/input';
+import { getSchedule, SearchResult } from '@/shared/api/timetable';
+import { Plus, X } from 'lucide-react';
+
 import { Button } from '@/shared/components/ui/button';
 import { getDateForDay, getCurrentWeekId, getEventTime, findEventAt, getWeekDayData } from '@/features/schedule-viewer/lib/schedule-utils';
 import { WeekTabs } from '@/features/schedule-viewer/ui/components/week-tabs';
 import { ScheduleCard } from '@/features/schedule-viewer/ui/components/schedule-card';
 import { Week } from '@/entities/schedule/model/types';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { ScheduleSearchDialog } from '@/features/search/ui/schedule-search-dialog';
+
 
 export const ScheduleComparisonPage = () => {
     const { trackedEntity, comparisonEntity, setComparisonEntity } = useSchedule();
     const [primaryEntity, setPrimaryEntity] = useState<SearchResult | null>(trackedEntity);
-    const [searchQuery, setSearchQuery] = useState('');
+
     const [searchTarget, setSearchTarget] = useState<'primary' | 'secondary' | null>(null);
     const [activeWeekId, setActiveWeekId] = useState<number>(getCurrentWeekId());
 
@@ -24,11 +26,7 @@ export const ScheduleComparisonPage = () => {
         }
     }, [trackedEntity]);
 
-    const { data: searchResults = [] } = useQuery({
-        queryKey: ['search-comparison', searchQuery],
-        queryFn: () => searchTimetable(searchQuery),
-        enabled: searchQuery.length > 2,
-    });
+
 
     const { data: primarySchedule } = useQuery({
         queryKey: ['schedule', primaryEntity?.type, primaryEntity?.id],
@@ -48,7 +46,6 @@ export const ScheduleComparisonPage = () => {
         } else {
             setComparisonEntity(entity);
         }
-        setSearchQuery('');
         setSearchTarget(null);
     };
 
@@ -214,59 +211,15 @@ export const ScheduleComparisonPage = () => {
                         );
                     })}
                 </div>
-            </div>
 
-            {/* Search Modal */}
-            <AnimatePresence>
-                {searchTarget && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-white/20 dark:bg-black/20 backdrop-blur-sm flex items-start justify-center pt-[15vh]"
-                        onClick={() => { setSearchTarget(null); setSearchQuery(''); }}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0, y: 10 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 10 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-800 overflow-hidden"
-                        >
-                            <div className="p-4 border-b border-slate-50 dark:border-slate-800 flex items-center gap-3">
-                                <Search className="text-slate-400" size={20} />
-                                <Input
-                                    autoFocus
-                                    placeholder={searchTarget === 'primary' ? 'Поиск основного расписания...' : 'Поиск для сравнения...'}
-                                    className="border-none shadow-none focus-visible:ring-0 text-base px-0 h-auto placeholder:text-slate-300 dark:placeholder:text-slate-600 font-medium bg-transparent"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                                <Button variant="ghost" size="icon" onClick={() => { setSearchTarget(null); setSearchQuery(''); }} className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 h-8 w-8">
-                                    <X size={18} />
-                                </Button>
-                            </div>
-                            <div className="max-h-[50vh] overflow-y-auto p-2">
-                                {searchResults.map((result) => (
-                                    <button
-                                        key={`${result.type}-${result.id}`}
-                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-between group"
-                                        onClick={() => handleSearchSelect(result)}
-                                    >
-                                        <span className="font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{result.name}</span>
-                                        <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded-md ${result.type === 'group' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500' : 'bg-orange-50 dark:bg-orange-900/30 text-orange-500'}`}>
-                                            {result.type === 'group' ? 'Группа' : 'Преподаватель'}
-                                        </span>
-                                    </button>
-                                ))}
-                                {searchQuery.length > 2 && searchResults.length === 0 && (
-                                    <div className="text-center text-slate-400 py-12 text-sm">Ничего не найдено</div>
-                                )}
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                {/* Search Dialog */}
+                <ScheduleSearchDialog
+                    open={!!searchTarget}
+                    onOpenChange={(open) => !open && setSearchTarget(null)}
+                    title={searchTarget === 'primary' ? "Выберите основное расписание" : "Выберите расписание для сравнения"}
+                    onSelect={handleSearchSelect}
+                />
+            </div>
         </div>
     );
 };
