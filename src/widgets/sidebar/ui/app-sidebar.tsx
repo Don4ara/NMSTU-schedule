@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useLocation } from "react-router-dom";
 import {
     Sidebar,
     SidebarContent,
@@ -12,10 +13,10 @@ import { TaskflowSwitcher } from "@/shared/components/team-switcher/ui/team-swit
 import { RecentHistory } from "@/features/search/index"
 import { SidebarNavigation } from "@/features/navigation"
 import { ThemeSwitcher } from "@/features/theme-switcher"
-import { useSchedule } from "@/app/provider/schedule-provider"
+
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const { viewMode } = useSchedule();
+    const location = useLocation();
 
     return (
         <Sidebar collapsible="none" {...props}>
@@ -26,7 +27,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
             </SidebarHeader>
             <SidebarContent>
-                {viewMode === 'schedule' && <RecentHistory />}
+                {location.pathname === '/schedule' && <RecentHistory />}
             </SidebarContent>
             <SidebarFooter>
                 <SidebarMenu>
