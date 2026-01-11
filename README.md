@@ -1,100 +1,144 @@
 <div align="center">
-  <img src="public/Icon_app.png" alt="NMSTU-Schedule Icon" width="128" height="128" style="border-radius: 22%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+  <img src="public/Icon_app.png" alt="NMSTU-Planer Icon" width="128" height="128" style="border-radius: 22%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
 
-  # NMSTU Schedule Manager
+  # NMSTU-Planer
 
   **Современное десктопное приложение расписания для студентов и преподавателей МГТУ им. Г.И. Носова.**
   
   Создано с упором на производительность, эстетику и работу без интернета.
 
-  [![Electron](https://img.shields.io/badge/Electron-30.0-blue?logo=electron)](https://www.electronjs.org/)
+  [![Version](https://img.shields.io/badge/version-1.6.0-brightgreen)](https://github.com/Don4ara/NMSTU-schedule/releases)
+  [![Electron](https://img.shields.io/badge/Electron-30-blue?logo=electron)](https://www.electronjs.org/)
   [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
-  [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?logo=vite)](https://vitejs.dev/)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+  [![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite)](https://vitejs.dev/)
+  [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
 </div>
 
 ---
 
-## 🚀 Возможности
+## ✨ Ключевые особенности
 
-- **🎓 Умное расписание**: Просмотр расписания групп и преподавателей с автоматическим определением четности недели.
-- **⚡ Быстродействие**: Работает на **Vite** и использует **Web Workers** для плавного интерфейса без зависаний.
-- **🎨 Современный UI**: Красивый интерфейс, построенный на **TailwindCSS**, **Radix UI** и анимациях **Framer Motion**.
-- **📂 Офлайн-режим**: Расписание кэшируется локально, что позволяет просматривать его без доступа к интернету.
-- **📅 Сравнение**: Возможность сравнивать расписания двух разных групп или преподавателей бок о бок.
-- **🔍 Быстрый поиск**: Мгновенный поиск по базе университета.
-- **📉 Оптимизация**: Ленивая загрузка (Lazy loading) и минимальный размер приложения.
+### 🚀 Производительность
+- **Мгновенная сборка** — Vite собирает проект за ~3.5 секунды
+- **Web Workers** — тяжёлые вычисления календаря выполняются в фоне
+- **React.memo & useMemo** — оптимизированный рендеринг без лишних перерисовок
+- **Многоуровневый кэш** — API кешируется на 15 минут + in-memory cache в main process
+
+### 📅 Расписание
+- **Умное определение недели** — автоматически определяет чётную/нечётную неделю
+- **Просмотр по группам и преподавателям** — быстрый поиск по базе университета
+- **Сравнение расписаний** — два расписания бок о бок для планирования
+- **Подсветка текущих пар** — визуальное выделение активных занятий
+
+### 📆 Календарь
+- **Годовой обзор** — все пары на учебный год в одном месте
+- **Статистика** — количество лекций и занятий по месяцам
+- **Быстрая навигация** — переключение между месяцами и переход к сегодня
+
+### 🌐 Офлайн-режим
+- **Локальный кэш** — расписание хранится в localStorage
+- **Автосинхронизация** — обновление при восстановлении интернета
+- **Индикатор статуса** — отображение текущего состояния подключения
+
+### 🎨 Интерфейс
+- **Тёмная и светлая тема** — адаптация под системные настройки
+- **Плавные анимации** — Framer Motion для переходов
+- **macOS нативный вид** — скрытый titlebar с интегрированными кнопками
+
+---
 
 ## 🛠 Технологический стек
 
 | Категория | Технологии |
 |-----------|------------|
-| **Core** | [Electron](https://www.electronjs.org/), [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/) |
-| **Сборка** | [Vite](https://vitejs.dev/) (с агрессивным разделением кода) |
-| **Стилизация** | [Tailwind CSS v4](https://tailwindcss.com/), [Clsx](https://github.com/lukeed/clsx), [Tailwind Merge](https://github.com/dcastil/tailwind-merge) |
-| **UI Компоненты** | [Radix UI](https://www.radix-ui.com/), [Lucide React](https://lucide.dev/) (Иконки) |
-| **Данные** | [TanStack Query](https://tanstack.com/query/latest) (Кэширование/Запросы), React Context |
-| **Анимация** | [Framer Motion](https://www.framer.com/motion/) |
+| **Фреймворк** | [Electron 30](https://www.electronjs.org/) + [React 18](https://react.dev/) |
+| **Язык** | [TypeScript 5](https://www.typescriptlang.org/) |
+| **Сборка** | [Vite 5](https://vitejs.dev/) + [Terser](https://terser.org/) |
+| **Стилизация** | [TailwindCSS 4](https://tailwindcss.com/) + [LightningCSS](https://lightningcss.dev/) |
+| **UI компоненты** | [shadcn/ui](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/) |
+| **Иконки** | [Lucide React](https://lucide.dev/) |
+| **Состояние** | [TanStack Query 5](https://tanstack.com/query) + React Context |
+| **Роутинг** | [React Router 7](https://reactrouter.com/) |
+| **Анимации** | [Framer Motion 12](https://www.framer.com/motion/) |
+| **HTTP** | [Axios](https://axios-http.com/) + [Axios Retry](https://github.com/softonic/axios-retry) |
+| **Утилиты** | [date-fns 4](https://date-fns.org/), [clsx](https://github.com/lukeed/clsx), [CVA](https://cva.style/) |
 | **Упаковка** | [Electron Builder](https://www.electron.build/) |
 
-## 🏁 Начало работы
+---
+
+## 📂 Архитектура (Feature-Sliced Design)
+
+```
+src/
+├── app/                    # Точка входа, провайдеры, роутинг
+│   ├── provider/           # ScheduleProvider, ThemeProvider
+│   ├── router/             # Конфигурация React Router
+│   └── style/              # Глобальные стили
+├── pages/                  # Страницы приложения
+│   ├── home/               # Главная страница (Dashboard)
+│   ├── schedule/           # Просмотр расписания
+│   ├── calendar/           # Календарный вид
+│   └── comparison/         # Сравнение расписаний
+├── widgets/                # Составные виджеты
+│   ├── sidebar/            # Боковая панель
+│   └── calendar/           # Календарь-виджет
+├── features/               # Бизнес-логика
+│   ├── schedule-viewer/    # Просмотр расписания
+│   ├── calendar-viewer/    # Календарные компоненты
+│   ├── search/             # Поиск и история
+│   └── navigation/         # Навигация
+├── entities/               # Бизнес-сущности
+│   └── schedule/           # Модели и карточки расписания
+├── shared/                 # Переиспользуемое
+│   ├── api/                # API клиенты, React Query
+│   ├── components/ui/      # UI Kit (Button, Input, Dialog...)
+│   ├── lib/                # Утилиты
+│   └── workers/            # Web Workers
+└── electron/               # Main & Preload процессы
+```
+
+---
+
+## 🏁 Быстрый старт
 
 ### Требования
-- Node.js (версия 18 или выше)
+- Node.js 18+
 - npm или yarn
 
 ### Установка
 
-1. **Клонируйте репозиторий**
-   ```bash
-   git clone https://github.com/Don4ara/NMSTU-schedule.git
-   cd NMSTU-schedule
-   ```
-
-2. **Установите зависимости**
-   ```bash
-   npm install
-   ```
+```bash
+git clone https://github.com/Don4ara/NMSTU-schedule.git
+cd NMSTU-schedule
+npm install
+```
 
 ### Разработка
-
-Запуск приложения в режиме разработки с Hot Module Replacement (HMR):
 
 ```bash
 npm run dev
 ```
 
-> **Примечание**: В режиме разработки название приложения в доке/панели задач может отображаться как "Electron". Это нормально. Пользовательское название "NMSTU-Schedule" применяется только в скомпилированной версии.
-
-### Сборка (Production)
-
-Для компиляции приложения и создания исполняемого файла (DMG, EXE и т.д.):
+### Сборка
 
 ```bash
 npm run build
 ```
 
-Готовые файлы будут находиться в папке `release/`.
+Готовые файлы будут в папке `release/1.6.0/`
 
-## 📂 Структура проекта
+---
 
-```bash
-src/
-├── app/                  # Глобальные провайдеры, роутинг и точка входа
-├── processes/            # Сложные процессы (если есть)
-├── pages/                # Компоненты страниц (Dashboard, Schedule и т.д.)
-├── features/             # Бизнес-фичи (Просмотр календаря, Сетка расписания)
-│   ├── calendar-viewer/  # Логика и UI календаря
-│   └── schedule-viewer/  # Основная сетка расписания
-├── entities/             # Бизнес-сущности (Модели студента, группы, расписания)
-├── shared/               # Переиспользуемые компоненты, хуки, API и утилиты
-│   ├── api/              # Клиенты API
-│   ├── ui/               # UI кит (Кнопки, Инпуты и т.д.)
-│   └── workers/          # Web Workers (фоновые вычисления)
-└── electron/             # Скрипты Main и Preload процессов Electron
-```
+## 📊 Метрики производительности
+
+| Метрика | Значение |
+|---------|----------|
+| Время сборки | ~3.5 сек |
+| Bundle (gzip) | ~210 KB |
+| DMG размер | ~90 MB |
+| Cold start | < 2 сек |
 
 ---
 
