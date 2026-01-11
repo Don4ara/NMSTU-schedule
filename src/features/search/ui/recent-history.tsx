@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -9,7 +10,7 @@ import {
 import { useSchedule } from "@/app/provider/schedule-provider";
 import { Users, User, Trash2 } from "lucide-react";
 
-export function RecentHistory() {
+export const RecentHistory = React.memo(function RecentHistory() {
     const { recentEntities, setSelectedEntity, clearHistory } = useSchedule();
 
     if (recentEntities.length === 0) return null;
@@ -35,4 +36,5 @@ export function RecentHistory() {
             </SidebarMenu>
         </SidebarGroup>
     );
-}
+});
+

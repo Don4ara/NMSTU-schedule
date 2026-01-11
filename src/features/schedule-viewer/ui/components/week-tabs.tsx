@@ -8,7 +8,7 @@ interface WeekTabsProps {
     onWeekChange: (weekId: number) => void;
 }
 
-export const WeekTabs: React.FC<WeekTabsProps> = ({ weeks, activeWeekId, onWeekChange }) => {
+export const WeekTabs: React.FC<WeekTabsProps> = React.memo(({ weeks, activeWeekId, onWeekChange }) => {
     if (!weeks || weeks.length === 0) return null;
 
     return (
@@ -30,4 +30,5 @@ export const WeekTabs: React.FC<WeekTabsProps> = ({ weeks, activeWeekId, onWeekC
             </TabsList>
         </Tabs>
     );
-};
+});
+

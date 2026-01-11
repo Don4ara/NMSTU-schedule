@@ -11,7 +11,7 @@ interface ScheduleHeaderProps {
     children?: React.ReactNode; // For WeekTabs
 }
 
-export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ scheduleData, isUsingMockData, children }) => {
+export const ScheduleHeader: React.FC<ScheduleHeaderProps> = React.memo(({ scheduleData, isUsingMockData, children }) => {
     const { setSelectedEntity } = useSchedule();
     return (
         <div className="sticky top-0 z-20 backdrop-blur-md pt-12 pb-4 mb-6 border-b px-4 md:px-8">
@@ -54,4 +54,5 @@ export const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ scheduleData, is
             </div>
         </div>
     );
-};
+});
+

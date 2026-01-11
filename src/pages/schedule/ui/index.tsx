@@ -44,14 +44,7 @@ export const ScheduleViewer = () => {
         }
     }, [scheduleData]);
 
-    const [, setTick] = useState(0);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTick(t => t + 1);
-        }, 60000);
-        return () => clearInterval(timer);
-    }, []);
+    // Примечание: Избыточный таймер удалён — isEventActive уже проверяет текущее время при каждом вызове
 
     if (!selectedEntity) {
         return (

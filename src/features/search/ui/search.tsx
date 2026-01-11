@@ -1,3 +1,4 @@
+import React, { useCallback } from 'react';
 import { SearchIcon, Loader2 } from "lucide-react"
 import { Input } from "@/shared/components/ui/input"
 import { SearchResult } from "@/shared/api/timetable"
@@ -12,11 +13,11 @@ interface SearchProps {
     variant?: 'overlay' | 'static';
 }
 
-export function Search({ onSelectResult, className, placeholder, variant = 'overlay' }: SearchProps) {
+export const Search = React.memo(function Search({ onSelectResult, className, placeholder, variant = 'overlay' }: SearchProps) {
     const { setSelectedEntity } = useSchedule()
     const { query, setQuery, results, isLoading, showResults, setShowResults } = useSearch()
 
-    const handleSelect = (result: SearchResult) => {
+    const handleSelect = useCallback((result: SearchResult) => {
         if (onSelectResult) {
             onSelectResult(result);
         } else {
@@ -24,7 +25,7 @@ export function Search({ onSelectResult, className, placeholder, variant = 'over
         }
         setShowResults(false);
         setQuery('');
-    };
+    }, [onSelectResult, setSelectedEntity, setShowResults, setQuery]);
 
     return (
         <div className={cn("relative", className)}>
@@ -75,5 +76,4 @@ export function Search({ onSelectResult, className, placeholder, variant = 'over
             )}
         </div>
     )
-}
-
+});

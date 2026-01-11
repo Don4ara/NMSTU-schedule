@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { getWeekParity } from '@/features/schedule-viewer/lib/schedule-utils';
 
@@ -17,7 +17,7 @@ interface CalendarGridProps {
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
-export const CalendarGrid: React.FC<CalendarGridProps> = ({
+export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
     loading,
     startDay,
     currentMonth,
@@ -53,7 +53,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
         <div className="relative flex-1 flex flex-col min-h-0 w-full h-full">
             {/* Header Row */}
             <div className="grid grid-cols-[40px_repeat(7,minmax(0,1fr))] mb-2 pr-[6px]"> {/* Add pr to compensate scrollbar if needed, but we hide it */}
-                <div className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase flex items-center justify-center tracking-widest">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase flex items-center justify-center tracking-widest">
 
                 </div>
                 {WEEKDAYS.map((day, index) => (
@@ -92,13 +92,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                             <React.Fragment key={weekIndex}>
                                 {/* Week Number / Parity Indicator */}
                                 <div className={`
-                                    flex items-center justify-center border-r bg-white border-slate-100 dark:border-slate-800
-                                    ${isOdd ? 'bg-blue-50/10' : 'bg-orange-50/10'}
-                                    border-b border-slate-100 dark:border-slate-800
+                                    flex items-center justify-center border-r bg-white border-slate-200 dark:border-slate-700
+                                    ${isOdd ? 'bg-blue-50/30' : 'bg-orange-50/30'}
+                                    border-b border-slate-200 dark:border-slate-700
                                 `}>
                                     <div className={`
                                         text-[10px] font-bold uppercase tracking-widest -rotate-90 whitespace-nowrap
-                                        ${isOdd ? 'text-blue-500/60' : 'text-orange-500/60'}
+                                        ${isOdd ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'}
                                     `}>
                                         {isOdd ? 'Нечетная' : 'Четная'}
                                     </div>
@@ -117,25 +117,14 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                                         cellDate.getDate() === todayDate;
 
                                     const isWeekend = dayIndex >= 5;
-                                    const isLastInRow = dayIndex === 6;
-
                                     // Styles for adjacent month days
                                     const bgClass = isCurrentMonth
                                         ? (isToday
                                             ? 'bg-white dark:bg-blue-900/5'
                                             : isWeekend
-                                                ? 'bg-red-50/50 dark:bg-red-900/10' // Weekend specific bg
+                                                ? 'bg-red-50/80 dark:bg-red-900/20' // Weekend specific bg
                                                 : 'bg-white dark:bg-slate-900/50')
-                                        : 'bg-white dark:bg-slate-900/50';
-
-                                    const textClass = isCurrentMonth
-                                        ? (isToday
-                                            ? 'bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-none'
-                                            : isWeekend
-                                                ? 'text-red-500 dark:text-red-400'
-                                                : 'text-slate-700 dark:text-slate-300')
-                                        : 'text-slate-300 dark:text-slate-600';
-
+                                        : 'bg-slate-50/80 dark:bg-slate-900/80';
                                     // Calc visible events based on space (heuristic: 3-4 max usually fits)
                                     // With 1fr rows, space depends on screen. Let's try to fit 3 + indicator.
                                     const visibleEvents = dateEvents.filter((event, index, self) =>
@@ -152,10 +141,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                                             key={`${weekIndex}-${dayIndex}`}
                                             onClick={() => onDayClick(cellDate)}
                                             className={`
-                                                relative flex flex-col p-1 border-b border-r border-slate-100 dark:border-slate-800
+                                                relative flex flex-col p-1 border-b border-r bg-white border-slate-200 dark:border-slate-700
                                                 transition-colors duration-200 cursor-pointer group min-h-0
                                                 ${bgClass}
-                                                ${!isCurrentMonth ? 'hover:bg-slate-50 dark:hover:bg-slate-800/50' : isWeekend ? 'hover:bg-red-50 dark:hover:bg-red-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
+                                                ${!isCurrentMonth ? 'hover:bg-slate-100 dark:hover:bg-slate-800' : isWeekend ? 'hover:bg-red-100 dark:hover:bg-red-900/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
                                             `}
                                         >
                                             {/* Day Header */}
@@ -190,10 +179,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                                                         <div key={i} className={`
                                                             text-[9px] px-1 py-[1px] rounded-[3px] font-medium truncate leading-tight border
                                                             ${isLec
-                                                                ? 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/50'
+                                                                ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-800'
                                                                 : isLab
-                                                                    ? 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800/50'
-                                                                    : 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800/50'}
+                                                                    ? 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/40 dark:text-orange-200 dark:border-orange-800'
+                                                                    : 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200 dark:border-emerald-800'}
                                                         `}>
                                                             {event.course}
                                                         </div>
@@ -215,4 +204,5 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
             </motion.div>
         </div>
     );
-};
+});
+

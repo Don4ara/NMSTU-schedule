@@ -1,6 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, GraduationCap } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 
 interface CalendarHeaderProps {
     month: number;
@@ -20,7 +19,7 @@ const MONTHS = [
     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
 ];
 
-export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
+export const CalendarHeader: React.FC<CalendarHeaderProps> = React.memo(({
     month,
     year,
     lectureCount,
@@ -38,7 +37,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
                 <div className="flex items-center gap-4">
                     <h1 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight flex items-baseline gap-3">
                         <span className="capitalize">{MONTHS[month]}</span>
-                        <span className="text-slate-300 dark:text-slate-600 font-medium text-3xl">{year}</span>
+                        <span className="text-slate-400 dark:text-slate-500 font-medium text-3xl">{year}</span>
                     </h1>
                 </div>
 
@@ -66,8 +65,8 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
                 </div>
             </div>
 
-            <div className="flex items-center gap-6 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                <div className="flex flex-col items-end pr-6 border-r border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-6 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className="flex flex-col items-end pr-6 border-r border-slate-200 dark:border-slate-700">
                     <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Расписание для</span>
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
@@ -112,5 +111,5 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             </div>
         </div>
     );
-};
+});
 

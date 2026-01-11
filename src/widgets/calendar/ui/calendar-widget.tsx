@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule } from '@/shared/api/timetable';
@@ -69,8 +69,34 @@ export const CalendarWidget = () => {
         return fullScheduleMap[dateKey] || [];
     }, [fullScheduleMap]);
 
-    // Calculate stats for CURRENT VIEWED MONTH
-    const { lectureCount, pairCount } = useMemoSimpleStats(fullScheduleMap, year, month);
+    // Calculate stats for CURRENT VIEWED MONTH - теперь правильно мемоизировано
+    const { lectureCount, pairCount } = useMemo(() => {
+        const days = getDaysInMonth(year, month);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let lCount = 0;
+        let pCount = 0;
+
+        for (let d = 1; d <= days; d++) {
+            const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const events = fullScheduleMap[dateKey] || [];
+            const checkDate = new Date(year, month, d);
+
+            if (checkDate >= today) {
+                const distinctEvents = events.filter((event, index, self) =>
+                    index === self.findIndex((t) => (
+                        t.event_index === event.event_index &&
+                        t.course === event.course &&
+                        t.type === event.type
+                    ))
+                );
+                pCount += distinctEvents.length;
+                lCount += distinctEvents.filter(e => e.type.toLowerCase().includes('лекция')).length;
+            }
+        }
+        return { lectureCount: lCount, pairCount: pCount };
+    }, [fullScheduleMap, year, month]);
 
     const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
     const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
@@ -133,31 +159,3 @@ export const CalendarWidget = () => {
     );
 };
 
-// Helper for stats
-function useMemoSimpleStats(fullScheduleMap: Record<string, ScheduleEvent[]>, year: number, month: number) {
-    const days = getDaysInMonth(year, month);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    let lectureCount = 0;
-    let pairCount = 0;
-
-    for (let d = 1; d <= days; d++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        const events = fullScheduleMap[dateKey] || [];
-        const checkDate = new Date(year, month, d);
-
-        if (checkDate >= today) {
-            const distinctEvents = events.filter((event, index, self) =>
-                index === self.findIndex((t) => (
-                    t.event_index === event.event_index &&
-                    t.course === event.course &&
-                    t.type === event.type
-                ))
-            );
-            pairCount += distinctEvents.length;
-            lectureCount += distinctEvents.filter(e => e.type.toLowerCase().includes('лекция')).length;
-        }
-    }
-    return { lectureCount, pairCount };
-}
