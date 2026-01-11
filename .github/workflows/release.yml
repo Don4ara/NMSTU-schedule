@@ -99,11 +99,68 @@ jobs:
           
           if [ -z "$PREV_TAG" ]; then
             echo "No previous tag found. Generating notes for all commits."
-            git log --pretty=format:"- %s" > release-notes.md
+            COMMITS=$(git log --pretty=format:"%s")
           else
             echo "Generating release notes from $PREV_TAG to HEAD"
-            git log ${PREV_TAG}..HEAD --pretty=format:"- %s" > release-notes.md
+            COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s")
           fi
+          
+          # Создаём временные файлы для категорий
+          touch features.tmp fixes.tmp improvements.tmp other.tmp
+          
+          # Сортируем коммиты по категориям
+          echo "$COMMITS" | while read -r line; do
+            if [ -z "$line" ]; then continue; fi
+            
+            # Приводим к нижнему регистру для проверки
+            lower_line=$(echo "$line" | tr '[:upper:]' '[:lower:]')
+            
+            # Определяем категорию по ключевым словам
+            if echo "$lower_line" | grep -qE "(feat|добавлен|добавил|добавить|новый|новая|новое|реализован|создан|внедрен|add|implement|create)"; then
+              echo "- $line" >> features.tmp
+            elif echo "$lower_line" | grep -qE "(fix|исправлен|исправил|пофиксен|пофиксил|баг|bug|repair|resolve|fixed)"; then
+              echo "- $line" >> fixes.tmp
+            elif echo "$lower_line" | grep -qE "(improve|улучшен|улучшил|оптимизац|refactor|рефактор|update|обновлен|enhance|perf|performance)"; then
+              echo "- $line" >> improvements.tmp
+            else
+              echo "- $line" >> other.tmp
+            fi
+          done
+          
+          # Собираем release notes
+          echo "# 📋 Что нового в этом релизе" > release-notes.md
+          echo "" >> release-notes.md
+          
+          if [ -s features.tmp ]; then
+            echo "## ✨ Новые функции" >> release-notes.md
+            echo "" >> release-notes.md
+            cat features.tmp >> release-notes.md
+            echo "" >> release-notes.md
+          fi
+          
+          if [ -s fixes.tmp ]; then
+            echo "## 🐛 Исправления" >> release-notes.md
+            echo "" >> release-notes.md
+            cat fixes.tmp >> release-notes.md
+            echo "" >> release-notes.md
+          fi
+          
+          if [ -s improvements.tmp ]; then
+            echo "## ⚡ Улучшения" >> release-notes.md
+            echo "" >> release-notes.md
+            cat improvements.tmp >> release-notes.md
+            echo "" >> release-notes.md
+          fi
+          
+          if [ -s other.tmp ]; then
+            echo "## 📝 Другие изменения" >> release-notes.md
+            echo "" >> release-notes.md
+            cat other.tmp >> release-notes.md
+            echo "" >> release-notes.md
+          fi
+          
+          # Очистка временных файлов
+          rm -f features.tmp fixes.tmp improvements.tmp other.tmp
           
           echo "Release Notes Content:"
           cat release-notes.md
