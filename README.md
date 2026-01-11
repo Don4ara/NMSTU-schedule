@@ -7,7 +7,7 @@
   
   Создано с упором на производительность, эстетику и работу без интернета.
 
-  [![Version](https://img.shields.io/github/package-json/v/Don4ara/NMSTU-schedule?label=version&color=brightgreen)](https://github.com/Don4ara/NMSTU-schedule/releases)
+  [![Version](https://img.shields.io/badge/version-1.6.0-brightgreen)](https://github.com/Don4ara/NMSTU-schedule/releases)
   [![Electron](https://img.shields.io/badge/Electron-30-blue?logo=electron)](https://www.electronjs.org/)
   [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
   [![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite)](https://vitejs.dev/)
