@@ -3,7 +3,6 @@ import tailwindcss from "@tailwindcss/vite"
 import path from 'node:path'
 import electron from 'vite-plugin-electron/simple'
 import react from '@vitejs/plugin-react'
-import obfuscator from 'rollup-plugin-obfuscator';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -28,20 +27,6 @@ export default defineConfig({
         ? undefined
         : {},
     }),
-    obfuscator({
-      global: true,
-      options: {
-        compact: true,
-        controlFlowFlattening: false,
-        deadCodeInjection: false,
-        debugProtection: false,
-        disableConsoleOutput: false,
-        identifierNamesGenerator: 'hexadecimal',
-        stringArray: true,
-        rotateStringArray: false,
-        reservedStrings: ['search-timetable', 'get-schedule', 'check-api-status', 'ipcRenderer'],
-      },
-    }),
   ],
   resolve: {
     alias: {
@@ -50,6 +35,7 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1000,
+    sourcemap: false,
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -66,11 +52,15 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-separator', '@radix-ui/react-slot', '@radix-ui/react-tooltip', 'lucide-react', 'class-variance-authority', 'clsx', 'tailwind-merge'],
+          routing: ['react-router-dom'],
+          query: ['@tanstack/react-query', '@tanstack/react-query-persist-client', '@tanstack/query-sync-storage-persister'],
+          http: ['axios', 'axios-retry'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-separator', '@radix-ui/react-slot', '@radix-ui/react-tooltip', '@radix-ui/react-tabs', 'lucide-react', 'class-variance-authority', 'clsx', 'tailwind-merge'],
           animation: ['framer-motion'],
-          utils: ['date-fns', '@tanstack/react-query'],
+          utils: ['date-fns'],
         },
       },
     },
   },
 })
+
