@@ -1,4 +1,3 @@
-import React from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { ScheduleProvider } from "@/app/provider/schedule-provider";
 import { queryClient } from "@/shared/api/query-client";

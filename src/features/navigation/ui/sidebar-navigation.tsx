@@ -10,7 +10,7 @@ export function SidebarNavigation() {
     return (
         <SidebarMenu>
             <SidebarMenuItem>
-                <NavLink to="/" className={({ isActive }) => ""}>
+                <NavLink to="/">
                     {({ isActive }) => (
                         <SidebarMenuButton isActive={isActive} tooltip="Главная">
                             <LayoutDashboard />
