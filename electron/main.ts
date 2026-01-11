@@ -170,7 +170,7 @@ function createWindow() {
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 10, y: 10 },
     transparent: true,
-    backgroundColor: '#00000000', // Прозрачный фон, но темный при необходимости
+    backgroundColor: '#0f172a', // Тёмный фон (slate-900) чтобы избежать белого мерцания
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
@@ -195,12 +195,11 @@ function createWindow() {
   win.webContents.on('did-finish-load', () => {
     if (win && !win.isDestroyed()) {
       win.webContents.send('main-process-message', (new Date).toLocaleString())
+      // Небольшая задержка чтобы React успел отрендериться
+      setTimeout(() => {
+        win?.show()
+      }, 100)
     }
-  })
-
-  // Wait for the main window to be ready before showing it
-  win.once('ready-to-show', () => {
-    win?.show()
   })
 
   if (VITE_DEV_SERVER_URL) {
