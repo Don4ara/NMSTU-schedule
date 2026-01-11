@@ -1,5 +1,8 @@
 import { ScheduleData, Week, Day, Event } from '../../entities/schedule/model/types';
 
+// Кэш результатов обработки - ключ: type_id, значение: fullScheduleMap
+let cachedResult: { key: string; fullScheduleMap: Record<string, Event[]> } | null = null;
+
 self.onmessage = (e: MessageEvent) => {
     const { scheduleData, baseYear } = e.data as {
         scheduleData: ScheduleData | null;
@@ -8,6 +11,15 @@ self.onmessage = (e: MessageEvent) => {
 
     if (!scheduleData || !scheduleData.schedule) {
         self.postMessage({ fullScheduleMap: {} });
+        return;
+    }
+
+    // Создаём ключ кэша из типа и id
+    const cacheKey = `${scheduleData.type}_${scheduleData.id}_${baseYear}`;
+
+    // Проверяем кэш - если данные те же, возвращаем мгновенно
+    if (cachedResult && cachedResult.key === cacheKey) {
+        self.postMessage({ fullScheduleMap: cachedResult.fullScheduleMap });
         return;
     }
 
@@ -49,7 +61,11 @@ self.onmessage = (e: MessageEvent) => {
         currentDate.setDate(currentDate.getDate() + 1);
     }
 
+    // Сохраняем в кэш
+    cachedResult = { key: cacheKey, fullScheduleMap };
+
     self.postMessage({ fullScheduleMap });
 };
 
 export { };
+

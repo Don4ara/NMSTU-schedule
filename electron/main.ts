@@ -23,13 +23,44 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // ... (constants)
 
+// =============================================
+// API Response Cache для уменьшения сетевых запросов
+// =============================================
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const apiCache = new Map<string, CacheEntry<unknown>>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getCached<T>(key: string): T | null {
+  const cached = apiCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data as T;
+  }
+  if (cached) {
+    apiCache.delete(key); // Очищаем устаревший кэш
+  }
+  return null;
+}
+
+function setCache<T>(key: string, data: T): void {
+  apiCache.set(key, { data, timestamp: Date.now() });
+}
+
 // IPC Handler for Timetable Search
 ipcMain.handle('search-timetable', async (_event, query) => {
+  const cacheKey = `search_${query}`;
+  const cached = getCached<unknown[]>(cacheKey);
+  if (cached) return cached;
+
   try {
     const response = await axios.get(`https://timetable.magtu.ru/api/v2/search`, {
       params: { q: query },
       timeout: 10000
     });
+    setCache(cacheKey, response.data);
     return response.data;
   } catch (error) {
     console.error("Main process search error:", error);
@@ -38,11 +69,16 @@ ipcMain.handle('search-timetable', async (_event, query) => {
 })
 
 ipcMain.handle('get-schedule', async (_event, type: 'group' | 'teacher', id: string) => {
+  const cacheKey = `schedule_${type}_${id}`;
+  const cached = getCached<unknown>(cacheKey);
+  if (cached) return cached;
+
   try {
     const endpoint = type === 'group' ? 'groups' : 'teachers';
     const response = await axios.get(`https://timetable.magtu.ru/api/v2/${endpoint}/${id}/schedule`, {
       timeout: 15000
     });
+    setCache(cacheKey, response.data);
     return response.data;
   } catch (error) {
     console.error("Main process schedule fetch error:", error);
