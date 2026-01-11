@@ -46,7 +46,7 @@
     ],
     "icon": "public/Icon_app.png",
     "category": "public.app-category.productivity",
-    "bundleVersion": "1.5.1",
+    "bundleVersion": "1.6.0",
     "minimumSystemVersion": "10.15.0",
     "artifactName": "${productName}-Mac-${version}-${arch}-Installer.${ext}"
   },
