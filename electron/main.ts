@@ -135,6 +135,39 @@ ipcMain.handle('is-fullscreen', async () => {
   return (win && !win.isDestroyed()) ? win.isFullScreen() : false;
 })
 
+// Window control handlers for custom title bar on Windows
+ipcMain.handle('window-minimize', async () => {
+  if (win && !win.isDestroyed()) {
+    win.minimize();
+  }
+})
+
+ipcMain.handle('window-maximize', async () => {
+  if (win && !win.isDestroyed()) {
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
+    return win.isMaximized();
+  }
+  return false;
+})
+
+ipcMain.handle('window-close', async () => {
+  if (win && !win.isDestroyed()) {
+    win.close();
+  }
+})
+
+ipcMain.handle('is-maximized', async () => {
+  return (win && !win.isDestroyed()) ? win.isMaximized() : false;
+})
+
+ipcMain.handle('is-windows', async () => {
+  return process.platform === 'win32';
+})
+
 // ... (rest of the file)
 
 // The built directory structure
@@ -160,6 +193,8 @@ let win: BrowserWindow | null
 
 
 function createWindow() {
+  const isWindows = process.platform === 'win32';
+
   win = new BrowserWindow({
     show: false, // Don't show immediately
     icon: path.join(process.env.VITE_PUBLIC, 'Icon_app.png'),
@@ -167,10 +202,13 @@ function createWindow() {
     height: 900,
     minWidth: 1450,
     minHeight: 900,
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 10, y: 10 },
+    frame: !isWindows, // На Windows убираем рамку для прозрачности, добавляем кастомные кнопки
+    ...(isWindows ? {} : {
+      titleBarStyle: 'hiddenInset' as const,
+      trafficLightPosition: { x: 10, y: 10 },
+    }),
     transparent: true,
-    backgroundColor: '#0f172a', // Тёмный фон (slate-900) чтобы избежать белого мерцания
+    backgroundColor: '#00000000', // Полностью прозрачный фон
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
