@@ -94,7 +94,14 @@ export const Dashboard = () => {
         const dayData = weekData?.days.find((d: Day) => d.day_id === dayId);
 
         if (dayData) {
-            todayEvents = dayData.events;
+            todayEvents = dayData.events.filter((event, index, self) =>
+                index === self.findIndex((t) => (
+                    t.event_index === event.event_index &&
+                    t.course === event.course &&
+                    t.type === event.type &&
+                    t.subgroup === event.subgroup
+                ))
+            );
             const { current, next } = getNextEvent(todayEvents);
             currentEvent = current;
             nextEvent = next;

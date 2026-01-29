@@ -54,18 +54,18 @@ export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, is
             {/* Right Column: Original "Old Design" Content */}
             <div className="flex-1 p-2 flex flex-col gap-1.5 min-w-0">
                 {/* Header: Time, Type */}
-                <div className="flex items-center justify-between gap-2 overflow-hidden">
-                    <span className="font-mono font-bold rounded text-slate-700 leading-none text-xs dark:text-white whitespace-nowrap shrink-0">
+                <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono font-bold rounded text-slate-700 leading-none text-xs dark:text-white">
                         {getEventTime(event.event_index)}
                     </span>
 
                     {/* Цветной Badge */}
                     <span className={`
                         inline-flex items-center justify-center rounded-full border 
-                        px-1.5 py-0 text-[9px] h-4 font-medium shrink min-w-0
+                        px-1.5 py-0 text-[9px] h-4 font-medium
                         ${colors.badge}
                     `}>
-                        <span className="truncate">{event.type}</span>
+                        {event.type}
                     </span>
                 </div>
 

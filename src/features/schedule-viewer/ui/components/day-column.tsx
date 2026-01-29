@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import { Day } from '@/entities/schedule/model/types';
@@ -16,18 +16,6 @@ interface DayColumnProps {
 export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => {
     const navigate = useNavigate();
     const { setSelectedEntity } = useSchedule();
-
-    // Memoize expensive duplicate filtering
-    const uniqueEvents = useMemo(() => {
-        return day.events.filter((event, index, self) =>
-            index === self.findIndex((t) => (
-                t.event_index === event.event_index &&
-                t.course === event.course &&
-                t.type === event.type &&
-                t.subgroup === event.subgroup
-            ))
-        );
-    }, [day.events]);
 
     const handleReverseClick = (id: number, name: string, type: 'group' | 'teacher') => {
         setSelectedEntity({
@@ -64,7 +52,7 @@ export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => 
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {uniqueEvents.map((event, idx) => {
+                    {day.events.map((event, idx) => {
                         const isActive = isEventActive(day.day_id, event.event_index);
                         return (
                             <ScheduleCard
