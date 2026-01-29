@@ -32,22 +32,30 @@ export const getEventTypeColor = (type?: string) => {
 };
 
 export const getScheduleCardTheme = (eventType: string) => {
-    const typeColor = getEventTypeColor(eventType);
-    if (typeColor.includes('blue')) {
+    const type = eventType.toLowerCase();
+
+    if (type.includes('лекция')) { // Blue
         return {
             border: '#3b82f6',
             badge: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700',
+            bg: 'bg-blue-100 dark:bg-blue-900/20',
+            text: 'text-blue-600 dark:text-blue-400'
         };
     }
-    if (typeColor.includes('orange')) {
+    if (type.includes('лабораторная')) { // Orange
         return {
             border: '#f97316',
             badge: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700',
+            bg: 'bg-orange-100 dark:bg-orange-900/20',
+            text: 'text-orange-600 dark:text-orange-400'
         };
     }
+    // Practice/Default (Emerald/Green)
     return {
         border: '#10b981',
         badge: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700',
+        bg: 'bg-emerald-100 dark:bg-emerald-900/20',
+        text: 'text-emerald-600 dark:text-emerald-400'
     };
 };
 
