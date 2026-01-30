@@ -1,6 +1,7 @@
-import { CalendarWidget } from '@/widgets/calendar';
+import { CalendarViewer } from '@/widgets/calendar-viewer';
 
-export const CalendarViewer = () => {
-    return <CalendarWidget />;
+export const CalendarPage = () => {
+    return (
+        <CalendarViewer />
+    );
 };
-
