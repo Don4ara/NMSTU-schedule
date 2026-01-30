@@ -5,7 +5,7 @@ import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import { PanelLeftIcon } from "lucide-react"
 
-import { useIsMobile } from "@/hooks/use-mobile"
+import { useIsMobile } from "@/shared/hooks/use-mobile"
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
@@ -139,7 +139,7 @@ function SidebarProvider({
             } as React.CSSProperties
           }
           className={cn(
-            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex h-svh w-full overflow-hidden",
+            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
             className
           )}
           {...props}
@@ -170,7 +170,7 @@ function Sidebar({
       <div
         data-slot="sidebar"
         className={cn(
-          "bg-sidebar text-sidebar-foreground flex h-svh w-(--sidebar-width) flex-col border-r",
+          "bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col",
           className
         )}
         {...props}
@@ -218,7 +218,7 @@ function Sidebar({
       <div
         data-slot="sidebar-gap"
         className={cn(
-          "relative w-(--sidebar-width) bg-sidebar transition-[width] duration-200 ease-linear",
+          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
@@ -309,7 +309,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "bg-background relative flex w-full flex-1 flex-col h-full overflow-hidden",
+        "bg-background relative flex w-full flex-1 flex-col",
         "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
         className
       )}
@@ -467,7 +467,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
     <li
       data-slot="sidebar-menu-item"
       data-sidebar="menu-item"
-      className={cn("group/menu-item relative before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-5 before:w-1 before:rounded-r-full before:bg-blue-600 before:opacity-0 before:transition-opacity has-[button[data-active=true]]:before:opacity-100", className)}
+      className={cn("group/menu-item relative", className)}
       {...props}
     />
   )
@@ -722,7 +722,5 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  useSidebar,
 }
-
-// eslint-disable-next-line react-refresh/only-export-components
-export { useSidebar }
