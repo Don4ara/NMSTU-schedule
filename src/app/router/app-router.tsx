@@ -6,7 +6,7 @@ import { MainLayoutSide } from "@/shared/components/layout/MainLayoutSide";
 // Lazy load pages
 const Dashboard = lazy(() => import("@/pages/home").then(module => ({ default: module.Dashboard })));
 const ScheduleViewer = lazy(() => import("@/pages/schedule").then(module => ({ default: module.ScheduleViewer })));
-const CalendarViewer = lazy(() => import("@/pages/calendar").then(module => ({ default: module.CalendarViewer })));
+const CalendarViewer = lazy(() => import("@/pages/calendar").then(module => ({ default: module.CalendarPage })));
 const ScheduleComparisonPage = lazy(() => import("@/pages/comparison").then(module => ({ default: module.ScheduleComparisonPage })));
 
 const SuspenseLayout = ({ children }: { children: React.ReactNode }) => (
