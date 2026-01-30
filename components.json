@@ -16,7 +16,9 @@
     "utils": "@/shared/lib/utils",
     "ui": "@/shared/components/ui",
     "lib": "@/shared/lib",
-    "hooks": "@/hooks"
+    "hooks": "@/shared/hooks"
   },
-  "registries": {}
+  "registries": {
+    "@cardcn": "https://cardcn.dev/r/{name}.json"
+  }
 }
