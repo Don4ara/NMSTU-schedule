@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import { Day } from '@/entities/schedule/model/types';
-import { isEventActive } from '../../lib/schedule-utils';
+import { isEventActive, groupEvents } from '../../lib/schedule-utils';
 import { ScheduleCard } from '@/entities/schedule';
 import { useSchedule } from '@/app/provider/schedule-provider';
 
@@ -52,7 +52,7 @@ export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => 
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {day.events.map((event, idx) => {
+                    {(!isGroup ? groupEvents(day.events) : day.events).map((event, idx) => {
                         const isActive = isEventActive(day.day_id, event.event_index);
                         return (
                             <ScheduleCard

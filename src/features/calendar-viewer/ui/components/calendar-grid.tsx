@@ -3,7 +3,8 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Event as ScheduleEvent } from '@/entities/schedule/model/types';
-import { getWeekParity } from '@/features/schedule-viewer/lib/schedule-utils';
+import { getWeekParity, groupEvents } from '@/features/schedule-viewer/lib/schedule-utils';
+import { useSchedule } from '@/app/provider/schedule-provider';
 
 interface CalendarGridProps {
     loading: boolean;
@@ -26,6 +27,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
     onDayClick,
     isUpdating = false
 }) => {
+    const { trackedEntity } = useSchedule();
     const today = new Date();
     const todayDate = today.getDate();
     const todayMonth = today.getMonth();
@@ -48,11 +50,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
         );
     }
 
-
     return (
         <div className="relative flex-1 flex flex-col min-h-0 w-full h-full">
             {/* Header Row */}
-            <div className="grid grid-cols-[40px_repeat(7,minmax(0,1fr))] mb-2 pr-[6px]"> {/* Add pr to compensate scrollbar if needed, but we hide it */}
+            <div className="grid grid-cols-[40px_repeat(7,minmax(0,1fr))] mb-2 pr-[6px] gap-2">
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase flex items-center justify-center tracking-widest">
 
                 </div>
@@ -68,18 +69,18 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                 ))}
             </div>
 
-            {/* Scrollable Grid Area (hidden scroll) */}
+            {/* Scrollable Grid Area */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex-1 overflow-hidden relative bg-white/50 dark:bg-slate-900/50"
+                className="flex-1 overflow-hidden relative rounded-2xl"
             >
                 <div
-                    className="grid grid-cols-[40px_repeat(7,minmax(0,1fr))] h-full"
-                    style={{ gridTemplateRows: `repeat(${weeks}, minmax(0, 1fr))` }} // Force equal height, no scroll
+                    className="grid grid-cols-[40px_repeat(7,minmax(0,1fr))] h-full gap-2 p-1"
+                    style={{ gridTemplateRows: `repeat(${weeks}, minmax(0, 1fr))` }}
                 >
                     {isUpdating && (
-                        <div className="absolute inset-0 z-20 bg-white/50 dark:bg-slate-950/50 backdrop-blur-[1px] flex items-center justify-center">
+                        <div className="absolute inset-0 z-20 bg-white/50 dark:bg-slate-950/50 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
                             <Loader2 className="animate-spin text-blue-600" size={24} />
                         </div>
                     )}
@@ -92,9 +93,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                             <React.Fragment key={weekIndex}>
                                 {/* Week Number / Parity Indicator */}
                                 <div className={`
-                                    flex items-center justify-center border-r bg-white border-slate-200 dark:border-slate-700
+                                    flex items-center justify-center rounded-xl bg-white/50 dark:bg-slate-900/50
                                     ${isOdd ? 'bg-blue-50/30' : 'bg-orange-50/30'}
-                                    border-b border-slate-200 dark:border-slate-700
+                                    transition-all hover:bg-white dark:hover:bg-slate-800
                                 `}>
                                     <div className={`
                                         text-[10px] font-bold uppercase tracking-widest -rotate-90 whitespace-nowrap
@@ -111,89 +112,82 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                                     const cellDate = new Date(currentYear, currentMonth, dayOffset);
                                     const isCurrentMonth = cellDate.getMonth() === currentMonth;
                                     const dayNumber = cellDate.getDate();
-                                    const dateEvents = getEventsForDate(cellDate);
+                                    const rawEvents = getEventsForDate(cellDate);
+
+                                    // Apply grouping if teacher
+                                    const dateEvents = trackedEntity?.type === 'teacher'
+                                        ? groupEvents(rawEvents)
+                                        : rawEvents;
+
                                     const isToday = cellDate.getFullYear() === todayYear &&
                                         cellDate.getMonth() === todayMonth &&
                                         cellDate.getDate() === todayDate;
 
                                     const isWeekend = dayIndex >= 5;
-                                    // Styles for adjacent month days
-                                    const bgClass = isCurrentMonth
-                                        ? (isToday
-                                            ? 'bg-white dark:bg-blue-900/5'
-                                            : isWeekend
-                                                ? 'bg-red-50/80 dark:bg-red-900/20' // Weekend specific bg
-                                                : 'bg-white dark:bg-slate-900/50')
-                                        : 'bg-slate-50/80 dark:bg-slate-900/80';
-                                    // Calc visible events based on space (heuristic: 3-4 max usually fits)
-                                    // With 1fr rows, space depends on screen. Let's try to fit 3 + indicator.
-                                    const visibleEvents = dateEvents.filter((event, index, self) =>
-                                        index === self.findIndex((t) => (
-                                            t.event_index === event.event_index &&
-                                            t.course === event.course
-                                            // We filter by course name mainly to avoid duplicates visuals
-                                        ))
-                                    ).slice(0, 3);
-                                    const moreCount = dateEvents.length > visibleEvents.length ? dateEvents.length - visibleEvents.length : 0;
+
+                                    // Glass Card Styling
+                                    let cardClasses = 'bg-white dark:bg-slate-900 shadow-sm border-transparent';
+                                    let numberClasses = 'text-slate-700 dark:text-slate-300';
+
+                                    if (!isCurrentMonth) {
+                                        cardClasses = 'bg-white/40 dark:bg-slate-900/20 shadow-none border-transparent opacity-60';
+                                        numberClasses = 'text-slate-400 dark:text-slate-600';
+                                    } else if (isToday) {
+                                        cardClasses = 'bg-white dark:bg-slate-900 ring-2 ring-blue-500/50 shadow-md transform scale-[1.02] z-10';
+                                        numberClasses = 'text-blue-600 dark:text-blue-400';
+                                    } else if (isWeekend) {
+                                        cardClasses = 'bg-red-50/30 dark:bg-red-900/10 shadow-sm';
+                                        numberClasses = 'text-red-500 dark:text-red-400';
+                                    }
 
                                     return (
                                         <div
                                             key={`${weekIndex}-${dayIndex}`}
                                             onClick={() => onDayClick(cellDate)}
                                             className={`
-                                                relative flex flex-col p-1 border-b border-r bg-white border-slate-200 dark:border-slate-700
-                                                transition-colors duration-200 cursor-pointer group min-h-0
-                                                ${bgClass}
-                                                ${!isCurrentMonth ? 'hover:bg-slate-100 dark:hover:bg-slate-800' : isWeekend ? 'hover:bg-red-100 dark:hover:bg-red-900/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
+                                                relative flex flex-col items-center justify-between py-2 px-1 rounded-2xl
+                                                transition-all duration-300 cursor-pointer group min-h-0
+                                                hover:shadow-md hover:scale-[1.03] hover:z-10
+                                                ${cardClasses}
                                             `}
                                         >
-                                            {/* Day Header */}
-                                            <div className="flex items-start justify-between mb-1">
-                                                <span className={`
-                                                    text-[10px] font-semibold w-5 h-5 flex items-center justify-center rounded-full transition-all
-                                                    ${isToday
-                                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-none'
-                                                        : isCurrentMonth
-                                                            ? 'text-slate-700 dark:text-slate-300 group-hover:bg-white dark:group-hover:bg-slate-700'
-                                                            : 'text-slate-300 dark:text-slate-600'
-                                                    }
-                                                 `}>
+                                            {/* Top: Day Number and Dots */}
+                                            <div className="w-full flex justify-between items-start px-1">
+                                                <div className={`
+                                                    text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full transition-all
+                                                    ${isToday ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : numberClasses}
+                                                `}>
                                                     {dayNumber}
-                                                </span>
+                                                </div>
 
+                                                {/* Tiny dots interaction hint */}
                                                 {dateEvents.length > 0 && isCurrentMonth && (
-                                                    <div className="flex gap-0.5">
-                                                        {/* Tiny dots distribution by type */}
-                                                        {dateEvents.some(e => e.type.includes('Лек')) && <div className="w-1 h-1 rounded-full bg-blue-400" />}
-                                                        {dateEvents.some(e => e.type.includes('Прак') || e.type.includes('Лаб')) && <div className="w-1 h-1 rounded-full bg-violet-400" />}
+                                                    <div className="flex gap-0.5 mt-1">
+                                                        {dateEvents.some((e) => e.type.includes('Лек')) && <div className="w-1 h-1 rounded-full bg-blue-400" />}
+                                                        {dateEvents.some((e) => e.type.includes('Прак') || e.type.includes('Лаб')) && <div className="w-1 h-1 rounded-full bg-orange-400" />}
                                                     </div>
                                                 )}
                                             </div>
 
-                                            {/* Events List */}
-                                            <div className={`flex flex-col gap-0.5 flex-1 min-h-0 overflow-hidden ${!isCurrentMonth ? 'opacity-30 grayscale' : ''}`}>
-                                                {visibleEvents.map((event, i) => {
-                                                    const isLec = event.type.toLowerCase().includes('лек');
-                                                    const isLab = event.type.toLowerCase().includes('лаб');
-                                                    return (
-                                                        <div key={i} className={`
-                                                            text-[9px] px-1 py-[1px] rounded-[3px] font-medium truncate leading-tight border
-                                                            ${isLec
-                                                                ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-800'
-                                                                : isLab
-                                                                    ? 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/40 dark:text-orange-200 dark:border-orange-800'
-                                                                    : 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200 dark:border-emerald-800'}
-                                                        `}>
-                                                            {event.course}
-                                                        </div>
-                                                    )
-                                                })}
-                                                {moreCount > 0 && (
-                                                    <div className="text-[8px] text-slate-400 font-medium pl-0.5 mt-auto">
-                                                        +{moreCount} еще
+                                            {/* Center: Count */}
+                                            <div className="flex-1 flex flex-col items-center justify-center w-full">
+                                                {dateEvents.length > 0 && isCurrentMonth ? (
+                                                    <div className="flex flex-col items-center gap-0">
+                                                        <span className={`text-xl font-bold tracking-tight ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-200'}`}>
+                                                            {dateEvents.length}
+                                                        </span>
+                                                        <span className="text-[8px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                                                            {dateEvents.length > 4 ? 'пар' : dateEvents.length === 1 ? 'пара' : 'пары'}
+                                                        </span>
                                                     </div>
+                                                ) : (
+                                                    // Empty state
+                                                    null
                                                 )}
                                             </div>
+
+                                            {/* Bottom filler */}
+                                            <div className="h-4" />
                                         </div>
                                     );
                                 })}
@@ -205,4 +199,3 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
         </div>
     );
 });
-
