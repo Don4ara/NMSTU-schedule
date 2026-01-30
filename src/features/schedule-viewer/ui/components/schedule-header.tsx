@@ -14,7 +14,7 @@ interface ScheduleHeaderProps {
 export const ScheduleHeader: React.FC<ScheduleHeaderProps> = React.memo(({ scheduleData, isUsingMockData, children }) => {
     const { setSelectedEntity } = useSchedule();
     return (
-        <div className="sticky top-0 z-20 backdrop-blur-md pt-12 pb-4 mb-6 border-b px-4 md:px-8">
+        <div className="sticky top-0 z-20 bg-background pt-12 pb-4 mb-6 border-b px-4 md:px-8">
             <div className="flex flex-row items-end justify-between gap-4">
                 <div>
                     <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2">
@@ -30,7 +30,7 @@ export const ScheduleHeader: React.FC<ScheduleHeaderProps> = React.memo(({ sched
                             </>
                         )}
                     </div>
-                    <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+                    <h1 className="text-4xl font-extrabold tracking-tight">
                         {scheduleData.name}
                     </h1>
                 </div>
@@ -39,7 +39,6 @@ export const ScheduleHeader: React.FC<ScheduleHeaderProps> = React.memo(({ sched
                     <div className="w-full max-w-[280px] mb-1">
                         <Search
                             placeholder="Найти другое..."
-                            className="w-full bg-slate-50 border-slate-200/60 focus-within:bg-white transition-colors"
                             onSelectResult={setSelectedEntity}
                         />
                     </div>

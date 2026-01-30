@@ -109,7 +109,7 @@ export const ScheduleViewerWidget = () => {
             {/* Schedule Content */}
             {
                 scheduleData.schedule && scheduleData.schedule.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 px-2 pb-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 px-2">
                         {scheduleData.schedule
                             .find(w => w.week_id === activeWeekId)
                             ?.days

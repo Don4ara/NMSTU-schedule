@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { getWeekParity, groupEvents } from '@/features/schedule-viewer/lib/schedule-utils';
 import { useSchedule } from '@/app/provider/schedule-provider';
+import { Card } from '@/shared/components/ui/card';
 
 interface CalendarGridProps {
     loading: boolean;
@@ -52,16 +53,15 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
 
     return (
         <div className="relative flex-1 flex flex-col min-h-0 w-full h-full">
-            {/* Header Row */}
             <div className="grid grid-cols-[40px_repeat(7,minmax(0,1fr))] mb-2 pr-[6px] gap-2">
-                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase flex items-center justify-center tracking-widest">
+                <div className="text-[10px] font-bold uppercase flex items-center justify-center tracking-widest">
 
                 </div>
                 {WEEKDAYS.map((day, index) => (
                     <div
                         key={day}
                         className={`text-center py-2 text-[11px] font-bold uppercase tracking-wider
-                            ${index >= 5 ? 'text-red-400 dark:text-red-400/80' : 'text-slate-400 dark:text-slate-500'}
+                            ${index >= 5 ? 'text-red-400 dark:text-red-400/80' : ''}
                         `}
                     >
                         {day}
@@ -80,7 +80,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                     style={{ gridTemplateRows: `repeat(${weeks}, minmax(0, 1fr))` }}
                 >
                     {isUpdating && (
-                        <div className="absolute inset-0 z-20 bg-white/50 dark:bg-slate-950/50 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
+                        <div className="absolute inset-0 z-20 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
                             <Loader2 className="animate-spin text-blue-600" size={24} />
                         </div>
                     )}
@@ -92,10 +92,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                         return (
                             <React.Fragment key={weekIndex}>
                                 {/* Week Number / Parity Indicator */}
-                                <div className={`
-                                    flex items-center justify-center rounded-xl bg-white/50 dark:bg-slate-900/50
-                                    ${isOdd ? 'bg-blue-50/30' : 'bg-orange-50/30'}
-                                    transition-all hover:bg-white dark:hover:bg-slate-800
+                                <Card className={`
+                                    flex items-center justify-center rounded-xl
+                                    transition-all
+                                    border-0 shadow-none
                                 `}>
                                     <div className={`
                                         text-[10px] font-bold uppercase tracking-widest -rotate-90 whitespace-nowrap
@@ -103,7 +103,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                                     `}>
                                         {isOdd ? 'Нечетная' : 'Четная'}
                                     </div>
-                                </div>
+                                </Card>
 
                                 {/* Days */}
                                 {Array.from({ length: 7 }).map((_, dayIndex) => {
@@ -125,15 +125,14 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
 
                                     const isWeekend = dayIndex >= 5;
 
-                                    // Glass Card Styling
-                                    let cardClasses = 'bg-white dark:bg-slate-900 shadow-sm border-transparent';
+                                    let cardClasses = 'shadow-sm border-transparent';
                                     let numberClasses = 'text-slate-700 dark:text-slate-300';
 
                                     if (!isCurrentMonth) {
-                                        cardClasses = 'bg-white/40 dark:bg-slate-900/20 shadow-none border-transparent opacity-60';
+                                        cardClasses = 'shadow-none border-transparent opacity-60';
                                         numberClasses = 'text-slate-400 dark:text-slate-600';
                                     } else if (isToday) {
-                                        cardClasses = 'bg-white dark:bg-slate-900 ring-2 ring-blue-500/50 shadow-md transform scale-[1.02] z-10';
+                                        cardClasses = 'ring-2 ring-blue-500/50 shadow-md transform scale-[1.02] z-10';
                                         numberClasses = 'text-blue-600 dark:text-blue-400';
                                     } else if (isWeekend) {
                                         cardClasses = 'bg-red-50/30 dark:bg-red-900/10 shadow-sm';
@@ -141,13 +140,14 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                                     }
 
                                     return (
-                                        <div
+                                        <Card
                                             key={`${weekIndex}-${dayIndex}`}
                                             onClick={() => onDayClick(cellDate)}
                                             className={`
                                                 relative flex flex-col items-center justify-between py-2 px-1 rounded-2xl
                                                 transition-all duration-300 cursor-pointer group min-h-0
                                                 hover:shadow-md hover:scale-[1.03] hover:z-10
+                                                gap-0 border-0
                                                 ${cardClasses}
                                             `}
                                         >
@@ -180,15 +180,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                                                             {dateEvents.length > 4 ? 'пар' : dateEvents.length === 1 ? 'пара' : 'пары'}
                                                         </span>
                                                     </div>
-                                                ) : (
-                                                    // Empty state
-                                                    null
-                                                )}
+                                                ) : null}
                                             </div>
 
                                             {/* Bottom filler */}
                                             <div className="h-4" />
-                                        </div>
+                                        </Card>
                                     );
                                 })}
                             </React.Fragment>

@@ -67,12 +67,12 @@ export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-md max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-2xl">
+            <DialogContent className="max-w-md max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 shadow-2xl">
                 <DialogHeader className="p-6 pb-2 shrink-0">
-                    <DialogTitle className="text-2xl font-bold capitalize text-slate-900 dark:text-white tracking-tight">
+                    <DialogTitle className="text-2xl font-bold capitalize tracking-tight">
                         {format(date, 'd MMMM, EEEE', { locale: ru })}
                     </DialogTitle>
-                    <DialogDescription className="text-slate-500 font-medium text-base">
+                    <DialogDescription className="font-medium text-base">
                         Список занятий на этот день
                     </DialogDescription>
                 </DialogHeader>
@@ -90,7 +90,7 @@ export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
                                 />
                             ))
                         ) : (
-                            <div className="text-center py-8 text-slate-400">
+                            <div className="text-center py-8">
                                 <p>Нет занятий в этот день</p>
                             </div>
                         )}

@@ -2,7 +2,7 @@ import React from 'react'
 import { MapPin, User, Users } from 'lucide-react'
 import { Card } from '@/shared/components/ui/card'
 import type { Event, GroupedEvent } from '../model/types'
-import { getEventTime, getScheduleCardTheme } from '../lib/schedule-utils'
+import { getEventTime, getScheduleCardTheme } from '@/entities/schedule'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -43,7 +43,7 @@ export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, is
                 ? <User size={12} className="text-muted-foreground group-hover/reverse:text-blue-500" />
                 : <Users size={12} className="text-muted-foreground group-hover/reverse:text-blue-500" />
             }
-            <span className={`truncate max-w-30 text-right font-medium ${!isGrouped ? 'underline decoration-dotted decoration-border underline-offset-2 group-hover/reverse:decoration-blue-400' : ''}`}>
+            <span className={`truncate  max-w-30 text-right font-semibold ${!isGrouped ? 'underline decoration-dotted decoration-border underline-offset-2 group-hover/reverse:decoration-blue-400' : ''}`}>
                 {event.reverse}
             </span>
         </div>
@@ -76,34 +76,29 @@ export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, is
                 </span>
             </div>
 
-            {/* Right Column: Original "Old Design" Content */}
             <div className="flex-1 p-2 flex flex-col gap-1.5 min-w-0">
-                {/* Header: Time, Type */}
                 <div className="flex items-center justify-between gap-2 overflow-hidden">
-                    <span className="font-mono font-bold rounded text-slate-700 leading-none text-xs dark:text-white whitespace-nowrap shrink-0">
+                    <span className="font-mono font-bold rounded leading-none text-xs whitespace-nowrap shrink-0">
                         {getEventTime(event.event_index)}
                     </span>
 
-                    {/* Цветной Badge */}
                     <span className={`
                         inline-flex items-center justify-center rounded-full border 
                         px-1.5 py-0 text-[9px] h-4 font-medium shrink min-w-0
                         ${colors.badge}
                     `}>
-                        <span className="truncate">{event.type}</span>
+                        <span className="truncate font-bold">{event.type}</span>
                     </span>
                 </div>
 
-                {/* Course Name */}
                 <h4 className="font-semibold text-card-foreground text-xs leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
                     {event.course}
                 </h4>
 
-                {/* Footer: Location & Teacher */}
                 <div className="mt-auto flex items-center justify-between text-[11px] text-muted-foreground pt-1.5 border-t border-border">
                     <div className="flex items-center gap-1 min-w-0 shrink-0">
                         <MapPin size={12} className="text-muted-foreground" />
-                        <span className="truncate max-w-22.5 font-medium dark:text-white">
+                        <span className="truncate font-semibold max-w-22.5">
                             {event.location}
                         </span>
                     </div>

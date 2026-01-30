@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { useQuery } from '@tanstack/react-query';
 import { getSchedule, saveOfflineSchedule } from '@/shared/api/timetable';
@@ -16,11 +16,12 @@ import { ScheduleData, Week, Day, Event as ScheduleEvent } from '@/entities/sche
 import { Search } from '@/features/search/ui/search';
 import { format } from 'date-fns';
 import { Button } from "@/shared/components/ui/button.tsx";
-import { Separator } from "@/shared/components/ui/separator.tsx";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip.tsx";
+import { formatDuration } from '@/shared/lib/time-utils';
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card9 } from '@/shared/components/cards/card-9';
 
 export const DashboardWidget = () => {
-    const navigate = useNavigate();
     const { trackedEntity, setTrackedEntity, setSelectedEntity } = useSchedule();
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -65,10 +66,10 @@ export const DashboardWidget = () => {
                     <div className="bg-white p-6 rounded-full shadow-sm mb-8 border border-slate-100">
                         <GraduationCap size={64} className="text-blue-600" />
                     </div>
-                    <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+                    <h1 className="text-4xl font-bold mb-4 tracking-tight">
                         Добро пожаловать
                     </h1>
-                    <p className="text-lg text-slate-500 max-w-lg mb-10 leading-relaxed">
+                    <p className="text-lg max-w-lg mb-10 leading-relaxed">
                         Найдите свою группу или преподавателя, чтобы начать.
                     </p>
                     <div
@@ -84,11 +85,9 @@ export const DashboardWidget = () => {
         );
     }
 
-    // --- Data Processing & Logic ---
     let currentEvent: ScheduleEvent | null | undefined = null;
     let nextEvent: ScheduleEvent | null | undefined = null;
     let todayEvents: ScheduleEvent[] = [];
-
 
     if (scheduleData?.schedule) {
         const weekData = scheduleData.schedule.find((w: Week) => w.week.toLowerCase() === currentWeekName.toLowerCase());
@@ -119,7 +118,7 @@ export const DashboardWidget = () => {
     // --- Render ---
     return (
         <motion.div
-            className="h-full overflow-y-auto p-4 md:p-6 lg:p-8 select-none flex flex-col font-sans text-slate-900"
+            className="h-full overflow-y-auto p-4 md:p-6 lg:p-8 select-none flex flex-col font-sans"
         >
             <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6 auto-rows-min my-auto">
 
@@ -127,46 +126,40 @@ export const DashboardWidget = () => {
                 <div
                     className="lg:col-span-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                        <h1 className="text-3xl font-bold tracking-tight">
                             {greeting}, {trackedEntity.name}
                         </h1>
-                        <div className="flex items-center gap-2 text-slate-500 mt-1 text-sm font-medium">
+                        <div className="flex items-center gap-2 mt-1 text-sm font-medium">
                             <span className="capitalize">{today.toLocaleDateString('ru-RU', {
                                 weekday: 'long',
                                 day: 'numeric',
                                 month: 'long'
                             })}</span>
-                            <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                            <span className="w-1 h-1 rounded-full"></span>
                             <span>{currentWeekName} неделя</span>
                         </div>
                     </div>
-
-                    <div className="flex items-center gap-1 p-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-colors">
+                    {/*FIX BUTTONS*/}
+                    <div className="flex items-center gap-1 p-1 rounded-xl  transition-colors">
                         <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => {
-                                if (trackedEntity) setSelectedEntity(trackedEntity);
-                                navigate('/schedule');
-                            }}
-                            className="px-4 h-9 font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
+                            onClick={() => { if (trackedEntity) setSelectedEntity(trackedEntity) }}
+                            className="px-4 h-9 font-medium transition-all"
                         >
-                            Расписание
+                            <Link to={`/schedule`}>
+                                Расписание
+                            </Link>
                         </Button>
-
-                        <Separator orientation="vertical" className="h-4 bg-slate-200 dark:bg-slate-700" />
-
                         <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => navigate('/calendar')}
-                            className="px-4 h-9 font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
+                            className="px-4 h-9 font-medium transition-all"
                         >
-                            Календарь
+                            <Link to={`/calendar`}>
+                                Календарь
+                            </Link>
                         </Button>
-
-                        <Separator orientation="vertical" className="h-4 bg-slate-200 dark:bg-slate-700" />
-
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -174,12 +167,12 @@ export const DashboardWidget = () => {
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => setTrackedEntity(null)}
-                                        className="h-9 w-9 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                        className="h-9 w-9 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
                                     >
                                         <LogOut className="h-[18px] w-[18px]" />
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent className="dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200">
+                                <TooltipContent>
                                     <p>Выйти</p>
                                 </TooltipContent>
                             </Tooltip>
@@ -190,13 +183,11 @@ export const DashboardWidget = () => {
                 {/* 2. Left Column (Hero + Clock) */}
                 <div className="lg:col-span-2 flex flex-col gap-6">
                     {/* Hero Card */}
-                    <div
-                        className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[320px] group transition-colors">
+                    <Card9  
+                        className="rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col justify-between min-h-[320px] group transition-colors bg-white dark:bg-slate-950 dark:border-slate-800">
                         {/* Dynamic Backgrounds */}
-                        <div
-                            className="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-600/10 dark:to-indigo-600/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none opacity-60"></div>
-                        <div
-                            className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-gradient-to-tr from-emerald-50 to-teal-50 dark:from-emerald-600/10 dark:to-teal-600/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none opacity-60"></div>
+                        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-600/10 dark:to-indigo-600/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none opacity-60"></div>
+                        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-gradient-to-tr from-emerald-50 to-teal-50 dark:from-emerald-600/10 dark:to-teal-600/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none opacity-60"></div>
 
                         {currentEvent ? (
                             <>
@@ -247,16 +238,7 @@ export const DashboardWidget = () => {
 
                                             const totalSeconds = (range[1] * 60) - (currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds());
 
-                                            if (totalSeconds <= 0) return '00:00';
-
-                                            const h = Math.floor(totalSeconds / 3600);
-                                            const m = Math.floor((totalSeconds % 3600) / 60);
-                                            const s = totalSeconds % 60;
-
-                                            if (h > 0) {
-                                                return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                                            }
-                                            return `${m}:${s.toString().padStart(2, '0')}`;
+                                            return formatDuration(totalSeconds);
                                         })()}
                                     </div>
                                 </div>
@@ -286,16 +268,7 @@ export const DashboardWidget = () => {
 
                                             const totalSeconds = (range[0] * 60) - (currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds());
 
-                                            if (totalSeconds <= 0) return '00:00';
-
-                                            const h = Math.floor(totalSeconds / 3600);
-                                            const m = Math.floor((totalSeconds % 3600) / 60);
-                                            const s = totalSeconds % 60;
-
-                                            if (h > 0) {
-                                                return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                                            }
-                                            return `${m}:${s.toString().padStart(2, '0')}`;
+                                            return formatDuration(totalSeconds);
                                         })()}
                                     </div>
                                 </div>
@@ -312,11 +285,11 @@ export const DashboardWidget = () => {
                                     набирайтесь сил перед следующим учебным днем!</p>
                             </div>
                         )}
-                    </div>
+                    </Card9>
 
                     {/* Clock */}
-                    <div
-                        className="bg-slate-900 dark:bg-black rounded-3xl p-6 shadow-sm text-white flex flex-col justify-between relative overflow-hidden h-[160px] border border-slate-800 dark:border-blue-500/20 shrink-0 transition-colors duration-300">
+                    <Card
+                        className="bg-slate-900 dark:bg-black rounded-3xl p-6 text-white flex flex-col justify-between relative overflow-hidden h-[160px] border-slate-800 dark:border-blue-500/20 shrink-0 transition-colors duration-300">
                         {/* Dynamic Glows */}
                         <div
                             className="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 dark:bg-blue-600/30 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
@@ -328,75 +301,77 @@ export const DashboardWidget = () => {
                                 {format(currentTime, 'HH:mm:ss')}
                             </div>
                         </div>
-                    </div>
+                    </Card>
                 </div>
 
                 {/* 3. Timeline / Today's Schedule (Vertical Sidebar) */}
-                <div
-                    className="lg:col-span-1 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex flex-col relative overflow-hidden h-fit">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-bold text-lg text-slate-900">Сегодня</h3>
-                        <span
-                            className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-full">{todayEvents.length} пар</span>
-                    </div>
+                <Card
+                    className="lg:col-span-1 rounded-3xl relative overflow-hidden h-fit">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="font-bold text-lg">Сегодня</CardTitle>
+                        <span className="text-xs font-medium px-2 py-1 rounded-full">{todayEvents.length} пар</span>
+                    </CardHeader>
 
-                    <div className="flex-1 pr-2 custom-scrollbar relative">
-                        {/* Линия таймлайна — белая в темной теме */}
-                        <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-white/20"></div>
+                    <CardContent className="flex-1 pr-2 custom-scrollbar">
+                        <div className="relative">
+                            {todayEvents.length > 0 && (
+                                <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-white/20"></div>
+                            )}
 
-                        <div className="space-y-4">
-                            {todayEvents.length > 0 ? (
-                                todayEvents.map((event, idx) => (
-                                    <div key={idx} className="relative pl-10 group">
-                                        {/* Точка (индикатор) — центрирована относительно линии */}
-                                        <div
-                                            className={`absolute left-[10px] top-[22px] w-3 h-3 rounded-full border-2 z-10 transition-all duration-300 
-                        ${event === currentEvent
-                                                    ? 'bg-blue-500 border-white dark:border-slate-900 ring-4 ring-blue-500/30 scale-125'
-                                                    : 'bg-slate-300 dark:bg-white border-white dark:border-slate-900 group-hover:bg-blue-400'}`}
-                                        ></div>
-
-                                        {/* Карточка события */}
-                                        <div className={`rounded-2xl p-3.5 transition-all duration-300 border
-                        ${event === currentEvent
-                                                ? 'bg-blue-50/50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 -ml-2 pl-5'
-                                                : 'bg-transparent border-transparent hover:bg-white dark:hover:bg-white/5 hover:border-slate-100 dark:hover:border-white/10'
-                                            }`}
-                                        >
-                                            <div className="flex justify-between items-baseline mb-1.5">
-                                                <span className={`text-xs font-bold uppercase tracking-widest ${event.type.toLowerCase().includes('лек') ? 'text-blue-600 dark:text-blue-400' :
-                                                    event.type.toLowerCase().includes('лаб') ? 'text-orange-600 dark:text-orange-400' :
-                                                        'text-emerald-600 dark:text-emerald-400'
-                                                    }`}>
-                                                    {event.type}
-                                                </span>
-                                                <span className="text-xs font-mono font-medium text-black dark:text-white">
-                                                    {getEventTime(event.event_index).split(' - ')[0]}
-                                                </span>
-                                            </div>
-
+                            <div className="space-y-4">
+                                {todayEvents.length > 0 ? (
+                                    todayEvents.map((event, idx) => (
+                                        <div key={idx} className="relative pl-10 group">
+                                            {/* Точка (индикатор) — центрирована относительно линии */}
                                             <div
-                                                className={`text-sm font-bold mb-1 leading-snug ${event === currentEvent ? 'text-blue-900 dark:text-white' : 'text-slate-800 dark:text-slate-100'
-                                                    }`}
-                                            >
-                                                {event.course}
-                                            </div>
+                                                className={`absolute left-[10px] top-[22px] w-3 h-3 rounded-full border-2 z-10 transition-all duration-300 
+                        ${event === currentEvent
+                                                        ? 'bg-blue-500 border-white dark:border-slate-900 ring-4 ring-blue-500/30 scale-125'
+                                                        : 'bg-slate-300 dark:bg-white border-white dark:border-slate-900 group-hover:bg-blue-400'}`}
+                                            ></div>
 
-                                            <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                                                <MapPin size={12} className="opacity-70" />
-                                                <span className="truncate">{event.location}</span>
+                                            {/* Карточка события */}
+                                            <div className={`rounded-2xl p-3.5 transition-all duration-300 border
+                        ${event === currentEvent
+                                                    ? 'bg-blue-50/50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 -ml-2 pl-5'
+                                                    : 'bg-transparent border-transparent hover:bg-white dark:hover:bg-white/5 hover:border-slate-100 dark:hover:border-white/10'
+                                                }`}
+                                            >
+                                                <div className="flex justify-between items-baseline mb-1.5">
+                                                    <span className={`text-xs font-bold uppercase tracking-widest ${event.type.toLowerCase().includes('лек') ? 'text-blue-600 dark:text-blue-400' :
+                                                        event.type.toLowerCase().includes('лаб') ? 'text-orange-600 dark:text-orange-400' :
+                                                            'text-emerald-600 dark:text-emerald-400'
+                                                        }`}>
+                                                        {event.type}
+                                                    </span>
+                                                    <span className="text-xs font-mono font-medium text-black dark:text-white">
+                                                        {getEventTime(event.event_index).split(' - ')[0]}
+                                                    </span>
+                                                </div>
+
+                                                <div
+                                                    className={`text-sm font-bold mb-1 leading-snug ${event === currentEvent ? 'text-blue-900 dark:text-white' : 'text-slate-800 dark:text-slate-100'
+                                                        }`}
+                                                >
+                                                    {event.course}
+                                                </div>
+
+                                                <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                                    <MapPin size={12} className="opacity-70" />
+                                                    <span className="truncate">{event.location}</span>
+                                                </div>
                                             </div>
                                         </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-12 text-slate-400 dark:text-slate-500">
+                                        <p className="text-sm font-medium">Нет занятий сегодня</p>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-12 text-slate-400 dark:text-slate-500">
-                                    <p className="text-sm font-medium">Нет занятий сегодня</p>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
 
             </div>
         </motion.div>
