@@ -20,15 +20,13 @@ interface DayDetailsDialogProps {
     onClose: () => void;
     date: Date | null;
     events: ScheduleEvent[];
-    isGroup: boolean;
 }
 
 export const DayDetailsDialog: React.FC<DayDetailsDialogProps> = ({
     isOpen,
     onClose,
     date,
-    events,
-    isGroup
+    events
 }) => {
     // console.log('DayDetailsDialog: render', { isOpen, date, eventsCount: events?.length });
     const navigate = useNavigate();

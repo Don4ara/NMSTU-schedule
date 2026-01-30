@@ -153,7 +153,6 @@ export const CalendarViewer = () => {
                 onClose={() => setIsDialogOpen(false)}
                 date={selectedDay}
                 events={selectedEvents}
-                isGroup={trackedEntity?.type === 'group'}
             />
         </motion.div>
     );
