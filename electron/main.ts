@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeTheme, nativeImage } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme, nativeImage, shell } from 'electron'
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 
@@ -214,20 +214,15 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.mjs'),
-      devTools: !!VITE_DEV_SERVER_URL, // DevTools только в dev режиме
+      devTools: true, // Always allow DevTools
     },
   })
 
   // Remove the menu bar (File, Edit, etc.) on Windows/Linux
   win.setMenu(null)
 
-  // Отключаем DevTools в production
-  if (!VITE_DEV_SERVER_URL) {
-    // Блокируем открытие DevTools
-    win.webContents.on('devtools-opened', () => {
-      win?.webContents.closeDevTools()
-    })
-  }
+  // DevTools enabled for all environments
+  // If need to auto-open: win.webContents.openDevTools()
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
@@ -238,6 +233,15 @@ function createWindow() {
         win?.show()
       }, 100)
     }
+  })
+
+
+  // Handle external links
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https:') || url.startsWith('http:')) {
+      shell.openExternal(url)
+    }
+    return { action: 'deny' }
   })
 
   if (VITE_DEV_SERVER_URL) {
