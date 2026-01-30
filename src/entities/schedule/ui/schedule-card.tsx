@@ -1,11 +1,17 @@
 import React from 'react'
 import { MapPin, User, Users } from 'lucide-react'
 import { Card } from '@/shared/components/ui/card'
-import type { Event } from '../model/types'
+import type { Event, GroupedEvent } from '../model/types'
 import { getEventTime, getScheduleCardTheme } from '../lib/schedule-utils'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu'
 
 interface ScheduleCardProps {
-    event: Event
+    event: Event | GroupedEvent
     isActive: boolean
     isGroup: boolean
     onReverseClick?: (id: number, name: string, type: 'group' | 'teacher') => void
@@ -13,17 +19,36 @@ interface ScheduleCardProps {
 
 export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, isGroup, onReverseClick }) => {
     const colors = getScheduleCardTheme(event.type)
+    const groupedEvent = event as GroupedEvent
+    const isGrouped = groupedEvent.isGrouped
 
-    const handleReverseClick = (e: React.MouseEvent) => {
+    const handleReverseClick = (e: React.MouseEvent, reverseId: number, reverseName: string) => {
         e.stopPropagation()
-        if (event.reverse_id && onReverseClick) {
+        if (reverseId && onReverseClick) {
             onReverseClick(
-                event.reverse_id,
-                event.reverse,
+                reverseId,
+                reverseName,
                 isGroup ? 'teacher' : 'group'
             )
         }
     }
+
+    const ReverseContent = () => (
+        <div
+            className={`flex items-center gap-1 min-w-0 justify-end cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors group/reverse dark:text-white ${isGrouped ? 'hover:bg-slate-100 dark:hover:bg-slate-800 rounded px-1 -mr-1' : ''}`}
+            onClick={(e) => !isGrouped && handleReverseClick(e, event.reverse_id, event.reverse)}
+            title={!isGrouped ? `Перейти к расписанию: ${event.reverse}` : 'Выберите группу'}
+        >
+            {isGroup
+                ? <User size={12} className="text-muted-foreground group-hover/reverse:text-blue-500" />
+                : <Users size={12} className="text-muted-foreground group-hover/reverse:text-blue-500" />
+            }
+            <span className={`truncate max-w-30 text-right font-medium ${!isGrouped ? 'underline decoration-dotted decoration-border underline-offset-2 group-hover/reverse:decoration-blue-400' : ''}`}>
+                {event.reverse}
+            </span>
+        </div>
+    );
+
 
     return (
         <Card
@@ -83,21 +108,28 @@ export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, is
                         </span>
                     </div>
 
-                    <div
-                        className="flex items-center gap-1 min-w-0 justify-end cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors group/reverse dark:text-white"
-                        onClick={handleReverseClick}
-                        title={`Перейти к расписанию: ${event.reverse}`}
-                    >
-                        {isGroup
-                            ? <User size={12} className="text-muted-foreground group-hover/reverse:text-blue-500" />
-                            : <Users size={12} className="text-muted-foreground group-hover/reverse:text-blue-500" />
-                        }
-                        <span className="truncate max-w-30 text-right underline decoration-dotted decoration-border underline-offset-2 group-hover/reverse:decoration-blue-400 font-medium">
-                            {event.reverse}
-                        </span>
-                    </div>
+                    {isGrouped ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div><ReverseContent /></div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {groupedEvent.originalEvents?.map((origEvent, idx) => (
+                                    <DropdownMenuItem
+                                        key={idx}
+                                        onClick={(e) => handleReverseClick(e, origEvent.reverse_id, origEvent.reverse)}
+                                    >
+                                        {origEvent.reverse}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <ReverseContent />
+                    )}
                 </div>
             </div>
         </Card>
     )
 })
+
