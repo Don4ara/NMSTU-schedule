@@ -7,7 +7,7 @@ import {
 
 export const DataSourceInfo = () => {
     return (
-        <div className="absolute bottom-6 right-6 z-50">
+        <div className="fixed bottom-6 right-6 z-[100]">
             <Popover>
                 <PopoverTrigger asChild>
                     <button className="w-8 h-8 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shadow-sm cursor-pointer">
