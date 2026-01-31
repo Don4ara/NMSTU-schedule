@@ -2,7 +2,6 @@ import { useTheme } from "@/app/provider/theme-provider";
 import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
-import { motion } from "framer-motion";
 import { Moon, Sun, Github, Bug, Trash2 } from "lucide-react";
 
 export const SettingsPage = () => {
@@ -16,25 +15,15 @@ export const SettingsPage = () => {
     return (
         <div className="flex-1 h-full bg-background p-6 overflow-y-auto">
             <div className="max-w-xl mx-auto space-y-8">
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                >
+
                     <h1 className="text-2xl font-bold tracking-tight text-foreground">Настройки</h1>
                     <p className="text-muted-foreground text-sm mt-1">
                         Основные параметры приложения
                     </p>
-                </motion.div>
 
                 <div className="space-y-6">
                     {/* Appearance */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.1 }}
-                        className="space-y-3"
-                    >
+
                         <Label className="text-base font-medium">Тема</Label>
                         <div className="flex gap-2 p-1 bg-secondary/30 rounded-lg w-fit">
                             {themes.map((t) => {
@@ -57,17 +46,11 @@ export const SettingsPage = () => {
                                 );
                             })}
                         </div>
-                    </motion.div>
 
                     <Separator />
 
                     {/* About */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.2 }}
-                        className="space-y-4"
-                    >
+
                         <h2 className="text-base font-medium">О приложении</h2>
 
                         <div className="flex items-start gap-4">
@@ -104,17 +87,11 @@ export const SettingsPage = () => {
                                 Сообщить о баге
                             </a>
                         </div>
-                    </motion.div>
 
                     <Separator />
 
                     {/* Danger Zone */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.3 }}
-                        className="space-y-4"
-                    >
+
                         <h2 className="text-base font-medium text-destructive">Опасная зона</h2>
 
                         <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 space-y-4">
@@ -139,7 +116,6 @@ export const SettingsPage = () => {
                                 Сбросить данные
                             </button>
                         </div>
-                    </motion.div>
                 </div>
             </div>
         </div>
