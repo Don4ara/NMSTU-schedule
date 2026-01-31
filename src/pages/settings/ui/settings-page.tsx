@@ -122,88 +122,87 @@ export const SettingsPage = () => {
                 {/* Updates */}
 
                 <h2 className="text-base font-medium">Обновление</h2>
-                <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
-                    <div className="p-6 space-y-4">
-                        <div className="flex items-center justify-between gap-4">
-                            <div className="space-y-1">
-                                <h3 className="font-medium text-sm">Версия приложения</h3>
-                                <div className="flex items-center gap-2">
-                                    <p className="text-xs text-muted-foreground">
-                                        Текущая версия: <span className="font-mono text-foreground">v{__APP_VERSION__}</span>
-                                    </p>
-                                    {updateStatus.status === 'not-available' && (
-                                        <span className="text-[10px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded-full font-medium ml-1 flex items-center gap-1">
-                                            <CheckCircle size={10} />
-                                            Актуально
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
+                <div className="text-card-foreground shadow-sm overflow-hidden">
+
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="space-y-1">
+                            <h3 className="font-medium text-sm">Версия приложения</h3>
                             <div className="flex items-center gap-2">
-                                {updateStatus.status === 'idle' && (
-                                    <Button variant="outline" size="sm" onClick={checkForUpdates} className="h-8">
-                                        <RefreshCw className="mr-2 h-3.5 w-3.5" />
-                                        Проверить
-                                    </Button>
-                                )}
-                                {updateStatus.status === 'checking' && (
-                                    <Button variant="outline" size="sm" disabled className="h-8">
-                                        <RefreshCw className="mr-2 h-3.5 w-3.5 animate-spin" />
-                                        Проверка...
-                                    </Button>
-                                )}
-                                {updateStatus.status === 'available' && (
-                                    <Button size="sm" onClick={downloadUpdate} className="h-8">
-                                        <Download className="mr-2 h-3.5 w-3.5" />
-                                        Загрузить
-                                    </Button>
-                                )}
-                                {updateStatus.status === 'downloading' && (
-                                    <Button size="sm" disabled className="h-8">
-                                        <Download className="mr-2 h-3.5 w-3.5 animate-pulse" />
-                                        Загрузка...
-                                    </Button>
-                                )}
-                                {updateStatus.status === 'downloaded' && (
-                                    <Button size="sm" onClick={quitAndInstall} className="h-8">
-                                        <Rocket className="mr-2 h-3.5 w-3.5" />
-                                        Установить
-                                    </Button>
-                                )}
+                                <p className="text-xs text-muted-foreground">
+                                    Текущая версия: <span className="font-mono text-foreground">v{__APP_VERSION__}</span>
+                                </p>
                                 {updateStatus.status === 'not-available' && (
-                                    <Button variant="ghost" size="icon" onClick={checkForUpdates} className="h-8 w-8 text-muted-foreground">
-                                        <RefreshCw className="h-3.5 w-3.5" />
-                                    </Button>
-                                )}
-                                {updateStatus.status === 'dev' && (
-                                    <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">Dev Mode</span>
-                                )}
-                                {updateStatus.status === 'error' && (
-                                    <Button variant="outline" size="sm" onClick={checkForUpdates} className="h-8 text-destructive hover:text-destructive">
-                                        <RefreshCw className="mr-2 h-3.5 w-3.5" />
-                                        Повторить
-                                    </Button>
+                                    <span className="text-[10px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded-full font-medium ml-1 flex items-center gap-1">
+                                        <CheckCircle size={10} />
+                                        Актуально
+                                    </span>
                                 )}
                             </div>
                         </div>
-
-                        {updateStatus.status === 'downloading' && (
-                            <div className="space-y-1.5 pt-2">
-                                <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>Загрузка обновления...</span>
-                                    <span>{Math.round(updateStatus.progress?.percent || 0)}%</span>
-                                </div>
-                                <Progress value={updateStatus.progress?.percent || 0} className="h-1.5" />
-                            </div>
-                        )}
-
-                        {updateStatus.status === 'error' && (
-                            <div className="text-xs text-destructive flex items-center gap-2 bg-destructive/10 p-2 rounded mt-2">
-                                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                                <span>Ошибка: {updateStatus.error}</span>
-                            </div>
-                        )}
+                        <div className="flex items-center gap-2">
+                            {updateStatus.status === 'idle' && (
+                                <Button variant="outline" size="sm" onClick={checkForUpdates} className="h-8">
+                                    <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                                    Проверить
+                                </Button>
+                            )}
+                            {updateStatus.status === 'checking' && (
+                                <Button variant="outline" size="sm" disabled className="h-8">
+                                    <RefreshCw className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                    Проверка...
+                                </Button>
+                            )}
+                            {updateStatus.status === 'available' && (
+                                <Button size="sm" onClick={downloadUpdate} className="h-8">
+                                    <Download className="mr-2 h-3.5 w-3.5" />
+                                    Загрузить
+                                </Button>
+                            )}
+                            {updateStatus.status === 'downloading' && (
+                                <Button size="sm" disabled className="h-8">
+                                    <Download className="mr-2 h-3.5 w-3.5 animate-pulse" />
+                                    Загрузка...
+                                </Button>
+                            )}
+                            {updateStatus.status === 'downloaded' && (
+                                <Button size="sm" onClick={quitAndInstall} className="h-8">
+                                    <Rocket className="mr-2 h-3.5 w-3.5" />
+                                    Установить
+                                </Button>
+                            )}
+                            {updateStatus.status === 'not-available' && (
+                                <Button variant="ghost" size="icon" onClick={checkForUpdates} className="h-8 w-8 text-muted-foreground">
+                                    <RefreshCw className="h-3.5 w-3.5" />
+                                </Button>
+                            )}
+                            {updateStatus.status === 'dev' && (
+                                <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">Dev Mode</span>
+                            )}
+                            {updateStatus.status === 'error' && (
+                                <Button variant="outline" size="sm" onClick={checkForUpdates} className="h-8 text-destructive hover:text-destructive">
+                                    <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                                    Повторить
+                                </Button>
+                            )}
+                        </div>
                     </div>
+
+                    {updateStatus.status === 'downloading' && (
+                        <div className="space-y-1.5 pt-2">
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                                <span>Загрузка обновления...</span>
+                                <span>{Math.round(updateStatus.progress?.percent || 0)}%</span>
+                            </div>
+                            <Progress value={updateStatus.progress?.percent || 0} className="h-1.5" />
+                        </div>
+                    )}
+
+                    {updateStatus.status === 'error' && (
+                        <div className="text-xs text-destructive flex items-center gap-2 bg-destructive/10 p-2 rounded mt-2">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>Ошибка: {updateStatus.error}</span>
+                        </div>
+                    )}
                 </div>
 
                 <Separator />
