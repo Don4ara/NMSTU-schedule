@@ -121,7 +121,7 @@ export const CalendarViewer = () => {
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col h-[calc(100vh-2rem)] max-w-[1920px] mx-auto w-full p-4 lg:p-6 gap-4"
+            className="flex flex-col h-[calc(100vh-2rem)] max-w-7xl mx-auto w-full p-4 lg:p-6 gap-4"
         >
             <CalendarHeader
                 month={month}

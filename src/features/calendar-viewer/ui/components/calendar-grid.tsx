@@ -80,7 +80,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                     style={{ gridTemplateRows: `repeat(${weeks}, minmax(0, 1fr))` }}
                 >
                     {isUpdating && (
-                        <div className="absolute inset-0 z-20 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
+                        <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl">
                             <Loader2 className="animate-spin text-blue-600" size={24} />
                         </div>
                     )}
@@ -125,17 +125,22 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
 
                                     const isWeekend = dayIndex >= 5;
 
-                                    let cardClasses = 'shadow-sm border-transparent';
+                                    let cardClasses = 'shadow-sm border';
                                     let numberClasses = 'text-slate-700 dark:text-slate-300';
 
                                     if (!isCurrentMonth) {
-                                        cardClasses = 'shadow-none border-transparent opacity-60';
-                                        numberClasses = 'text-slate-400 dark:text-slate-600';
+                                        cardClasses = 'shadow-none border opacity-60';
+                                        if (isWeekend) {
+                                            cardClasses += ' bg-red-100/50 dark:bg-red-900/10';
+                                            numberClasses = 'text-red-400 dark:text-red-500/50';
+                                        } else {
+                                            numberClasses = 'text-slate-400 dark:text-slate-600';
+                                        }
                                     } else if (isToday) {
-                                        cardClasses = 'ring-2 ring-blue-500/50 shadow-md transform scale-[1.02] z-10';
+                                        cardClasses = 'ring-2 ring-blue-500/50 shadow-md transform scale-[1.02] z-10 bg-card border border-blue-200 dark:border-blue-800';
                                         numberClasses = 'text-blue-600 dark:text-blue-400';
                                     } else if (isWeekend) {
-                                        cardClasses = 'bg-red-50/30 dark:bg-red-900/10 shadow-sm';
+                                        cardClasses = 'bg-red-100/50 dark:bg-red-900/10 shadow-sm border';
                                         numberClasses = 'text-red-500 dark:text-red-400';
                                     }
 
