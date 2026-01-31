@@ -119,11 +119,41 @@ export const SettingsPage = () => {
 
                 <Separator />
 
+
+
+                {/* Danger Zone */}
+
+                <h2 className="text-base font-medium text-destructive">Опасная зона</h2>
+
+                <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 space-y-4">
+                    <div className="space-y-1">
+                        <h3 className="font-medium text-sm">Сброс кеша и данных</h3>
+                        <p className="text-xs text-muted-foreground">
+                            Это действие удалит все сохраненные данные, включая настройки и историю поиска.
+                            Приложение будет перезагружено.
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={() => {
+                            if (confirm("Вы уверены, что хотите сбросить все данные? Это действие необратимо.")) {
+                                localStorage.clear();
+                                window.location.reload();
+                            }
+                        }}
+                        className="inline-flex items-center gap-2 text-xs font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-colors px-4 py-2 rounded-md transition-all shadow-sm"
+                    >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Сбросить данные
+                    </button>
+                </div>
+
+                <Separator />
+
                 {/* Updates */}
 
                 <h2 className="text-base font-medium">Обновление</h2>
                 <div className="text-card-foreground shadow-sm overflow-hidden">
-
                     <div className="flex items-center justify-between gap-4">
                         <div className="space-y-1">
                             <h3 className="font-medium text-sm">Версия приложения</h3>
@@ -203,35 +233,6 @@ export const SettingsPage = () => {
                             <span>Ошибка: {updateStatus.error}</span>
                         </div>
                     )}
-                </div>
-
-                <Separator />
-
-                {/* Danger Zone */}
-
-                <h2 className="text-base font-medium text-destructive">Опасная зона</h2>
-
-                <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 space-y-4">
-                    <div className="space-y-1">
-                        <h3 className="font-medium text-sm">Сброс кеша и данных</h3>
-                        <p className="text-xs text-muted-foreground">
-                            Это действие удалит все сохраненные данные, включая настройки и историю поиска.
-                            Приложение будет перезагружено.
-                        </p>
-                    </div>
-
-                    <button
-                        onClick={() => {
-                            if (confirm("Вы уверены, что хотите сбросить все данные? Это действие необратимо.")) {
-                                localStorage.clear();
-                                window.location.reload();
-                            }
-                        }}
-                        className="inline-flex items-center gap-2 text-xs font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-colors px-4 py-2 rounded-md transition-all shadow-sm"
-                    >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Сбросить данные
-                    </button>
                 </div>
             </div>
         </div>
