@@ -5,6 +5,7 @@ import {
 } from "@/shared/components/ui/sidebar"
 import { Outlet } from "react-router-dom"
 import React, { useState } from "react";
+import { DataSourceInfo } from "@/features/data-source-info";
 
 export default function MainLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(() => {
@@ -29,10 +30,11 @@ export default function MainLayout() {
             }
         >
             <AppSidebar />
-            <SidebarInset>
+            <SidebarInset className="relative">
                 <div className="flex flex-1 w-full flex-col justify-center gap-2 p-2">
                     <Outlet />
                 </div>
+                <DataSourceInfo />
             </SidebarInset>
         </SidebarProvider>
     )
