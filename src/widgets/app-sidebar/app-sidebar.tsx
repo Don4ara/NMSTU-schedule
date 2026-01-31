@@ -6,13 +6,9 @@ import { useLocation, Link } from "react-router-dom"
 import {
     Calendar,
     CalendarRange,
-    Frame,
-    GalleryVerticalEnd,
     GitCompare,
     GraduationCap,
     LayoutDashboard,
-    Map,
-    PieChart,
     Settings,
 } from "lucide-react"
 
