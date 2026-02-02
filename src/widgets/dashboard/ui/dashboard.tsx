@@ -19,7 +19,6 @@ import {
     User,
     GraduationCap,
     Calendar,
-    Timer,
     ArrowRight,
     CalendarRange
 } from 'lucide-react';
@@ -31,6 +30,7 @@ import { Button } from "@/shared/components/ui/button.tsx";
 import { formatDuration } from '@/shared/lib/time-utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
+import { DailyScheduleTimeline } from '@/features/daily-schedule-timeline';
 
 export const DashboardWidget = () => {
     const { trackedEntity, setTrackedEntity, setSelectedEntity } = useSchedule();
@@ -264,70 +264,8 @@ export const DashboardWidget = () => {
 
                         {/* Right Column: Timeline */}
                         <div className="lg:col-span-1">
-                            <Card className="h-fit flex flex-col shadow-sm">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Timer className="w-5 h-5 text-orange-500" />
-                                        Хронология
-                                    </CardTitle>
-                                    <CardDescription>Расписание на сегодня</CardDescription>
-                                </CardHeader>
-                                <CardContent className="pr-2">
-                                    <div className="space-y-6 relative ml-2">
-                                        {/* Vertical Line */}
-                                        <div className="absolute left-0 top-2 bottom-2 w-px bg-border"></div>
-
-                                        {todayEvents.length > 0 ? (
-                                            todayEvents.map((event, idx) => {
-                                                const isCurrent = event === currentEvent;
-                                                const isPast = !isCurrent && event.event_index < (currentEvent?.event_index || 999);
-
-                                                return (
-                                                    <div key={idx}
-                                                        className={`relative pl-6 ${isPast ? 'opacity-50 grayscale transition-all' : 'opacity-100'}`}>
-                                                        {/* Dot */}
-                                                        <div className={`absolute left-[-4px] top-1.5 h-2.5 w-2.5 rounded-full border-2 z-10 transition-colors
-                                                            ${isCurrent
-                                                                ? 'border-white dark:border-slate-900 bg-red-500 ring-2 ring-red-500 ring-offset-2'
-                                                                : 'border-background bg-slate-300 dark:bg-slate-600'}`}
-                                                        />
-
-                                                        <div
-                                                            className={`space-y-1 transition-all duration-300 ${isCurrent ? 'scale-[1.02] origin-left' : ''}`}>
-                                                            <div
-                                                                className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                                                                <span
-                                                                    className="font-mono bg-secondary px-1.5 py-0.5 rounded text-foreground">
-                                                                    {getEventTime(event.event_index).split(' - ')[0]}
-                                                                </span>
-                                                                <span
-                                                                    className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${getScheduleCardTheme(event.type).badge}`}>
-                                                                    {event.type}
-                                                                </span>
-                                                            </div>
-                                                            <p className={`font-semibold text-sm leading-tight ${isCurrent ? 'text-primary' : 'text-foreground'}`}>
-                                                                {event.course}
-                                                            </p>
-                                                            <div
-                                                                className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                                                <MapPin size={12}
-                                                                    className={isCurrent ? 'text-red-500' : ''} />
-                                                                <span className="truncate">{event.location}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })
-                                        ) : (
-                                            <div className="text-center py-8 text-muted-foreground">
-                                                <p className="text-sm">Нет занятий</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <DailyScheduleTimeline events={todayEvents} currentEvent={currentEvent} />
                         </div>
-
                     </div>
                 </div>
             </div>
