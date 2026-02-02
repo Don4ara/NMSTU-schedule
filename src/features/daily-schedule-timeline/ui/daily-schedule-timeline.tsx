@@ -63,9 +63,16 @@ export const DailyScheduleTimeline = ({ events: todayEvents, currentEvent }: Dai
                                         {event.course}
                                     </div>
 
-                                    <div className="text-[11px] font-medium text-slate-500 dark:text-slate-500 flex items-center gap-1.5">
-                                        <MapPin size={12} className="opacity-70" />
-                                        <span className="truncate">{event.location}</span>
+                                    <div className="flex justify-between items-center gap-2">
+                                        <div className="text-[11px] font-medium text-slate-500 dark:text-slate-500 flex items-center gap-1.5">
+                                            <MapPin size={12} className="opacity-70" />
+                                            <span className="truncate">{event.location}</span>
+                                        </div>
+                                        {event.reverse && (
+                                            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-[100px]">
+                                                {event.reverse}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
