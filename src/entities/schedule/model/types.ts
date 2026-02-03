@@ -10,6 +10,12 @@ export interface Event {
     reverse: string;
 }
 
+export interface GroupedEvent extends Event {
+    isGrouped?: boolean;
+    groupNames?: string[];
+    originalEvents?: Event[];
+}
+
 export interface Day {
     day_id: number;
     day: string;

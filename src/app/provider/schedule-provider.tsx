@@ -37,8 +37,6 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
     });
     const [isApiOnline, setIsApiOnline] = useState<boolean | null>(null);
 
-    // New state
-
     const [trackedEntity, setTrackedEntityState] = useState<SearchResult | null>(() => {
         const saved = localStorage.getItem(TRACKED_ENTITY_KEY);
         return saved ? JSON.parse(saved) : null;
@@ -48,7 +46,6 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
         return saved ? JSON.parse(saved) : null;
     });
 
-    // Initial load and auto-check via React Query
     const { data: status } = useQuery({
         queryKey: ['api-status'],
         queryFn: checkApiHealth,
@@ -60,12 +57,10 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
         setIsApiOnline(status);
     }, [status]);
 
-    // Handle Online/Offline events
     useEffect(() => {
         const handleOnline = () => {
             console.log("App is online! Refreshing data...");
             setIsApiOnline(true);
-            // Invalidate queries to trigger refetch
             queryClient.invalidateQueries({ queryKey: ['api-status'] });
             queryClient.invalidateQueries({ queryKey: ['schedule'] });
         };

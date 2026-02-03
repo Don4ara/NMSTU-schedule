@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import { Day } from '@/entities/schedule/model/types';
-import { isEventActive } from '../../lib/schedule-utils';
+import { isEventActive, groupEvents } from '../../lib/schedule-utils';
 import { ScheduleCard } from '@/entities/schedule';
 import { useSchedule } from '@/app/provider/schedule-provider';
 
@@ -30,7 +30,7 @@ export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => 
 
     return (
         <div className="flex flex-col" id={`day-${day.day_id}`}>
-            <h3 className="flex items-center justify-between text-sm font-bold text-slate-700 mb-3 px-1">
+            <h3 className="flex items-center justify-between text-sm font-bold mb-3 px-1">
                 <div className="flex items-center gap-2">
                     <div className={`
                     w-2 h-2 rounded-full 
@@ -42,18 +42,18 @@ export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => 
                 `}></div>
                     {day.day}
                 </div>
-                <span className="font-bold text-xs dark:text-white">{date}</span>
+                <span className="font-bold text-xs">{date}</span>
             </h3>
 
             {day.events.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 py-6 rounded-lg border border-dashed border-slate-200">
-                    <BookOpen className="text-black mb-2 opacity-20 dark:text-white" size={20} />
-                    <span className="text-xs font-medium dark:text-white">Нет занятий</span>
+                <div className="flex-1 flex flex-col items-center justify-center py-6 rounded-lg">
+                    <BookOpen className="mb-2 opacity-20" size={20} />
+                    <span className="text-xs font-medium">Нет занятий</span>
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {day.events.map((event, idx) => {
-                        const isActive = isEventActive(day.day_id, event.event_index);
+                    {(!isGroup ? groupEvents(day.events) : day.events).map((event, idx) => {
+                        const isActive = isEventActive(day.day_id, event.event_index, date);
                         return (
                             <ScheduleCard
                                 key={idx}

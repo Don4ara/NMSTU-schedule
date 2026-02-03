@@ -32,8 +32,6 @@ export function ThemeProvider({
 
     useEffect(() => {
         const root = window.document.documentElement
-
-        // Добавляем класс для отключения transitions при смене темы
         root.classList.add("theme-transition")
 
         root.classList.remove("light", "dark")
@@ -48,8 +46,6 @@ export function ThemeProvider({
         } else {
             root.classList.add(theme)
         }
-
-        // Убираем класс после применения темы (на следующем кадре)
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 root.classList.remove("theme-transition")

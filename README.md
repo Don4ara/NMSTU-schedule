@@ -72,31 +72,38 @@
 
 ```
 src/
-├── app/                    # Точка входа, провайдеры, роутинг
-│   ├── provider/           # ScheduleProvider, ThemeProvider
-│   ├── router/             # Конфигурация React Router
+├── app/                    # Слой приложения
+│   ├── layouts/            # Компоненты макетов (MainLayout)
+│   ├── provider/           # Провайдеры контекста (Schedule, Theme)
+│   ├── router/             # Конфигурация роутинга
 │   └── style/              # Глобальные стили
-├── pages/                  # Страницы приложения
-│   ├── home/               # Главная страница (Dashboard)
-│   ├── schedule/           # Просмотр расписания
-│   ├── calendar/           # Календарный вид
-│   └── comparison/         # Сравнение расписаний
-├── widgets/                # Составные виджеты
-│   ├── sidebar/            # Боковая панель
-│   └── calendar/           # Календарь-виджет
-├── features/               # Бизнес-логика
-│   ├── schedule-viewer/    # Просмотр расписания
-│   ├── calendar-viewer/    # Календарные компоненты
-│   ├── search/             # Поиск и история
-│   └── navigation/         # Навигация
-├── entities/               # Бизнес-сущности
-│   └── schedule/           # Модели и карточки расписания
-├── shared/                 # Переиспользуемое
-│   ├── api/                # API клиенты, React Query
-│   ├── components/ui/      # UI Kit (Button, Input, Dialog...)
-│   ├── lib/                # Утилиты
-│   └── workers/            # Web Workers
-└── electron/               # Main & Preload процессы
+├── pages/                  # Слой страниц
+│   ├── home/               # Главная страница
+│   ├── schedule/           # Страница расписания
+│   ├── calendar/           # Страница календаря
+│   ├── comparison/         # Страница сравнения
+│   └── settings/           # Страница настроек
+├── widgets/                # Слой виджетов
+│   ├── app-sidebar/        # Навигационная панель
+│   ├── dashboard/          # Виджет дашборда
+│   ├── calendar-viewer/    # Виджет календаря
+│   ├── schedule-viewer/    # Виджет расписания
+│   └── schedule-comparison/# Виджет сравнения
+├── features/               # Слой фич (бизнес-логика)
+│   ├── schedule-viewer/    # Логика расписания
+│   ├── calendar-viewer/    # Логика календаря
+│   ├── search/             # Функционал поиска
+│   ├── navigation/         # Управление навигацией
+│   ├── theme-switcher/     # Переключение темы
+│   └── data-source-info/   # Попап с информацией об источнике
+├── entities/               # Слой сущностей
+│   └── schedule/           # Доменные модели (Schedule, Event)
+├── shared/                 # Общий слой
+│   ├── api/                # API клиенты и запросы
+│   ├── components/ui/      # UI компоненты (Shadcn UI)
+│   ├── lib/                # Утилиты и помощники
+│   └── workers/            # Web Workers для вычислений
+└── electron/               # Main процесс Electron
 ```
 
 ---

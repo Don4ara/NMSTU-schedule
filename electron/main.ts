@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeTheme, nativeImage } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme, nativeImage, shell } from 'electron'
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 
@@ -168,6 +168,59 @@ ipcMain.handle('is-windows', async () => {
   return process.platform === 'win32';
 })
 
+// =============================================
+// Auto Update
+// =============================================
+import { autoUpdater } from 'electron-updater';
+
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
+if (!app.isPackaged) {
+  autoUpdater.forceDevUpdateConfig = true;
+}
+
+ipcMain.handle('check-for-updates', async () => {
+  try {
+    return await autoUpdater.checkForUpdates();
+  } catch (error) {
+    console.error('Update check error:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('download-update', async () => {
+  return await autoUpdater.downloadUpdate();
+});
+
+ipcMain.handle('quit-and-install', () => {
+  autoUpdater.quitAndInstall();
+});
+
+// Update Events
+autoUpdater.on('checking-for-update', () => {
+  win?.webContents.send('update-status', { status: 'checking' });
+});
+
+autoUpdater.on('update-available', (info) => {
+  win?.webContents.send('update-status', { status: 'available', info });
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  win?.webContents.send('update-status', { status: 'not-available', info });
+});
+
+autoUpdater.on('error', (err) => {
+  win?.webContents.send('update-status', { status: 'error', error: String(err) });
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  win?.webContents.send('update-status', { status: 'downloading', progress: progressObj });
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  win?.webContents.send('update-status', { status: 'downloaded', info });
+});
+
 // ... (rest of the file)
 
 // The built directory structure
@@ -214,20 +267,15 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.mjs'),
-      devTools: !!VITE_DEV_SERVER_URL, // DevTools только в dev режиме
+      devTools: true, // Always allow DevTools
     },
   })
 
   // Remove the menu bar (File, Edit, etc.) on Windows/Linux
   win.setMenu(null)
 
-  // Отключаем DevTools в production
-  if (!VITE_DEV_SERVER_URL) {
-    // Блокируем открытие DevTools
-    win.webContents.on('devtools-opened', () => {
-      win?.webContents.closeDevTools()
-    })
-  }
+  // DevTools enabled for all environments
+  // If need to auto-open: win.webContents.openDevTools()
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
@@ -238,6 +286,15 @@ function createWindow() {
         win?.show()
       }, 100)
     }
+  })
+
+
+  // Handle external links
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https:') || url.startsWith('http:')) {
+      shell.openExternal(url)
+    }
+    return { action: 'deny' }
   })
 
   if (VITE_DEV_SERVER_URL) {

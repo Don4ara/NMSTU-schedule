@@ -1,4 +1,69 @@
-import { Event as ScheduleEvent, ScheduleData, Week, Day } from '@/entities/schedule/model/types';
+import { Event as ScheduleEvent, ScheduleData, Week, Day, GroupedEvent } from '@/entities/schedule/model/types';
+
+export const groupEvents = (events: ScheduleEvent[]): GroupedEvent[] => {
+    const grouped: GroupedEvent[] = [];
+    const processedIndices = new Set<number>();
+
+    events.forEach((event, index) => {
+        if (processedIndices.has(index)) return;
+
+        // Find matching events (same time, course, type, location)
+        const duplicates = events.filter((e, i) =>
+            i !== index &&
+            !processedIndices.has(i) &&
+            e.event_index === event.event_index &&
+            e.course === event.course &&
+            e.type === event.type &&
+            e.location === event.location
+        );
+
+        if (duplicates.length > 0) {
+            const allEvents = [event, ...duplicates];
+            // Sort by subgroup to have a consistent order
+            allEvents.sort((a, b) => a.subgroup - b.subgroup);
+
+            const groupNames = allEvents.map(e => e.reverse || `Subgroup ${e.subgroup}`);
+
+            // Extract base names (remove subgroup info like " (1 п/г)")
+            // Assuming format "Name (X п/г)"
+            const baseNames = allEvents.map(e => {
+                const name = e.reverse || "";
+                // Remove (X п/г) or (X подгр) etc at the end if present. 
+                // We use a safe split approach for " (number" pattern or regex.
+                // The user example: "АПИб-24-1 (3 п/г)"
+                return name.split(' (')[0].trim();
+            });
+
+            const uniqueBaseNames = Array.from(new Set(baseNames));
+
+            grouped.push({
+                ...event,
+                isGrouped: true,
+                groupNames,
+                originalEvents: allEvents,
+                // Combine subgroups for display if needed, or rely on groupNames
+                reverse: uniqueBaseNames.length === 1
+                    ? uniqueBaseNames[0]
+                    : `${allEvents.length} групп`,
+                subgroup: 0 // meaningful subgroup for grouped event might be irrelevant
+            });
+
+            // Mark all as processed
+            processedIndices.add(index);
+            duplicates.forEach(d => {
+                // We need to find the original index of 'd' in the 'events' array
+                const originalIndex = events.indexOf(d);
+                processedIndices.add(originalIndex);
+            });
+        } else {
+            grouped.push(event);
+            processedIndices.add(index);
+        }
+    });
+
+    return grouped.sort((a, b) => a.event_index - b.event_index);
+};
+
 export const getEventTime = (index: number) => {
     const times: Record<number, string> = {
         1: "08:30 - 10:00",
@@ -22,12 +87,24 @@ export const getEventTypeColor = (type?: string) => {
     return "bg-slate-50 text-slate-700 border-slate-200";
 };
 
-export const isEventActive = (dayId: number, eventIndex: number): boolean => {
+export const isEventActive = (dayId: number, eventIndex: number, eventDate?: string): boolean => {
     const now = new Date();
     const currentDay = now.getDay();
     const adjustedCurrentDay = currentDay === 0 ? 7 : currentDay;
 
     if (dayId !== adjustedCurrentDay) return false;
+
+    // Проверяем, что это сегодняшний день (а не просто тот же день недели)
+    if (eventDate) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const [day, month, year] = eventDate.split('.');
+        const eventDateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        eventDateObj.setHours(0, 0, 0, 0);
+
+        if (today.getTime() !== eventDateObj.getTime()) return false;
+    }
 
     const minutes = now.getHours() * 60 + now.getMinutes();
 
