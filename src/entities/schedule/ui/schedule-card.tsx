@@ -57,7 +57,7 @@ export const ScheduleCard = React.memo<ScheduleCardProps>(({ event, isActive, is
                 hover:border-slate-300 dark:hover:border-slate-600 
                 transition-all shadow-none hover:shadow-sm 
                 ${isActive
-                    ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/20'
+                    ? 'ring-2 ring-blue-400/70 dark:ring-blue-400/60 bg-gradient-to-br from-blue-50 via-cyan-50/40 to-sky-50/60 dark:from-blue-950/40 dark:via-cyan-950/30 dark:to-sky-950/20 shadow-xl shadow-blue-300/60 dark:shadow-blue-800/50'
                     : 'bg-card'
                 }
             `}
