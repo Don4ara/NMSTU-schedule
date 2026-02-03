@@ -1,16 +1,13 @@
 import { useEffect, useRef } from 'react';
 
-// Use strict type if available, otherwise fallback to any context
-// Assuming 'electron' types are available globally or we rely on window casting for now to avoid conflicts
-
 /**
  * Hook for listening to IPC channel events
  * @param channel - IPC channel name
  * @param listener - Callback function
  */
-export const useIpcListener = <T = any>(
+export const useIpcListener = <T = unknown>(
     channel: string,
-    listener: (event: any, data: T) => void
+    listener: (event: Electron.IpcRendererEvent, data: T) => void
 ) => {
     const savedListener = useRef(listener);
 
@@ -19,10 +16,8 @@ export const useIpcListener = <T = any>(
     }, [listener]);
 
     useEffect(() => {
-        const eventHandler = (event: any, ...args: any[]) => {
-            // Assuming the main process sends (event, data)
-            // If it sends multiple args, we might need to adjust typing or spread
-            savedListener.current(event, args[0]);
+        const eventHandler = (event: Electron.IpcRendererEvent, ...args: unknown[]) => {
+            savedListener.current(event, args[0] as T);
         };
 
         window.ipcRenderer.on(channel, eventHandler);

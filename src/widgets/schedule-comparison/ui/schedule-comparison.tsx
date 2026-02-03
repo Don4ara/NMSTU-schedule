@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useSchedule } from '@/app/provider/schedule-provider';
@@ -50,14 +50,14 @@ export const ScheduleComparisonWidget = () => {
     const weeks = primarySchedule?.schedule || comparisonSchedule?.schedule || [];
 
     // Проверка совпадения (используется и для подсчёта, и для отображения)
-    const isIntersection = (pEvent: Event | undefined, cEvent: Event | undefined) => {
+    const isIntersection = useCallback((pEvent: Event | undefined, cEvent: Event | undefined) => {
         if (!pEvent || !cEvent) return false;
         if (pEvent.event_index !== cEvent.event_index) return false;
         const isRelated = String(pEvent.reverse_id) === String(comparisonEntity?.id) ||
             String(cEvent.reverse_id) === String(primaryEntity?.id);
         const isSame = pEvent.course === cEvent.course;
         return isRelated || isSame;
-    };
+    }, [primaryEntity?.id, comparisonEntity?.id]);
 
     // Подсчет совпадений
     const intersectionCount = useMemo(() => {
@@ -79,7 +79,7 @@ export const ScheduleComparisonWidget = () => {
             });
         });
         return count;
-    }, [primarySchedule, comparisonSchedule, activeWeekId, primaryEntity?.id, comparisonEntity?.id]);
+    }, [primarySchedule, comparisonSchedule, activeWeekId, isIntersection]);
 
     // Получить день
     const getDay = (schedule: typeof primarySchedule, dayId: number) => {

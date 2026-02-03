@@ -9,24 +9,29 @@ import { Moon, Sun, Github, Bug, Trash2, RefreshCw, Download, Rocket, AlertCircl
 
 export const SettingsPage = () => {
     const { theme, setTheme } = useTheme();
-    const [updateStatus, setUpdateStatus] = useState<any>({ status: 'idle' });
+
+    interface UpdateStatus {
+        status: 'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'not-available' | 'dev' | 'error';
+        error?: string;
+        progress?: { percent: number };
+    }
+
+    const [updateStatus, setUpdateStatus] = useState<UpdateStatus>({ status: 'idle' });
 
     useEffect(() => {
-        const handleStatus = (_: any, data: any) => {
+        const handleStatus = (_: Electron.IpcRendererEvent, ...args: unknown[]) => {
+            const data = args[0] as UpdateStatus;
             setUpdateStatus(data);
         };
         window.ipcRenderer?.on('update-status', handleStatus);
-        // Clean up is handled by the browser context mostly, but if we strictly followed:
-        // return () => window.ipcRenderer?.off('update-status', handleStatus);
-        // However, the provided preload 'off' signature might vary or we might not need strict cleanup for singleton page.
-        // Let's add a safe cleanup if possible or omit if off is tricky with arguments.
     }, []);
 
     const checkForUpdates = () => {
         setUpdateStatus({ status: 'checking' });
-        window.ipcRenderer?.invoke('check-for-updates').then((res: any) => {
-            if (res?.status === 'dev') setUpdateStatus({ status: 'dev' });
-        }).catch((err: any) => {
+        window.ipcRenderer?.invoke('check-for-updates').then((res) => {
+            const result = res as { status?: string } | undefined;
+            if (result?.status === 'dev') setUpdateStatus({ status: 'dev' });
+        }).catch(() => {
             setUpdateStatus({ status: 'error', error: 'Ошибка проверки' });
         });
     };
