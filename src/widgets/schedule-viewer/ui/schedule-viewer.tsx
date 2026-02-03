@@ -121,7 +121,7 @@ export const ScheduleViewerWidget = () => {
                                     <DayColumn
                                         key={day.day_id}
                                         day={day}
-                                        date={date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'numeric', year: 'numeric' })}
+                                        date={date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'numeric' })}
                                         isGroup={scheduleData.type === 'group'}
                                     />
                                 );
