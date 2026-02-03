@@ -1,42 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule, SearchResult } from '@/shared/api/timetable';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Zap } from 'lucide-react';
 
 import { Button } from '@/shared/components/ui/button';
-import { getDateForDay, getCurrentWeekId, getEventTime, findEventAt, getWeekDayData, groupEvents } from '@/features/schedule-viewer/lib/schedule-utils';
-import { WeekTabs } from '@/features/schedule-viewer/ui/components/week-tabs';
-import { ScheduleCard } from '@/entities/schedule';
-import { Week } from '@/entities/schedule/model/types';
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 
+import { getDateForDay, getCurrentWeekId, groupEvents } from '@/features/schedule-viewer/lib/schedule-utils';
+import { ScheduleCard } from '@/entities/schedule';
+import { Week, Event } from '@/entities/schedule/model/types';
 import { ScheduleSearchDialog } from '@/features/search/ui/schedule-search-dialog';
 
 export const ScheduleComparisonWidget = () => {
     const navigate = useNavigate();
     const { trackedEntity, comparisonEntity, setComparisonEntity, setSelectedEntity } = useSchedule();
     const [primaryEntity, setPrimaryEntity] = useState<SearchResult | null>(trackedEntity);
-
     const [searchTarget, setSearchTarget] = useState<'primary' | 'secondary' | null>(null);
     const [activeWeekId, setActiveWeekId] = useState<number>(getCurrentWeekId());
 
     useEffect(() => {
-        if (trackedEntity) {
-            setPrimaryEntity(trackedEntity);
-        }
+        if (trackedEntity) setPrimaryEntity(trackedEntity);
     }, [trackedEntity]);
 
     const handleReverseClick = (id: number, name: string, type: 'group' | 'teacher') => {
-        setSelectedEntity({
-            id,
-            name,
-            type,
-            url: ''
-        });
+        setSelectedEntity({ id, name, type, url: '' });
         navigate('/schedule');
     };
-
 
     const { data: primarySchedule } = useQuery({
         queryKey: ['schedule', primaryEntity?.type, primaryEntity?.id],
@@ -51,204 +42,205 @@ export const ScheduleComparisonWidget = () => {
     });
 
     const handleSearchSelect = (entity: SearchResult) => {
-        if (searchTarget === 'primary') {
-            setPrimaryEntity(entity);
-        } else {
-            setComparisonEntity(entity);
-        }
+        if (searchTarget === 'primary') setPrimaryEntity(entity);
+        else setComparisonEntity(entity);
         setSearchTarget(null);
     };
 
+    const weeks = primarySchedule?.schedule || comparisonSchedule?.schedule || [];
+
+    // Проверка совпадения (используется и для подсчёта, и для отображения)
+    const isIntersection = (pEvent: Event | undefined, cEvent: Event | undefined) => {
+        if (!pEvent || !cEvent) return false;
+        if (pEvent.event_index !== cEvent.event_index) return false;
+        const isRelated = String(pEvent.reverse_id) === String(comparisonEntity?.id) ||
+            String(cEvent.reverse_id) === String(primaryEntity?.id);
+        const isSame = pEvent.course === cEvent.course;
+        return isRelated || isSame;
+    };
+
+    // Подсчет совпадений
+    const intersectionCount = useMemo(() => {
+        if (!primarySchedule || !comparisonSchedule) return 0;
+        let count = 0;
+        const pWeek = primarySchedule.schedule?.find((w: Week) => w.week_id === activeWeekId);
+        const cWeek = comparisonSchedule.schedule?.find((w: Week) => w.week_id === activeWeekId);
+        if (!pWeek || !cWeek) return 0;
+
+        pWeek.days.forEach(pDay => {
+            const cDay = cWeek.days.find(d => d.day_id === pDay.day_id);
+            if (!cDay) return;
+
+            pDay.events.forEach(pEvent => {
+                const cEvent = cDay.events.find(e => e.event_index === pEvent.event_index);
+                if (isIntersection(pEvent, cEvent)) {
+                    count++;
+                }
+            });
+        });
+        return count;
+    }, [primarySchedule, comparisonSchedule, activeWeekId, primaryEntity?.id, comparisonEntity?.id]);
+
+    // Получить день
+    const getDay = (schedule: typeof primarySchedule, dayId: number) => {
+        return schedule?.schedule?.find((w: Week) => w.week_id === activeWeekId)?.days.find(d => d.day_id === dayId);
+    };
+
     const days = [1, 2, 3, 4, 5, 6];
-    const eventIndices = [1, 2, 3, 4, 5, 6, 7];
+    const dayColors = ['bg-indigo-500', 'bg-blue-500', 'bg-sky-500', 'bg-teal-500', 'bg-emerald-500', 'bg-orange-500'];
 
     return (
-        <div className="h-full flex flex-col max-w-[1920px] mx-auto w-full relative">
-            {/* Header & Controls */}
-            <div className="shrink-0 z-20 sticky top-0 bg-white border-b pt-6">
-                <div className="px-8 pb-4 flex items-center justify-between gap-8 max-w-7xl mx-auto w-full">
-                    {/* Week Selector */}
-                    {(primarySchedule?.schedule || comparisonSchedule?.schedule) ? (
-                        <div className="w-64">
-                            <WeekTabs
-                                weeks={(primarySchedule?.schedule || comparisonSchedule?.schedule)!}
-                                activeWeekId={activeWeekId}
-                                onWeekChange={setActiveWeekId}
-                            />
-                        </div>
-                    ) : <div className="w-64" />}
-
-                    {/* Entity Headers Grid */}
-                    <div className="flex-1 grid grid-cols-2 gap-12 items-center">
-                        {/* Primary (Left) */}
-                        <div className="flex items-center gap-4 min-w-0">
-                            {primaryEntity ? (
-                                <div className="flex-1 flex items-center justify-between bg-indigo-50/50 dark:bg-indigo-900/10 px-4 py-2 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
-                                    <div className="min-w-0">
-                                        <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-0.5">Основное</div>
-                                        <div className="font-bold text-slate-900 dark:text-slate-100 truncate">{primaryEntity.name}</div>
-                                    </div>
-                                    <Button variant="ghost" size="icon" onClick={() => setPrimaryEntity(null)} className="h-7 w-7 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
-                                        <X size={14} />
-                                    </Button>
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={() => setSearchTarget('primary')}
-                                    className="flex-1 flex items-center gap-3 px-4 py-2 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all group"
-                                >
-                                    <Plus size={18} className="text-slate-400 group-hover:text-indigo-500" />
-                                    <span className="text-sm font-medium text-slate-500 group-hover:text-indigo-600 dark:text-slate-400 dark:group-hover:text-indigo-400">Выбрать</span>
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Comparison (Right) */}
-                        <div className="flex items-center gap-4 min-w-0">
-                            {comparisonEntity ? (
-                                <div className="flex-1 flex items-center justify-between bg-orange-50/50 dark:bg-orange-900/10 px-4 py-2 rounded-xl border border-orange-100 dark:border-orange-900/30">
-                                    <div className="min-w-0">
-                                        <div className="text-[10px] font-bold uppercase tracking-wider text-orange-500 mb-0.5">Сравнение</div>
-                                        <div className="font-bold text-slate-900 dark:text-slate-100 truncate">{comparisonEntity.name}</div>
-                                    </div>
-                                    <Button variant="ghost" size="icon" onClick={() => setComparisonEntity(null)} className="h-7 w-7 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
-                                        <X size={14} />
-                                    </Button>
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={() => setSearchTarget('secondary')}
-                                    className="flex-1 flex items-center gap-3 px-4 py-2 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-orange-300 dark:hover:border-orange-700 hover:bg-orange-50/30 dark:hover:bg-orange-900/10 transition-all group"
-                                >
-                                    <Plus size={18} className="text-slate-400 group-hover:text-orange-500" />
-                                    <span className="text-sm font-medium text-slate-500 group-hover:text-orange-600 dark:text-slate-400 dark:group-hover:text-orange-400">Сравнить</span>
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Content Content (Scrollable) */}
-            <div className="flex-1 overflow-y-auto px-8 pt-12 pb-20 max-w-7xl mx-auto w-full">
-                <div className="space-y-16 pb-20">
-                    {days.map(dayId => {
-                        const primaryDay = getWeekDayData(primarySchedule, activeWeekId, dayId);
-                        const comparisonDay = getWeekDayData(comparisonSchedule, activeWeekId, dayId);
-
-                        const refSchedule = primarySchedule?.schedule || comparisonSchedule?.schedule;
-                        const weekName = refSchedule?.find((w: Week) => w.week_id === activeWeekId)?.week || '';
-                        const date = getDateForDay(dayId, weekName);
-
-                        const dayName = date.toLocaleDateString('ru-RU', { weekday: 'long' });
-                        const dateNum = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-
-                        const hasEvents = (primaryDay?.events?.length ?? 0) > 0 || (comparisonDay?.events?.length ?? 0) > 0;
-
-                        if (!hasEvents) return null; // Clean look: skip empty days
-
-                        // Apply grouping logic
-                        const primaryEvents = primaryEntity?.type === 'teacher' && primaryDay?.events
-                            ? groupEvents(primaryDay.events)
-                            : primaryDay?.events;
-
-                        const comparisonEvents = comparisonEntity?.type === 'teacher' && comparisonDay?.events
-                            ? groupEvents(comparisonDay.events)
-                            : comparisonDay?.events;
-
-                        return (
-                            <div key={dayId} className="relative">
-                                {/* Subtle Day Divider */}
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className={`px-4 py-1.5 rounded-xl text-lg font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 capitalize shadow-sm`}>
-                                        {dayName}
-                                    </div>
-                                    <div className="text-base text-slate-400 font-medium">{dateNum}</div>
-                                    <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
-                                </div>
-
-                                <div className="space-y-1">
-                                    {eventIndices.map((idx) => {
-                                        const pEvent = findEventAt(primaryEvents, idx);
-                                        const cEvent = findEventAt(comparisonEvents, idx);
-
-                                        if (!pEvent && !cEvent) return null; // Compact mode
-
-                                        const time = getEventTime(idx).split(' - ');
-                                        const isTimeOverlap = !!pEvent && !!cEvent;
-
-                                        const isDirectRelation = (String(pEvent?.reverse_id) === String(comparisonEntity?.id)) || (String(cEvent?.reverse_id) === String(primaryEntity?.id));
-                                        const isSameCourse = pEvent?.course === cEvent?.course;
-                                        const isIntersection = isTimeOverlap && (isDirectRelation || isSameCourse);
-
-                                        return (
-                                            <div key={idx} className={`
-                                                group grid grid-cols-[1fr_80px_1fr] gap-6 items-stretch rounded-xl transition-all duration-300
-                                                ${isIntersection
-                                                    ? 'bg-gradient-to-r from-indigo-50/50 via-purple-50/50 to-orange-50/50 dark:from-indigo-900/10 dark:via-purple-900/10 dark:to-orange-900/10 ring-1 ring-purple-100 dark:ring-purple-900/30'
-                                                    : 'hover:bg-slate-50/50 dark:hover:bg-slate-900/30'}
-                                            `}>
-                                                {/* Left Event */}
-                                                <div className="py-2 pl-2">
-                                                    {pEvent ? (
-                                                        <ScheduleCard
-                                                            event={pEvent}
-                                                            isActive={false}
-                                                            isGroup={primaryEntity?.type === 'group'}
-                                                            onReverseClick={handleReverseClick}
-                                                        />
-                                                    ) : (
-                                                        <div className="h-full rounded-lg border border-dashed border-slate-200 dark:border-slate-800 bg-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    )}
-                                                </div>
-
-                                                {/* Center Timeline */}
-                                                <div className="flex flex-col items-center justify-center relative">
-                                                    {/* Vertical Connector Line (Visual only) */}
-                                                    <div className="absolute top-0 bottom-0 w-px bg-slate-100 dark:bg-slate-800 -z-10 group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors" />
-
-                                                    <div className={`
-                                                        w-full text-center py-1 rounded-md text-sm font-bold tracking-tight transition-all z-10
-                                                        ${isIntersection ? 'text-purple-600 bg-white/80 dark:bg-slate-900/80 shadow-sm ring-1 ring-purple-100 dark:ring-purple-900/30' : 'text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-400 bg-transparent'}
-                                                    `}>
-                                                        {time[0]}
-                                                    </div>
-                                                    <div className={`h-1 w-1 rounded-full my-1 ${isIntersection ? 'bg-purple-400' : 'bg-slate-200 dark:bg-slate-700'}`} />
-                                                    <div className={`text-sm font-medium transition-colors ${isIntersection ? 'text-purple-400' : 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'}`}>
-                                                        {time[1]}
-                                                    </div>
-                                                </div>
-
-                                                {/* Right Event */}
-                                                <div className="py-2 pr-2">
-                                                    {cEvent ? (
-                                                        <ScheduleCard
-                                                            event={cEvent}
-                                                            isActive={false}
-                                                            isGroup={comparisonEntity?.type === 'group'}
-                                                            onReverseClick={handleReverseClick}
-                                                        />
-                                                    ) : (
-                                                        <div className="h-full rounded-lg border border-dashed border-slate-200 dark:border-slate-800 bg-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+        <div className="h-full flex flex-col max-w-5xl mx-auto w-full mt-9">
+            {/* Compact Header */}
+            <div className="shrink-0 px-4 py-3 border-b flex items-center gap-3">
+                {/* Primary */}
+                <div className="flex-1 min-w-0 flex items-center gap-2">
+                    {primaryEntity ? (
+                        <>
+                            <div className="flex-1 min-w-0 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900">
+                                <span className="text-sm font-medium truncate block">{primaryEntity.name}</span>
                             </div>
-                        );
-                    })}
+                            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => setPrimaryEntity(null)}>
+                                <X className="w-3.5 h-3.5" />
+                            </Button>
+                        </>
+                    ) : (
+                        <Button variant="outline" size="sm" onClick={() => setSearchTarget('primary')} className="w-full justify-start">
+                            <Plus className="w-3.5 h-3.5 mr-1.5" /> Первое расписание
+                        </Button>
+                    )}
                 </div>
 
-                {/* Search Dialog */}
-                <ScheduleSearchDialog
-                    open={!!searchTarget}
-                    onOpenChange={(open) => !open && setSearchTarget(null)}
-                    title={searchTarget === 'primary' ? "Выберите основное расписание" : "Выберите расписание для сравнения"}
-                    onSelect={handleSearchSelect}
-                />
+                {/* Week Tabs */}
+                {weeks.length > 0 && (
+                    <Tabs value={String(activeWeekId)} onValueChange={(v) => setActiveWeekId(Number(v))}>
+                        <TabsList className="h-8">
+                            {weeks.map((week: Week) => (
+                                <TabsTrigger key={week.week_id} value={String(week.week_id)} className="text-xs px-3">
+                                    {week.week}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                    </Tabs>
+                )}
+
+                {/* Intersection Badge */}
+                {intersectionCount > 0 && (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 text-xs font-medium">
+                        <Zap className="w-3 h-3" />
+                        {intersectionCount}
+                    </div>
+                )}
+
+                {/* Comparison */}
+                <div className="flex-1 min-w-0 flex items-center gap-2">
+                    {comparisonEntity ? (
+                        <>
+                            <div className="flex-1 min-w-0 px-3 py-1.5 rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900">
+                                <span className="text-sm font-medium truncate block">{comparisonEntity.name}</span>
+                            </div>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => setComparisonEntity(null)}>
+                                <X className="w-3.5 h-3.5" />
+                            </Button>
+                        </>
+                    ) : (
+                        <Button variant="outline" size="sm" onClick={() => setSearchTarget('secondary')} className="w-full justify-start">
+                            <Plus className="w-3.5 h-3.5 mr-1.5" /> Второе расписание
+                        </Button>
+                    )}
+                </div>
             </div>
+
+            {/* Two Column Layout */}
+            <div className="flex-1 p-4 space-y-6 overflow-auto">
+                {days.map((dayId, i) => {
+                    const primDay = getDay(primarySchedule, dayId);
+                    const compDay = getDay(comparisonSchedule, dayId);
+                    if (!primDay?.events.length && !compDay?.events.length) return null;
+
+                    const weekName = primarySchedule?.schedule?.find((w: Week) => w.week_id === activeWeekId)?.week ||
+                        comparisonSchedule?.schedule?.find((w: Week) => w.week_id === activeWeekId)?.week || '';
+                    const date = getDateForDay(dayId, weekName);
+                    const dayName = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'][i];
+                    const dateStr = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'numeric' });
+
+                    const primEvents = primaryEntity?.type === 'teacher' && primDay?.events
+                        ? groupEvents(primDay.events)
+                        : primDay?.events || [];
+                    const compEvents = comparisonEntity?.type === 'teacher' && compDay?.events
+                        ? groupEvents(compDay.events)
+                        : compDay?.events || [];
+
+                    // Собираем все уникальные event_index
+                    const allIndices = new Set<number>();
+                    primEvents.forEach(e => allIndices.add(e.event_index));
+                    compEvents.forEach(e => allIndices.add(e.event_index));
+                    const sortedIndices = Array.from(allIndices).sort((a, b) => a - b);
+
+                    return (
+                        <div key={dayId}>
+                            {/* Day Header */}
+                            <div className="flex items-center gap-2 mb-3 px-1">
+                                <div className={`w-2 h-2 rounded-full ${dayColors[i]}`} />
+                                <span className="text-sm font-bold">{primDay?.day || compDay?.day || dayName}</span>
+                                <span className="text-xs text-muted-foreground">{dateStr}</span>
+                                <div className="flex-1 h-px bg-border ml-2" />
+                            </div>
+
+                            {/* Events Grid - Two Columns */}
+                            <div className="space-y-2">
+                                {sortedIndices.map(idx => {
+                                    const pEvent = primEvents.find(e => e.event_index === idx);
+                                    const cEvent = compEvents.find(e => e.event_index === idx);
+                                    const hasMatch = isIntersection(pEvent, cEvent);
+
+                                    return (
+                                        <div key={idx} className={`grid grid-cols-2 gap-3 p-2 rounded-xl transition-all ${hasMatch ? 'ring-2 ring-purple-400 bg-purple-500/10' : ''}`}>
+                                            {/* Left Event */}
+                                            <div>
+                                                {pEvent ? (
+                                                    <ScheduleCard
+                                                        event={pEvent}
+                                                        isActive={false}
+                                                        isGroup={primaryEntity?.type === 'group'}
+                                                        onReverseClick={handleReverseClick}
+                                                    />
+                                                ) : (
+                                                    <div className="h-full min-h-[60px] rounded-lg border border-dashed border-muted-foreground/20 flex items-center justify-center">
+                                                        <span className="text-xs text-muted-foreground/40">—</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {/* Right Event */}
+                                            <div>
+                                                {cEvent ? (
+                                                    <ScheduleCard
+                                                        event={cEvent}
+                                                        isActive={false}
+                                                        isGroup={comparisonEntity?.type === 'group'}
+                                                        onReverseClick={handleReverseClick}
+                                                    />
+                                                ) : (
+                                                    <div className="h-full min-h-[60px] rounded-lg border border-dashed border-muted-foreground/20 flex items-center justify-center">
+                                                        <span className="text-xs text-muted-foreground/40">—</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            <ScheduleSearchDialog
+                open={!!searchTarget}
+                onOpenChange={(open) => !open && setSearchTarget(null)}
+                title={searchTarget === 'primary' ? "Первое расписание" : "Второе расписание"}
+                onSelect={handleSearchSelect}
+            />
         </div>
     );
 };
