@@ -49,6 +49,16 @@ export const ScheduleComparisonWidget = () => {
 
     const weeks = primarySchedule?.schedule || comparisonSchedule?.schedule || [];
 
+    // Проверка совпадения (используется и для подсчёта, и для отображения)
+    const isIntersection = (pEvent: Event | undefined, cEvent: Event | undefined) => {
+        if (!pEvent || !cEvent) return false;
+        if (pEvent.event_index !== cEvent.event_index) return false;
+        const isRelated = String(pEvent.reverse_id) === String(comparisonEntity?.id) ||
+            String(cEvent.reverse_id) === String(primaryEntity?.id);
+        const isSame = pEvent.course === cEvent.course;
+        return isRelated || isSame;
+    };
+
     // Подсчет совпадений
     const intersectionCount = useMemo(() => {
         if (!primarySchedule || !comparisonSchedule) return 0;
@@ -61,33 +71,15 @@ export const ScheduleComparisonWidget = () => {
             const cDay = cWeek.days.find(d => d.day_id === pDay.day_id);
             if (!cDay) return;
 
-            // Собираем уникальные event_index для обоих дней
-            const pIndices = new Set(pDay.events.map(e => e.event_index));
-
-            cDay.events.forEach(cEvent => {
-                // Проверяем есть ли у primary события с таким же event_index
-                if (pIndices.has(cEvent.event_index)) {
-                    const pEvent = pDay.events.find(e => e.event_index === cEvent.event_index);
-                    if (pEvent) {
-                        const isRelated = String(pEvent.reverse_id) === String(comparisonEntity?.id) ||
-                            String(cEvent.reverse_id) === String(primaryEntity?.id);
-                        const isSame = pEvent.course === cEvent.course;
-                        if (isRelated || isSame) count++;
-                    }
+            pDay.events.forEach(pEvent => {
+                const cEvent = cDay.events.find(e => e.event_index === pEvent.event_index);
+                if (isIntersection(pEvent, cEvent)) {
+                    count++;
                 }
             });
         });
         return count;
     }, [primarySchedule, comparisonSchedule, activeWeekId, primaryEntity?.id, comparisonEntity?.id]);
-
-    // Проверка совпадения
-    const isIntersection = (pEvent: Event | undefined, cEvent: Event | undefined) => {
-        if (!pEvent || !cEvent) return false;
-        const isRelated = String(pEvent.reverse_id) === String(comparisonEntity?.id) ||
-            String(cEvent.reverse_id) === String(primaryEntity?.id);
-        const isSame = pEvent.course === cEvent.course;
-        return isRelated || isSame;
-    };
 
     // Получить день
     const getDay = (schedule: typeof primarySchedule, dayId: number) => {
