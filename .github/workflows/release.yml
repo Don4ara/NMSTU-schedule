@@ -15,7 +15,30 @@ on:
       - '.editorconfig'
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Lint
+        run: npm run lint
+
+      - name: Type Check
+        run: npm exec tsc -- --noEmit
+
   build:
+    needs: lint
     runs-on: ${{ matrix.os }}
 
     strategy:
