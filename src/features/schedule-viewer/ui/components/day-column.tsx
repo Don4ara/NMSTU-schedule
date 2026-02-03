@@ -53,7 +53,7 @@ export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => 
             ) : (
                 <div className="space-y-2">
                     {(!isGroup ? groupEvents(day.events) : day.events).map((event, idx) => {
-                        const isActive = isEventActive(day.day_id, event.event_index);
+                        const isActive = isEventActive(day.day_id, event.event_index, date);
                         return (
                             <ScheduleCard
                                 key={idx}
