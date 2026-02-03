@@ -8,15 +8,9 @@ import {
     getNextEvent,
     groupEvents,
 } from '@/features/schedule-viewer/lib/schedule-utils';
-import {
-    getScheduleCardTheme,
-    getEventTime,
-    EVENT_RANGES
-} from '@/entities/schedule/lib/schedule-utils';
+
 import {
     Loader2,
-    MapPin,
-    User,
     GraduationCap,
     Calendar,
     ArrowRight,
@@ -27,10 +21,9 @@ import { Search } from '@/features/search/ui/search';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Button } from "@/shared/components/ui/button.tsx";
-import { formatDuration } from '@/shared/lib/time-utils';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+
 import { DailyScheduleTimeline } from '@/features/daily-schedule-timeline';
+import { CurrentEventCard } from '@/features/current-event-card';
 
 export const DashboardWidget = () => {
     const { trackedEntity, setTrackedEntity, setSelectedEntity } = useSchedule();
@@ -172,94 +165,11 @@ export const DashboardWidget = () => {
                         <div className="lg:col-span-2 space-y-6">
 
                             {/* Current/Next Event Card */}
-                            <Card
-                                className={`overflow-hidden border-l-[6px] transition-all duration-300 shadow-sm hover:shadow-md ${(currentEvent || nextEvent)
-                                    ? (currentEvent || nextEvent)!.type.toLowerCase().includes('лек') ? 'border-l-blue-500'
-                                        : (currentEvent || nextEvent)!.type.toLowerCase().includes('лаб') ? 'border-l-orange-500'
-                                            : 'border-l-emerald-500'
-                                    : 'border-l-primary'
-                                    }`}>
-                                <CardHeader className="pb-2">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <CardTitle className="text-xl flex items-center gap-2">
-                                                {currentEvent ? 'Сейчас идет' : nextEvent ? 'Следующая пара' : 'Занятия окончены'}
-                                                {(currentEvent || nextEvent) && (
-                                                    <span
-                                                        className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border tracking-wide ${getScheduleCardTheme((currentEvent || nextEvent)!.type).badge}`}>
-                                                        {(currentEvent || nextEvent)!.type}
-                                                    </span>
-                                                )}
-                                            </CardTitle>
-                                            <CardDescription>
-                                                {currentEvent ? 'Текущее занятие' : nextEvent ? 'Ближайшее событие' : 'На сегодня все'}
-                                            </CardDescription>
-                                        </div>
-                                        <Badge
-                                            variant={currentEvent ? 'destructive' : nextEvent ? 'secondary' : 'outline'}
-                                            className={currentEvent ? 'animate-pulse shadow-sm' : ''}>
-                                            {currentEvent ? 'LIVE' : nextEvent ? 'Ожидание' : 'Отдых'}
-                                        </Badge>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pt-4">
-                                    {currentEvent || nextEvent ? (
-                                        <div className="grid gap-6">
-                                            <div className="space-y-1">
-                                                <h2 className="text-3xl font-bold tracking-tight">
-                                                    {(currentEvent || nextEvent)?.course}
-                                                </h2>
-                                                <div
-                                                    className="flex flex-wrap items-center gap-4 text-muted-foreground">
-                                                    <div
-                                                        className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md text-sm font-medium">
-                                                        <MapPin className="w-4 h-4 text-red-500 dark:text-red-400" />
-                                                        {(currentEvent || nextEvent)?.location}
-                                                    </div>
-                                                    <div
-                                                        className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md text-sm font-medium">
-                                                        <User className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-                                                        {(currentEvent || nextEvent)?.reverse}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <p className="text-sm font-medium text-muted-foreground mb-1">Время</p>
-                                                    <div className="text-lg font-mono font-semibold">
-                                                        {getEventTime((currentEvent || nextEvent)!.event_index)}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-muted-foreground mb-1">
-                                                        {currentEvent ? 'До конца' : 'Через'}
-                                                    </p>
-                                                    <div
-                                                        className={`text-2xl font-mono font-bold ${getScheduleCardTheme((currentEvent || nextEvent)!.type).text}`}>
-                                                        {(() => {
-                                                            const event = currentEvent || nextEvent;
-                                                            const range = EVENT_RANGES[event!.event_index];
-                                                            if (!range) return '--:--';
-
-                                                            const targetTime = currentEvent ? range[1] : range[0];
-                                                            const totalSeconds = (targetTime * 60) - (currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds());
-
-                                                            return formatDuration(totalSeconds);
-                                                        })()}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className="py-8 flex flex-col items-center justify-center text-center text-muted-foreground">
-                                            <GraduationCap className="h-12 w-12 mb-4 opacity-20" />
-                                            <p className="text-lg font-medium">Пар больше нет</p>
-                                            <p className="text-sm">Хорошего отдыха и продуктивной подготовки!</p>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
+                            <CurrentEventCard
+                                currentEvent={currentEvent}
+                                nextEvent={nextEvent}
+                                currentTime={currentTime}
+                            />
                         </div>
 
                         {/* Right Column: Timeline */}
