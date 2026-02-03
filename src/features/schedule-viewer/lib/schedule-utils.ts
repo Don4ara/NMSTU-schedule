@@ -87,12 +87,24 @@ export const getEventTypeColor = (type?: string) => {
     return "bg-slate-50 text-slate-700 border-slate-200";
 };
 
-export const isEventActive = (dayId: number, eventIndex: number): boolean => {
+export const isEventActive = (dayId: number, eventIndex: number, eventDate?: string): boolean => {
     const now = new Date();
     const currentDay = now.getDay();
     const adjustedCurrentDay = currentDay === 0 ? 7 : currentDay;
 
     if (dayId !== adjustedCurrentDay) return false;
+
+    // Проверяем, что это сегодняшний день (а не просто тот же день недели)
+    if (eventDate) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const [day, month, year] = eventDate.split('.');
+        const eventDateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        eventDateObj.setHours(0, 0, 0, 0);
+
+        if (today.getTime() !== eventDateObj.getTime()) return false;
+    }
 
     const minutes = now.getHours() * 60 + now.getMinutes();
 
