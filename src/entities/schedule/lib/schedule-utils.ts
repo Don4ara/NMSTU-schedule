@@ -9,6 +9,12 @@ export const EVENT_RANGES: Record<number, [number, number]> = {
     7: [19 * 60, 20 * 60 + 30]  // 19:00 - 20:30
 };
 
+/** Начало и конец пары в минутах от полуночи — для расчёта перерывов. */
+export const getEventStartEnd = (index: number) => {
+    const range = EVENT_RANGES[index];
+    return range ? { startMin: range[0], endMin: range[1] } : null;
+};
+
 export const getEventTime = (index: number) => {
     const times: Record<number, string> = {
         1: "08:30 - 10:00",

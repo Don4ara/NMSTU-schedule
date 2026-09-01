@@ -13,44 +13,43 @@ interface ScheduleHeaderProps {
 
 export const ScheduleHeader: React.FC<ScheduleHeaderProps> = React.memo(({ scheduleData, isUsingMockData, children }) => {
     const { setSelectedEntity } = useSchedule();
+    const entityLabel = scheduleData.type === 'group' ? 'Группа' : 'Преподаватель';
+    const EntityIcon = scheduleData.type === 'group' ? Users : User;
+
     return (
-        <div className="sticky top-0 z-20 bg-background pt-12 pb-4 mb-6 border-b px-4 md:px-8">
-            <div className="flex flex-row items-end justify-between gap-4">
-                <div>
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2">
-                        {scheduleData.type === 'group' ? (
-                            <>
-                                <Users size={14} />
-                                <span>Группа</span>
-                            </>
-                        ) : (
-                            <>
-                                <User size={14} />
-                                <span>Преподаватель</span>
-                            </>
-                        )}
+        <div className="sticky top-0 z-20 bg-background pt-4 pb-4 mb-6 border-b px-4 md:px-8">
+            <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-3">
+                <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 text-[11px] lg:text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
+                        <EntityIcon size={14} className="shrink-0 text-blue-500" />
+                        <span>{entityLabel}</span>
                     </div>
-                    <h1 className="text-4xl font-extrabold tracking-tight">
+                    <h1
+                        title={scheduleData.name}
+                        className="font-extrabold text-foreground tracking-tight leading-tight text-2xl lg:text-3xl xl:text-4xl overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
                         {scheduleData.name}
                     </h1>
                 </div>
 
-                <div className="flex flex-row items-end gap-3 flex-1 justify-end">
-                    <div className="w-full max-w-[280px] mb-1">
-                        <Search
-                            placeholder="Найти другое..."
-                            onSelectResult={setSelectedEntity}
-                        />
-                    </div>
-                    {isUsingMockData && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-100 text-orange-600 text-xs font-bold rounded-full select-none">
-                            <WifiOff size={12} />
-                            <span>OFFLINE MODE</span>
-                        </div>
-                    )}
+                <div className="w-[260px]">
+                    <Search
+                        placeholder="Найти другое..."
+                        className="w-full"
+                        onSelectResult={setSelectedEntity}
+                    />
+                </div>
+
+                <div className="flex items-center gap-2">
                     {children}
                 </div>
             </div>
+
+            {isUsingMockData && (
+                <div className="mt-3 flex w-fit items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200/60 text-orange-600 text-xs font-bold rounded-lg select-none dark:bg-orange-900/20 dark:border-orange-900/50 dark:text-orange-400">
+                    <WifiOff size={12} /><span>OFFLINE</span>
+                </div>
+            )}
         </div>
     );
 });
