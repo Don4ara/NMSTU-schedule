@@ -1,4 +1,7 @@
 import { Event as ScheduleEvent, ScheduleData, Week, Day, GroupedEvent } from '@/entities/schedule/model/types';
+import { EVENT_RANGES, getWeekParity } from '@/entities/schedule/lib/schedule-utils';
+
+export { EVENT_RANGES, getWeekParity };
 
 export const groupEvents = (events: ScheduleEvent[]): GroupedEvent[] => {
     const grouped: GroupedEvent[] = [];
@@ -120,24 +123,6 @@ export const getCurrentWeekName = (): string => {
     return getWeekParity(new Date());
 };
 
-export const getWeekParity = (date: Date): string => {
-    const currentYear = date.getFullYear();
-    const startYear = date.getMonth() < 8 ? currentYear - 1 : currentYear;
-    const startDate = new Date(startYear, 8, 1);
-
-    // Reset hours to avoid timezone/DST issues affecting day diff
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    const s = new Date(startDate);
-    s.setHours(0, 0, 0, 0);
-
-    const diff = d.getTime() - s.getTime();
-    if (diff < 0) return "Нечетная"; // Before sept 1st
-
-    const weekNumber = Math.ceil((diff + 1) / (1000 * 60 * 60 * 24 * 7));
-    return weekNumber % 2 === 0 ? "Четная" : "Нечетная";
-};
-
 export const getCurrentWeekId = (): number => {
     const weekName = getCurrentWeekName();
     // Assuming backend returns 1 for "Четная" or "Нечетная" usually mapped to specific IDs
@@ -182,16 +167,6 @@ export const getNextEvent = (events: ScheduleEvent[]) => {
     return { next: null, current: null };
 };
 
-export const EVENT_RANGES: Record<number, [number, number]> = {
-    1: [8 * 60 + 30, 10 * 60],   // 08:30 - 10:00
-    2: [10 * 60 + 10, 11 * 60 + 40], // 10:10 - 11:40
-    3: [12 * 60 + 20, 13 * 60 + 50], // 12:20 - 13:50
-    4: [14 * 60, 15 * 60 + 30],  // 14:00 - 15:30
-    5: [15 * 60 + 40, 17 * 60 + 10], // 15:40 - 17:10
-    6: [17 * 60 + 20, 18 * 60 + 50],  // 17:20 - 18:50
-    7: [19 * 60, 20 * 60 + 30]  // 19:00 - 20:30
-};
-
 export const getRemainingTime = (eventIndex: number): number | null => {
     const range = EVENT_RANGES[eventIndex];
     if (!range) return null;
@@ -212,10 +187,10 @@ export const getDateForDay = (dayId: number, targetWeekName: string): Date => {
     const currentWeekName = getCurrentWeekName();
     const isTargetCurrent = currentWeekName.toLowerCase() === targetWeekName.toLowerCase();
 
-    // Get current Monday
-    const day = now.getDay();
-    const diff = now.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-    const currentMonday = new Date(now.setDate(diff));
+    // Понедельник текущей недели. new Date(...) вместо now.setDate(): setDate
+    // мутирует now, а он ещё используется выше по стеку у вызывающих.
+    const currentMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    currentMonday.setDate(currentMonday.getDate() - ((now.getDay() + 6) % 7));
 
     const targetMonday = new Date(currentMonday);
     if (!isTargetCurrent) {

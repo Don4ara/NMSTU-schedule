@@ -60,3 +60,31 @@ export const getScheduleCardTheme = (eventType: string) => {
 };
 
 // ... other pure helpers that don't depend on features can be moved here too
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Понедельник недели, содержащей `date` (локальная полночь). */
+const mondayOf = (date: Date): Date => {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const shift = (d.getDay() + 6) % 7; // Пн=0 ... Вс=6
+    d.setDate(d.getDate() - shift);
+    return d;
+};
+
+/**
+ * Чётность учебной недели. Единственный источник истины: раньше календарь
+ * (worker) и расписание считали её по-разному и расходились ~52 дня в году
+ * во всех годах, где 1 сентября не понедельник.
+ *
+ * Неделя, содержащая 1 сентября, — первая (нечётная). Границы недель
+ * совпадают с календарными: чётность меняется в понедельник, не через
+ * каждые 7 дней от 1 сентября.
+ */
+export const getWeekParity = (date: Date, baseYear?: number): string => {
+    const startYear = baseYear ?? (date.getMonth() < 8 ? date.getFullYear() - 1 : date.getFullYear());
+    const start = mondayOf(new Date(startYear, 8, 1));
+    // разница в целых днях: обе даты — локальная полночь, DST не влияет
+    const days = Math.round((mondayOf(date).getTime() - start.getTime()) / DAY_MS);
+    const weekNumber = Math.floor(days / 7) + 1;
+    return weekNumber % 2 === 0 ? "Четная" : "Нечетная";
+};

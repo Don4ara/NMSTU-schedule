@@ -1,4 +1,5 @@
 import { ScheduleData, Week, Day, Event } from '../../entities/schedule/model/types';
+import { getWeekParity } from '../../entities/schedule/lib/schedule-utils';
 
 // Кэш результатов обработки - ключ: type_id, значение: fullScheduleMap
 let cachedResult: { key: string; fullScheduleMap: Record<string, Event[]> } | null = null;
@@ -36,12 +37,9 @@ self.onmessage = (e: MessageEvent) => {
     const currentDate = new Date(startDate);
 
     while (currentDate <= endDate) {
-        // Calculate week number from Sept 1st
-        const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const weekNum = Math.floor((diffDays + startDate.getDay() - 1) / 7) + 1;
-
-        const isOdd = weekNum % 2 !== 0;
+        // Чётность считает общий getWeekParity — раньше здесь была своя формула,
+        // расходившаяся с расписанием во всех годах, где 1 сентября не понедельник.
+        const isOdd = getWeekParity(currentDate, baseYear) === "Нечетная";
         const weekData = isOdd ? oddWeek : evenWeek;
 
         const dateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
