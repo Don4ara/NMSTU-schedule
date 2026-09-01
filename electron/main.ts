@@ -177,7 +177,10 @@ ipcMain.handle('is-windows', async () => {
 // =============================================
 // Auto Update
 // =============================================
-import { autoUpdater } from 'electron-updater';
+// electron-updater — CommonJS, а main собирается в ESM: именованный импорт
+// из CJS не резолвится, только default с деструктуризацией
+import electronUpdater from 'electron-updater';
+const { autoUpdater } = electronUpdater;
 
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;

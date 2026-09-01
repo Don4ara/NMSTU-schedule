@@ -22,6 +22,15 @@ export default defineConfig({
       main: {
         // Shortcut of `build.lib.entry`.
         entry: 'electron/main.ts',
+        vite: {
+          build: {
+            rollupOptions: {
+              // резолвятся из node_modules приложения в рантайме: обе в
+              // dependencies, electron-builder кладёт их в сборку
+              external: ['axios', 'axios-retry', 'electron-updater'],
+            },
+          },
+        },
       },
       preload: {
         // Shortcut of `build.rollupOptions.input`.
