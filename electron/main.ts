@@ -277,14 +277,22 @@ function createWindow() {
   // DevTools enabled for all environments
   // If need to auto-open: win.webContents.openDevTools()
 
+  // Страховка: did-finish-load не наступает, если загрузка сорвалась, и окно
+  // (show: false) оставалось невидимым навсегда без единого сообщения.
+  win.once('ready-to-show', () => {
+    if (win && !win.isDestroyed()) win.show()
+  })
+
+  win.webContents.on('did-fail-load', (_e, errorCode, errorDescription, validatedURL) => {
+    console.error(`Renderer failed to load ${validatedURL}: ${errorDescription} (${errorCode})`)
+    if (win && !win.isDestroyed()) win.show()
+  })
+
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     if (win && !win.isDestroyed()) {
       win.webContents.send('main-process-message', (new Date).toLocaleString())
-      // Небольшая задержка чтобы React успел отрендериться
-      setTimeout(() => {
-        win?.show()
-      }, 100)
+      win.show()
     }
   })
 
