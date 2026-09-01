@@ -24,6 +24,7 @@ export const SettingsPage = () => {
             setUpdateStatus(data);
         };
         window.ipcRenderer?.on('update-status', handleStatus);
+        return () => { window.ipcRenderer?.off('update-status', handleStatus); };
     }, []);
 
     const checkForUpdates = () => {
