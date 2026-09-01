@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { type LucideIcon } from "lucide-react"
 
 import {
@@ -13,21 +13,22 @@ export function NavMain({
 }: {
     items: {
         title: string
-        url: string
+        path: string
         icon?: LucideIcon
-        isActive?: boolean
     }[]
 }) {
+    const { pathname } = useLocation()
     return (
         <SidebarGroup>
             <SidebarMenu>
                 {items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
+                    <SidebarMenuItem key={item.path}>
                         <SidebarMenuButton
                             asChild
                             tooltip={item.title}
+                            isActive={item.path === "/" ? pathname === "/" : pathname.startsWith(item.path)}
                         >
-                            <Link to={item.url}>
+                            <Link to={item.path}>
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>
                             </Link>

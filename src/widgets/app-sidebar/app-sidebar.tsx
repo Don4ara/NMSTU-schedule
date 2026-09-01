@@ -4,14 +4,12 @@
 import * as React from "react"
 import { useLocation, Link } from "react-router-dom"
 import {
-    Calendar,
-    CalendarRange,
-    GitCompare,
     GraduationCap,
-    LayoutDashboard,
     Settings,
 } from "lucide-react"
 
+import { cn } from "@/shared/lib/utils"
+import { NAV_ITEMS } from "@/shared/config"
 import { NavMain } from "./ui/nav-main"
 import { TeamSwitcher } from "./ui/team-switcher"
 import {
@@ -22,7 +20,6 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarRail,
 } from "@/shared/components/ui/sidebar"
 import { RecentHistory } from "@/features/search";
 import { ThemeSwitcher } from "@/features/theme-switcher"
@@ -36,44 +33,48 @@ const data = {
             plan: "Enterprise",
         },
     ],
-    navMain: [
-        {
-            title: "Главная",
-            url: "/",
-            icon: LayoutDashboard,
-        },
-        {
-            title: "Расписание",
-            url: "/schedule",
-            icon: CalendarRange,
-        },
-        {
-            title: "Календарь",
-            url: "/calendar",
-            icon: Calendar,
-        },
-        {
-            title: "Сравнение",
-            url: "/comparison",
-            icon: GitCompare,
-        },
-    ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const location = useLocation();
 
     return (
-        <Sidebar collapsible="icon" variant="floating" {...props} className="mt-8 !h-[calc(100svh-2rem)]">
+        // top-10: сайдбар начинается под полосой вкладок (TabBar h-10)
+        <Sidebar
+            collapsible="offcanvas"
+            variant="inset"
+            {...props}
+            className={cn(
+                'top-10 bottom-0 h-auto',
+                // микро-зазор: подсветка читается как пилюля, а не сплошная полоса
+                '[&_[data-slot=sidebar-menu]]:gap-0.5',
+                // плотнее: строка 28px и 13px текста вместо стоковых 32/14 —
+                // data-size=default, чтобы не задеть крупные lg-кнопки
+                '[&_[data-slot=sidebar-menu-button][data-size=default]]:h-7',
+                '[&_[data-slot=sidebar-menu-button]]:text-[13px]',
+                '[&_[data-slot=sidebar-menu-sub-button]]:text-[13px]',
+                // пункты чуть плотнее по начертанию
+                '[&_[data-slot=sidebar-menu-button]]:font-medium',
+                '[&_[data-slot=sidebar-menu-sub-button]]:font-medium',
+                // text-sidebar-foreground, а не белый литералом: в тёмной теме это
+                // oklch(0.985) — тот же белый, в светлой не становится нечитаемым
+                '[&_[data-slot=sidebar-menu-button]]:text-sidebar-foreground',
+                '[&_[data-slot=sidebar-menu-sub-button]]:text-sidebar-foreground',
+                '[&_[data-slot=sidebar-group-label]]:h-7',
+            )}
+        >
             <SidebarHeader>
                 <TeamSwitcher teams={data.teams} />
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} />
+                <NavMain items={NAV_ITEMS} />
                 {location.pathname.startsWith('/schedule') && <RecentHistory />}
             </SidebarContent>
             <SidebarFooter>
                 <SidebarMenu>
+                    <SidebarMenuItem>
+                        <ThemeSwitcher />
+                    </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild tooltip="Настройки" isActive={location.pathname === "/settings"}>
                             <Link to="/settings">
@@ -82,12 +83,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <ThemeSwitcher />
-                    </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
-            <SidebarRail />
         </Sidebar>
     )
 }
