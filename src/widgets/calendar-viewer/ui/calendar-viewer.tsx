@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { useSchedule } from '@/app/provider/schedule-provider';
 import { getSchedule } from '@/shared/api/timetable';
 import { ScheduleData, Event as ScheduleEvent } from '@/entities/schedule/model/types';
@@ -118,11 +117,7 @@ export const CalendarViewer = () => {
     const isLoadingState = loading || isWorkerLoading;
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col h-[calc(100vh-2rem)] max-w-7xl mx-auto w-full p-4 lg:p-6 gap-4"
-        >
+        <div className="flex flex-col h-[calc(100vh-2rem)] max-w-7xl mx-auto w-full p-4 lg:p-6 gap-4 animate-in fade-in zoom-in-95 duration-300">
             <CalendarHeader
                 month={month}
                 year={year}
@@ -154,7 +149,7 @@ export const CalendarViewer = () => {
                 date={selectedDay}
                 events={selectedEvents}
             />
-        </motion.div>
+        </div>
     );
 };
 

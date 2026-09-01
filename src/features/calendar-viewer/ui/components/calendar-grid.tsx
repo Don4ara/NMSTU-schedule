@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Event as ScheduleEvent } from '@/entities/schedule/model/types';
 import { getWeekParity, groupEvents } from '@/features/schedule-viewer/lib/schedule-utils';
 import { useSchedule } from '@/app/provider/schedule-provider';
@@ -70,11 +69,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
             </div>
 
             {/* Scrollable Grid Area */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex-1 overflow-hidden relative rounded-2xl"
-            >
+            <div className="flex-1 overflow-hidden relative rounded-2xl animate-in fade-in duration-300">
                 <div
                     className="grid grid-cols-[40px_repeat(7,minmax(0,1fr))] h-full gap-2 p-1"
                     style={{ gridTemplateRows: `repeat(${weeks}, minmax(0, 1fr))` }}
@@ -197,7 +192,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(({
                         );
                     })}
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 });

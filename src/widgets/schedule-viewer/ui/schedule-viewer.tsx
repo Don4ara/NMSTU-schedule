@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import {
     Calendar,
@@ -93,7 +92,7 @@ export const ScheduleViewerWidget = () => {
     }
 
     return (
-        <motion.div
+        <div
             className="w-full max-w-[1920px] mx-auto animate-in fade-in duration-500 min-h-full flex flex-col justify-center relative"
         >
             <ScheduleHeader scheduleData={scheduleData} isUsingMockData={isUsingMockData}>
@@ -136,6 +135,6 @@ export const ScheduleViewerWidget = () => {
                     </div>
                 )
             }
-        </motion.div >
+        </div>
     );
 };
