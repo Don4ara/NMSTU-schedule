@@ -162,7 +162,7 @@ export const ScheduleComparisonWidget = () => {
                         comparisonSchedule?.schedule?.find((w: Week) => w.week_id === activeWeekId)?.week || '';
                     const date = getDateForDay(dayId, weekName);
                     const dayName = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'][i];
-                    const dateStr = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'numeric' });
+                    const dateStr = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 
                     const primEvents = primaryEntity?.type === 'teacher' && primDay?.events
                         ? groupEvents(primDay.events)

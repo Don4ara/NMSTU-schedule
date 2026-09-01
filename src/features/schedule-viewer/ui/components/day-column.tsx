@@ -10,9 +10,13 @@ import { useSchedule } from '@/app/provider/schedule-provider';
 
 interface DayColumnProps {
     day: Day;
-    date: string;
+    date: Date;
     isGroup: boolean;
 }
+
+/** «31 августа» вместо «31.08» */
+const formatDayDate = (date: Date) =>
+    date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 
 const formatBreakMinutes = (minutes: number) => {
     if (minutes >= 60) {
@@ -81,7 +85,7 @@ export const DayColumn = React.memo<DayColumnProps>(({ day, date, isGroup }) => 
                 <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-bold text-foreground leading-tight">{day.day}</h3>
                 </div>
-                <span className="text-xs font-bold text-muted-foreground">{date}</span>
+                <span className="text-xs font-bold text-muted-foreground">{formatDayDate(date)}</span>
             </div>
 
             {events.length === 0 ? (
