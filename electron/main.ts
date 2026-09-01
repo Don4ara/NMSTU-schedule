@@ -46,7 +46,13 @@ function getCached<T>(key: string): T | null {
 }
 
 function setCache<T>(key: string, data: T): void {
-  apiCache.set(key, { data, timestamp: Date.now() });
+  // ponytail: полный проход по Map на каждую запись — кэш здесь десятки записей,
+  // LRU появится, если объём станет заметным
+  const now = Date.now();
+  for (const [k, entry] of apiCache) {
+    if (now - entry.timestamp >= CACHE_TTL) apiCache.delete(k);
+  }
+  apiCache.set(key, { data, timestamp: now });
 }
 
 // IPC Handler for Timetable Search
