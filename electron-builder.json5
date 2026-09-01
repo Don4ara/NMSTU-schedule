@@ -35,9 +35,18 @@
     "!**/{thumbs.db,ehthumbs.db,desktop.ini}"
   ],
   "mac": {
+    // zip обязателен: electron-updater ставит обновление из него,
+    // dmg — только для ручной установки
     "target": [
       {
         "target": "dmg",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      },
+      {
+        "target": "zip",
         "arch": [
           "x64",
           "arm64"
