@@ -25,3 +25,5 @@ dist-ssr
 release
 
 dist-electron
+
+graphify-out
