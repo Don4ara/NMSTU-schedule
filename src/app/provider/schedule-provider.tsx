@@ -19,6 +19,19 @@ interface ScheduleContextType {
 
 const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
 
+// localStorage может содержать мусор (ручная правка, оборванная запись).
+// Без guard'а JSON.parse кидает прямо в инициализаторе useState — это падение
+// первого рендера, до любого error boundary, то есть белый экран.
+const readJson = <T,>(key: string, fallback: T): T => {
+    try {
+        const saved = localStorage.getItem(key);
+        return saved ? (JSON.parse(saved) as T) : fallback;
+    } catch {
+        localStorage.removeItem(key);
+        return fallback;
+    }
+};
+
 const STORAGE_KEY = 'schedule_recent_history';
 const TRACKED_ENTITY_KEY = 'calendar_tracked_entity';
 const COMPARISON_ENTITY_KEY = 'schedule_comparison_entity';
@@ -26,25 +39,21 @@ const COMPARISON_ENTITY_KEY = 'schedule_comparison_entity';
 
 export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
     const queryClient = useQueryClient();
-    const [selectedEntity, setSelectedEntityState] = useState<SearchResult | null>(() => {
+    const [selectedEntity, setSelectedEntityState] = useState<SearchResult | null>(
         // Initialize from tracked entity if available
-        const saved = localStorage.getItem(TRACKED_ENTITY_KEY);
-        return saved ? JSON.parse(saved) : null;
-    });
-    const [recentEntities, setRecentEntities] = useState<SearchResult[]>(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
-    });
+        () => readJson<SearchResult | null>(TRACKED_ENTITY_KEY, null)
+    );
+    const [recentEntities, setRecentEntities] = useState<SearchResult[]>(
+        () => readJson<SearchResult[]>(STORAGE_KEY, [])
+    );
     const [isApiOnline, setIsApiOnline] = useState<boolean | null>(null);
 
-    const [trackedEntity, setTrackedEntityState] = useState<SearchResult | null>(() => {
-        const saved = localStorage.getItem(TRACKED_ENTITY_KEY);
-        return saved ? JSON.parse(saved) : null;
-    });
-    const [comparisonEntity, setComparisonEntityState] = useState<SearchResult | null>(() => {
-        const saved = localStorage.getItem(COMPARISON_ENTITY_KEY);
-        return saved ? JSON.parse(saved) : null;
-    });
+    const [trackedEntity, setTrackedEntityState] = useState<SearchResult | null>(
+        () => readJson<SearchResult | null>(TRACKED_ENTITY_KEY, null)
+    );
+    const [comparisonEntity, setComparisonEntityState] = useState<SearchResult | null>(
+        () => readJson<SearchResult | null>(COMPARISON_ENTITY_KEY, null)
+    );
 
     const { data: status } = useQuery({
         queryKey: ['api-status'],
@@ -111,18 +120,18 @@ export const ScheduleProvider = ({ children }: { children: ReactNode }) => {
             setRecentEntities(prev => {
                 // Remove existing if present to move to top
                 const filtered = prev.filter(item => !(item.id === entity.id && item.type === entity.type));
-                const newHistory = [entity, ...filtered].slice(0, 10); // Keep last 10
-
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
-                return newHistory;
+                return [entity, ...filtered].slice(0, 10); // Keep last 10
             });
         }
     };
 
     const clearHistory = () => {
         setRecentEntities([]);
-        localStorage.removeItem(STORAGE_KEY);
     }
+
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(recentEntities));
+    }, [recentEntities]);
 
     const contextValue = useMemo(() => ({
         selectedEntity,
