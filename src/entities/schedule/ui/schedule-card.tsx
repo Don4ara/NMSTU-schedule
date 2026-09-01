@@ -2,7 +2,7 @@ import React from 'react'
 import { MapPin, User, Users } from 'lucide-react'
 import { Card } from '@/shared/components/ui/card'
 import type { Event, GroupedEvent } from '../model/types'
-import { getEventTime, getScheduleCardTheme } from '@/entities/schedule'
+import { getEventTime, getScheduleCardTheme } from '../lib/schedule-utils'
 import {
     DropdownMenu,
     DropdownMenuContent,
