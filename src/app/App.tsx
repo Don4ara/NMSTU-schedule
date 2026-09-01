@@ -14,7 +14,6 @@ const persister = createSyncStoragePersister({
 function App() {
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
-      <div className="absolute top-0 left-0 z-50 h-8 w-full titlebar" />
       <WindowControls />
       <ScheduleProvider>
         <ThemeProvider>

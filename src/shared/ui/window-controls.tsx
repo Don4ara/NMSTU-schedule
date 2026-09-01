@@ -34,11 +34,11 @@ export function WindowControls() {
     };
 
     return (
-        <div className="fixed top-0 right-0 z-[9999] flex h-8 items-center">
+        <div className="fixed top-0 right-0 z-[9999] flex h-10 items-center">
             {/* Minimize button */}
             <button
                 onClick={handleMinimize}
-                className="flex h-8 w-12 items-center justify-center transition-colors hover:bg-white/10"
+                className="flex h-10 w-12 items-center justify-center transition-colors hover:bg-white/10"
                 title="Свернуть"
             >
                 <Minus className="h-4 w-4 text-white/70" />
@@ -47,7 +47,7 @@ export function WindowControls() {
             {/* Maximize/Restore button */}
             <button
                 onClick={handleMaximize}
-                className="flex h-8 w-12 items-center justify-center transition-colors hover:bg-white/10"
+                className="flex h-10 w-12 items-center justify-center transition-colors hover:bg-white/10"
                 title={isMaximized ? 'Восстановить' : 'Развернуть'}
             >
                 {isMaximized ? (
