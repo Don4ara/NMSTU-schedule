@@ -3,6 +3,9 @@
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "appId": "com.nmstu.planer",
   "asar": true,
+  // без сертификата Developer ID бандл остаётся с чужой подписью Electron
+  // и не запускается на Apple Silicon — хук подписывает его ad-hoc
+  "afterPack": "scripts/adhoc-sign.cjs",
   "compression": "maximum",
   "electronLanguages": [
     "en",
