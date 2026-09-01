@@ -196,29 +196,37 @@ ipcMain.handle('quit-and-install', () => {
   autoUpdater.quitAndInstall();
 });
 
+// win может быть не null, но уже уничтожен: на macOS закрытие окна не завершает
+// приложение, а win = null выставляется только в ветке platform !== 'darwin'.
+function sendToWindow(channel: string, payload: unknown): void {
+  if (win && !win.isDestroyed() && !win.webContents.isDestroyed()) {
+    win.webContents.send(channel, payload);
+  }
+}
+
 // Update Events
 autoUpdater.on('checking-for-update', () => {
-  win?.webContents.send('update-status', { status: 'checking' });
+  sendToWindow('update-status', { status: 'checking' });
 });
 
 autoUpdater.on('update-available', (info) => {
-  win?.webContents.send('update-status', { status: 'available', info });
+  sendToWindow('update-status', { status: 'available', info });
 });
 
 autoUpdater.on('update-not-available', (info) => {
-  win?.webContents.send('update-status', { status: 'not-available', info });
+  sendToWindow('update-status', { status: 'not-available', info });
 });
 
 autoUpdater.on('error', (err) => {
-  win?.webContents.send('update-status', { status: 'error', error: String(err) });
+  sendToWindow('update-status', { status: 'error', error: String(err) });
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
-  win?.webContents.send('update-status', { status: 'downloading', progress: progressObj });
+  sendToWindow('update-status', { status: 'downloading', progress: progressObj });
 });
 
 autoUpdater.on('update-downloaded', (info) => {
-  win?.webContents.send('update-status', { status: 'downloaded', info });
+  sendToWindow('update-status', { status: 'downloaded', info });
 });
 
 // ... (rest of the file)
